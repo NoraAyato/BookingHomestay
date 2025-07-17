@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final LoginUserCommandHandler loginHandler;
-    private final RegisterUserCommandHandler regHandler;
+    private final RegisterUserCommandHandler registerHandler;
     public AuthController(LoginUserCommandHandler loginHandler,RegisterUserCommandHandler RegHandler) {
         this.loginHandler = loginHandler;
-        this.regHandler = RegHandler;
+        this.registerHandler = RegHandler;
     }
 
     @PostMapping("/login")
@@ -30,7 +30,7 @@ public class AuthController {
     }
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterRequestDto dto) {
-        String token = regHandler.handle(new RegisterUserCommand(
+        String token = registerHandler.handle(new RegisterUserCommand(
             dto.getEmail(), dto.getPassWord(), dto.getFirstName(), dto.getLastName()
         ));
         return ResponseEntity.ok(new AuthResponseDto(token));
