@@ -1,0 +1,28 @@
+# Java
+target/
+*.class
+*.jar
+*.war
+*.iml
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Gradle/Maven
+.gradle/
+build/
+out/
+.idea/
+*.iws
+*.ipr
+*.bak
+
+# Spring Boot devtools
+.spring-boot-devtools.properties
