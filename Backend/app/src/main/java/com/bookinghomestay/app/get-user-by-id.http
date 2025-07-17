@@ -1,0 +1,46 @@
+### Get user by ID
+### Get user by ID
+GET http://localhost:8080/api/users/u123
+Accept: application/json
+
+
+###
+### Create new user
+POST http://localhost:8080/api/users
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userName": "trunglt222",
+  "passWord": "Noragami21@!!",
+  "firstName": "Thành",
+  "lastName": "Trung",
+  "email": "trunglt@example.com",
+  "picture": "https://example.com/avatar.jpg",
+  "phoneNumber": "0987654321",
+  "isRecieveEmail": true,
+  "gender": true,
+  "birthday": "2000-01-01",
+  "roleId": "2"
+}
+### Login user
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "trunghutech@example.com",
+  "password": "abc123"
+}
+### reg user
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "trunghutech@example.com",
+  "passWord": "abc123",
+  "firstName": "Thanh",
+  "lastName": "Trung"
+}
+
