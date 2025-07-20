@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.application.command;
+package com.bookinghomestay.app.application.users.command;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

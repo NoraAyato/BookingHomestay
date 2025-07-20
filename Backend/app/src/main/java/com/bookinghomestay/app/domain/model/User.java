@@ -32,7 +32,7 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    public String getId(){
+    public String getId() {
         return this.userId;
     }
 }

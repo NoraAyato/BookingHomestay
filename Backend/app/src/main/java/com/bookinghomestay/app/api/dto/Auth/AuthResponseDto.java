@@ -7,7 +7,7 @@ public class AuthResponseDto {
     public AuthResponseDto(String accessToken) {
         this.accessToken = accessToken;
     }
-    
+
     // Getters
     public String getAccessToken() {
         return accessToken;

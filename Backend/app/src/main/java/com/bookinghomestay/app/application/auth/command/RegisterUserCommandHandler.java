@@ -1,6 +1,5 @@
-package com.bookinghomestay.app.application.handler;
+package com.bookinghomestay.app.application.auth.command;
 
-import com.bookinghomestay.app.application.command.auth.RegisterUserCommand;
 import com.bookinghomestay.app.domain.model.Role;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IRoleRepository;

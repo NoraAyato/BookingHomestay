@@ -1,5 +1,6 @@
 package com.bookinghomestay.app.api.exception;
 
+import com.bookinghomestay.app.domain.exception.BusinessException;
 import com.bookinghomestay.app.domain.exception.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,4 +35,10 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+    @ExceptionHandler(BusinessException.class)
+     public ResponseEntity<?> handleBusinessException(BusinessException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of("error", ex.getMessage()));
+        }
 }

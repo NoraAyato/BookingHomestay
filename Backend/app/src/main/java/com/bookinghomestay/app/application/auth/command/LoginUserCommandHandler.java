@@ -1,6 +1,5 @@
-package com.bookinghomestay.app.application.handler;
+package com.bookinghomestay.app.application.auth.command;
 
-import com.bookinghomestay.app.application.command.auth.LoginUserCommand;
 import com.bookinghomestay.app.domain.exception.UnauthorizedException;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
@@ -25,7 +24,7 @@ public class LoginUserCommandHandler {
 
     public String handle(LoginUserCommand command) {
         User user = userRepository.findByEmail(command.getEmail())
-                .orElseThrow(() -> new UnauthorizedException("Không tìm thấy email !"));
+                .orElseThrow(() -> new UnauthorizedException("Không tìm thấy tài khoản !"));
 
         if (!passwordEncoder.matches(command.getPassword(), user.getPassWord())) {
             throw new UnauthorizedException("Sai tên đăng nhập hoặc mật khẩu !");

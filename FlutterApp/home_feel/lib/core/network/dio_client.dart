@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 class DioClient {
   final Dio dio = Dio(
     BaseOptions(
-      baseUrl: 'http://192.168.1.131:8080/api', // Thay bằng IP của bạn
+      baseUrl: 'http://192.168.5.109:8080/api', // Thay bằng IP của bạn
       connectTimeout: Duration(seconds: 5),
       receiveTimeout: Duration(seconds: 5),
       validateStatus: (status) {

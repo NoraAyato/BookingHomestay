@@ -30,7 +30,7 @@ Accept: application/json
 
 {
   "email": "trunghutech@example.com",
-  "password": "abc1231"
+  "password": "abc123"
 }
 ### reg user
 POST http://localhost:8080/api/auth/register
@@ -43,4 +43,15 @@ Accept: application/json
   "firstName": "Thanh",
   "lastName": "Trung"
 }
+
+
+### reg user
+POST http://localhost:8080/api/auth/forgot-password
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "trunghutech423423@example.com"
+}
+
 

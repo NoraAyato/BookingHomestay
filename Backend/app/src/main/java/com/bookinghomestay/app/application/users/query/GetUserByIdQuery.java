@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.application.query;
+package com.bookinghomestay.app.application.users.query;
 
 public class GetUserByIdQuery {
     private final String userId;

@@ -1,6 +1,5 @@
-package com.bookinghomestay.app.application.handler;
+package com.bookinghomestay.app.application.users.query;
 
-import com.bookinghomestay.app.application.query.GetUserByIdQuery;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 
