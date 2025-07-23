@@ -10,6 +10,7 @@ import lombok.*;
 @Entity
 @Table(name = "users")
 @Data
+@Setter
 @AllArgsConstructor
 public class User {
     @Id
@@ -48,7 +49,7 @@ public class User {
 
     private void setRole() {
         Role defaultRole = new Role();
-        defaultRole.setRoleId(1L);
+        defaultRole.setRoleId(2L);
         this.role = defaultRole;
     }
 }

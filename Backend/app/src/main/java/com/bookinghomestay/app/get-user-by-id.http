@@ -29,9 +29,9 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "email": "diamondbotvn@gmail.com",
-  "password": "abc123",
-  "rememberMe" : false
+  "email": "diamondboyvn@gmail.com",
+  "password": "Noragami21@!!",
+  "rememberMe" : true
 }
 ### reg user
 POST http://localhost:8080/api/auth/register
@@ -47,12 +47,22 @@ Accept: application/json
 
 
 ### reg user
-POST http://localhost:8080/api/auth/forgot-password
+POST http://localhost:8080/api/auth/verify-otp
 Content-Type: application/json
 Accept: application/json
 
 {
-  "email": "trunghutech423423@example.com"
+  "email": "diamondboyvn@gmail.com",
+  "otp" : "960201"
+}
+### reg user
+POST http://localhost:8080/api/auth/reset-password
+Content-Type: application/json
+Accept: application/json
+
+{
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyYzQ4MThmNC03N2I3LTQyMDAtODI4YS1iMzRmMDAxYTY3MDAiLCJ0eXBlIjoicmVzZXRfcGFzc3dvcmQiLCJpYXQiOjE3NTMyNjAwODksImV4cCI6MTc1MzI2MzY4OX0.Wg5gmzSziTJwWDxUq6opmXBUDowH0QKkRLPRzr_8i8qrOFwLur-7q0Neu2ZG58EEWGsz27NzmI9ejmCdStG8Cw",
+  "newPassword" : "Noragami21@!!"
 }
 
 
@@ -63,4 +73,10 @@ Content-Type: application/json
 {
   "email": "diamondboyvn@gmail.com"
 }
+### Refresh token
+POST http://localhost:8080/api/auth/google
+Content-Type: application/json
 
+{
+  "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImI1MDljNTEzODc2OGY3Y2YyZTgyN2UwNGIyN2U3ZTRjYmM3YmI5MTkiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI1Mzg1NDkxNzA1MTYtMjhvbXFpNThkbGVndTRuMmdubmtsY3Z1azZsa3FxZjQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI1Mzg1NDkxNzA1MTYtMjhvbXFpNThkbGVndTRuMmdubmtsY3Z1azZsa3FxZjQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDIxOTQxODAwODQ2MDk4NTY2MzAiLCJlbWFpbCI6ImRpYW1vbmRib3l2bkBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmJmIjoxNzUzMjU2Nzg5LCJuYW1lIjoidHJ1bmcgbOG6oWkiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jS01QaERpaGhKS1BaWV9OSnJTVHZzT1lvemUtWk9NQndzNGYxelZhOWRtZlc5SldSNWg9czk2LWMiLCJnaXZlbl9uYW1lIjoidHJ1bmciLCJmYW1pbHlfbmFtZSI6ImzhuqFpIiwiaWF0IjoxNzUzMjU3MDg5LCJleHAiOjE3NTMyNjA2ODksImp0aSI6ImY2NGYxM2E1YTkxNjAxNTRiZDBmZGI3ZWY2ZDU1ODMxNmEwN2I0YmYifQ.HVDBUVasCdRHoXUZkb_LU1nzEmxJLvXU01nfakRC0cuqeCvnDnVlM-Vm7Ez7-oU6XsnzjLY1KaWtn1ZXkGG2iuuy-exEwo637KQPn9t4yfHtnOs1fEBAwUzcSa9yQoyLXzS70y7-t2Mhp3lKL0SamWMyKjNajUaKJBxzPp6npLWUUrt_CKlHB_kL7M-g78v0KhTGbrWfF9__F7_edSFZ0MSqkJU3etFgN0mANxnpygYtG4TFcinOJENfrb24nRK89rGvzwFiWcU-qM_k61hHjY3_cjOAPQv43YPsVZZtPkfLKgddlrRXOtdQl034p4-eD4PwVSwOVf-FzoG4RvSXPw"
+}

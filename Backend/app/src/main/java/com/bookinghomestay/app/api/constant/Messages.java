@@ -7,7 +7,8 @@ public final class Messages {
     public static final String FORGOT_PASSWORD_SUCCESS = "Gửi yêu cầu khôi phục mật khẩu thành công";
     public static final String VERIFY_OTP_SUCCESS = "Xác thực OTP thành công";
     public static final String REFRESH_TOKEN_SUCCESS = "Đã refresh token thành công";
-
+    public static final String GOOGLE_LOGIN_SUCCESS = "Đăng nhập Google thành công.";
+    public static final String GOOGLE_PROVIDER = "Google";
     private Messages() {
         // Private constructor để ngăn khởi tạo instance
     }
