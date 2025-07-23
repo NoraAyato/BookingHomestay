@@ -16,8 +16,8 @@ public class EmailServiceImpl implements EmailService {
     public void sendResetPasswordEmail(String to, String resetLink) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
-        message.setSubject("Reset Your Password");
-        message.setText("Click the link to reset your password: " + resetLink);
+        message.setSubject("Account OTP");
+        message.setText("Use this otp code to verify its you : " + resetLink);
         mailSender.send(message);
     }
 }

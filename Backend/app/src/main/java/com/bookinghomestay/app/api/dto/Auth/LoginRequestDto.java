@@ -1,7 +1,9 @@
 package com.bookinghomestay.app.api.dto.Auth;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
+@Data
 public class LoginRequestDto {
     @NotBlank
     private String email;
@@ -9,20 +11,6 @@ public class LoginRequestDto {
     @NotBlank
     private String password;
 
-    //getter & setter
-    public String getEmail() {
-        return email;
-    }
+    private boolean rememberMe;
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }
