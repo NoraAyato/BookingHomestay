@@ -1,5 +1,6 @@
 package com.bookinghomestay.app.application.auth.command;
 
+import com.bookinghomestay.app.api.dto.Auth.AuthResponseDto;
 import com.bookinghomestay.app.domain.model.Role;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IRoleRepository;
@@ -18,16 +19,18 @@ public class RegisterUserCommandHandler {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final IRoleRepository roleRepository;
+
     public RegisterUserCommandHandler(IUserRepository userRepository,
-                                      PasswordEncoder passwordEncoder,
-                                      JwtTokenProvider jwtTokenProvider, IRoleRepository RoleRepository) {
+            PasswordEncoder passwordEncoder,
+            JwtTokenProvider jwtTokenProvider, IRoleRepository RoleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.roleRepository = RoleRepository;
     }
 
-    public String handle(RegisterUserCommand command) {
+    public AuthResponseDto handle(RegisterUserCommand command) {
+
         if (userRepository.existsByEmail(command.getEmail())) {
             throw new RuntimeException("Email đã được đăng ký!");
         }
@@ -40,13 +43,13 @@ public class RegisterUserCommandHandler {
         user.setLastName(command.getLastName());
         user.setUserName(generateUsername(command.getFirstName(), command.getLastName()));
         Role role = roleRepository.findByName("User")
-        .orElseThrow(() -> new RuntimeException("Không tìm thấy role 'User'"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy role 'User'"));
         user.setRole(role);
         user.setStatus("ACTIVE");
 
         userRepository.save(user);
-
-        return jwtTokenProvider.generateToken(user.getUserName(), user.getRole().getRoleName());
+        String accessToken = jwtTokenProvider.generateToken(user.getUserId(), user.getRole().getRoleName());
+        return new AuthResponseDto(accessToken, null);
     }
 
     private String generateUsername(String firstName, String lastName) {

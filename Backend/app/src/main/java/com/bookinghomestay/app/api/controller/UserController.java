@@ -11,6 +11,7 @@ import com.bookinghomestay.app.domain.model.User;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,6 +25,7 @@ public class UserController {
         this.createUserCommandHandler = createhandle;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getById(@PathVariable String id) {
         User user = getUserByIdQueryHandler.handle(new GetUserByIdQuery(id));

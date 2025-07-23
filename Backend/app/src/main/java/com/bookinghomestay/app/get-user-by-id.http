@@ -1,6 +1,6 @@
 ### Get user by ID
 ### Get user by ID
-GET http://localhost:8080/api/users/u123
+GET http://localhost:8080/api/users/41583ddf-6014-4fb5-92ef-934e9ef7f725
 Accept: application/json
 
 
@@ -15,7 +15,7 @@ Accept: application/json
   "passWord": "Noragami21@!!",
   "firstName": "Thành",
   "lastName": "Trung",
-  "email": "trunglt@example.com",
+  "email": "diamondbotvn@gmail.com",
   "picture": "https://example.com/avatar.jpg",
   "phoneNumber": "0987654321",
   "isRecieveEmail": true,
@@ -29,8 +29,9 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "email": "trunghutech@example.com",
-  "password": "abc123"
+  "email": "diamondbotvn@gmail.com",
+  "password": "abc123",
+  "rememberMe" : false
 }
 ### reg user
 POST http://localhost:8080/api/auth/register
@@ -38,7 +39,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "email": "trunghutech@example.com",
+  "email": "diamondboyvn@gmail.com",
   "passWord": "abc123",
   "firstName": "Thanh",
   "lastName": "Trung"
@@ -54,4 +55,12 @@ Accept: application/json
   "email": "trunghutech423423@example.com"
 }
 
+
+### Refresh token
+POST http://localhost:8080/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "diamondboyvn@gmail.com"
+}
 

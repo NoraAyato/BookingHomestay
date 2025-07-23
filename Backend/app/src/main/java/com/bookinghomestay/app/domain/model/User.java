@@ -1,8 +1,8 @@
 package com.bookinghomestay.app.domain.model;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,9 +11,8 @@ import lombok.*;
 @Table(name = "users")
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class User {
-    @Id 
+    @Id
     private String userId;
     private String userName;
     private String passWord;
@@ -27,12 +26,29 @@ public class User {
     private LocalDate birthday;
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-    private String status = "Active";//Deactive , block , ...
+    private String status = "Active";// Deactive , block , ...
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
 
+    public User() {
+
+    }
+
+    public User(String email, String userName) {
+        this.userId = UUID.randomUUID().toString();
+        this.userName = userName;
+        this.email = email;
+        this.setRole();
+    }
+
     public String getId() {
         return this.userId;
+    }
+
+    private void setRole() {
+        Role defaultRole = new Role();
+        defaultRole.setRoleId(1L);
+        this.role = defaultRole;
     }
 }

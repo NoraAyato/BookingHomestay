@@ -12,7 +12,7 @@ import org.springframework.security.web.*;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableMethodSecurity 
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -24,14 +24,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/users/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/Homestays/**").permitAll()
+                        .requestMatchers("/img/**").permitAll()// , "/api/users/**"
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
     @Bean

@@ -15,8 +15,8 @@ public class GetUserByIdQueryHandler {
         this.userRepository = userRepository;
     }
 
-   public User handle(GetUserByIdQuery query) {
-    return userRepository.findById(query.getUserId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    public User handle(GetUserByIdQuery query) {
+        return userRepository.findById(query.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 }
