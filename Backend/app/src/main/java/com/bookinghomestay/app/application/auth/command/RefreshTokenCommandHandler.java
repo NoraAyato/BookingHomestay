@@ -28,7 +28,7 @@ public class RefreshTokenCommandHandler {
         String refreshToken = command.getRefreshToken();
         String userId;
         try {
-            userId = jwtTokenProvider.getuserId(refreshToken);
+            userId = jwtTokenProvider.getUserId(refreshToken);
         } catch (Exception e) {
             throw new UnauthorizedException("Token không hợp lệ hoặc sai định dạng");
         }

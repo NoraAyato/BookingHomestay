@@ -18,7 +18,7 @@ public class CreateUserCommandHandler {
 
     public void handle(CreateUserCommand command) {
         Role role = new Role();
-        role.setRoleId(command.getRoleId());
+        role.setRoleId(2L);
 
         User user = new User();
         user.setUserId(java.util.UUID.randomUUID().toString());
@@ -37,6 +37,6 @@ public class CreateUserCommandHandler {
         user.setRole(role);
 
         userRepository.save(user);
-      
+
     }
 }

@@ -20,18 +20,25 @@ public class AuthController {
     private final ForgotPasswordCommandHandler forgotPasswordCommandHandler;
     private final VerifyOtpCommandHandler verifyOtpCommandHandler;
     private final RefreshTokenCommandHandler refreshTokenCommandHandler;
+    private final GoogleLoginCommandHandler googleLoginCommandHandler;
+    private final ResetPasswordCommandHandler resetPasswordCommandHandler;
 
     public AuthController(LoginUserCommandHandler loginHandler,
             RegisterUserCommandHandler registerHandler,
             ChangePasswordCommandHandler changePasswordHandler,
             ForgotPasswordCommandHandler forgotPasswordCommandHandler,
-            VerifyOtpCommandHandler verifyOtpCommandHandler, RefreshTokenCommandHandler refreshTokenCommandHandler) {
+            VerifyOtpCommandHandler verifyOtpCommandHandler,
+            RefreshTokenCommandHandler refreshTokenCommandHandler,
+            GoogleLoginCommandHandler googleLoginCommandHandler,
+            ResetPasswordCommandHandler resetPasswordCommandHandler) {
         this.loginHandler = loginHandler;
         this.registerHandler = registerHandler;
         this.changePasswordHandler = changePasswordHandler;
         this.forgotPasswordCommandHandler = forgotPasswordCommandHandler;
         this.verifyOtpCommandHandler = verifyOtpCommandHandler;
         this.refreshTokenCommandHandler = refreshTokenCommandHandler;
+        this.googleLoginCommandHandler = googleLoginCommandHandler;
+        this.resetPasswordCommandHandler = resetPasswordCommandHandler;
     }
 
     @PostMapping("/login")
@@ -64,9 +71,9 @@ public class AuthController {
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<ApiResponse<Void>> verifyOtp(@RequestBody VerifyOtpRequestDto dto) {
-        verifyOtpCommandHandler.handle(new VerifyOtpCommand(dto.getEmail(), dto.getOtp()));
-        return ResponseEntity.ok(new ApiResponse<>(true, Messages.VERIFY_OTP_SUCCESS, null));
+    public ResponseEntity<ApiResponse<AuthResponseDto>> verifyOtp(@RequestBody VerifyOtpRequestDto dto) {
+        AuthResponseDto respone = verifyOtpCommandHandler.handle(new VerifyOtpCommand(dto.getEmail(), dto.getOtp()));
+        return ResponseEntity.ok(new ApiResponse<>(true, Messages.VERIFY_OTP_SUCCESS, respone));
     }
 
     @PostMapping("/refresh-token")
@@ -75,4 +82,17 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponse<>(true, Messages.REFRESH_TOKEN_SUCCESS, response));
     }
 
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<AuthResponseDto>> googleLogin(
+            @Valid @RequestBody GoogleLoginRequestDto dto) {
+        AuthResponseDto response = googleLoginCommandHandler.handle(
+                new GoogleLoginCommand(dto.getIdToken()));
+        return ResponseEntity.ok(new ApiResponse<>(true, Messages.GOOGLE_LOGIN_SUCCESS, response));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequestDto dto) {
+        resetPasswordCommandHandler.handle(new ResetPasswordCommand(dto.getToken(), dto.getNewPassword()));
+        return ResponseEntity.ok(new ApiResponse<>(true, Messages.CHANGE_PASSWORD_SUCCESS, null));
+    }
 }
