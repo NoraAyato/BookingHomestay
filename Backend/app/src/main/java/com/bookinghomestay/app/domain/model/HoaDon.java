@@ -28,7 +28,7 @@ public class HoaDon {
     @Column(name = "thue", nullable = false)
     private BigDecimal thue;
 
-    @Column(name = "trang_thai")
+    @Column(name = "trang_thai", columnDefinition = "nvarchar(100)")
     private String trangThai;
 
     @OneToOne(fetch = FetchType.LAZY)

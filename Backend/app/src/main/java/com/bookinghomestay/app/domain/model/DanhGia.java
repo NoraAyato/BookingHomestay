@@ -27,7 +27,7 @@ public class DanhGia {
     @JoinColumn(name = "ma_pdphong", nullable = false)
     private PhieuDatPhong phieuDatPhong;
 
-    @Column(name = "binh_luan", columnDefinition = "TEXT")
+    @Column(name = "binh_luan", columnDefinition = "nvarchar(200)")
     private String binhLuan;
 
     @Column(name = "ngay_danh_gia")
@@ -36,6 +36,6 @@ public class DanhGia {
     @Column(name = "hinh_anh")
     private String hinhAnh;
 
-    @Column(name = "rating")
-    private short rating;
+    @Column(name = "diem")
+    private short diem;
 }

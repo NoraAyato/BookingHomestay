@@ -17,7 +17,7 @@ public class KhuyenMai {
     @Column(name = "ma_km", length = 20)
     private String maKM;
 
-    @Column(name = "noi_dung", nullable = false, length = 100)
+    @Column(name = "noi_dung", nullable = false, length = 100, columnDefinition = "nvarchar(100)")
     private String noiDung;
 
     @Column(name = "ngay_bat_dau", nullable = false)
@@ -47,7 +47,7 @@ public class KhuyenMai {
     @Column(name = "ap_dung_cho_tat_ca_phong", nullable = false)
     private boolean apDungChoTatCaPhong = false;
 
-    @Column(name = "trang_thai", length = 50, nullable = false)
+    @Column(name = "trang_thai", length = 50, nullable = false, columnDefinition = "nvarchar(50)")
     private String trangThai = "Đang áp dụng";
 
     @Column(name = "so_luong")

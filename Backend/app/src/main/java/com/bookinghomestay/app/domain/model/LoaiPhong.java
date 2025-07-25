@@ -18,10 +18,10 @@ public class LoaiPhong {
     @Column(name = "id_loai", length = 20, nullable = false)
     private String idLoai;
 
-    @Column(name = "ten_loai")
+    @Column(name = "ten_loai", columnDefinition = "nvarchar(100)")
     private String tenLoai;
 
-    @Column(name = "mo_ta", length = 50)
+    @Column(name = "mo_ta", length = 100, columnDefinition = "nvarchar(100)")
     private String moTa;
 
     // Quan hệ 1-n với Phong

@@ -17,7 +17,7 @@ public class HinhAnhPhong {
     @Column(name = "url_anh", length = 500, nullable = false)
     private String urlAnh;
 
-    @Column(name = "mo_ta", length = 100)
+    @Column(name = "mo_ta", length = 100, columnDefinition = "nvarchar(100)")
     private String moTa;
 
     @Column(name = "la_anh_chinh")

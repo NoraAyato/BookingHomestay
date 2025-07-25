@@ -17,7 +17,9 @@ public class User {
     private String userId;
     private String userName;
     private String passWord;
+    @Column(length = 20,columnDefinition = "nvarchar(20)")
     private String firstName;
+    @Column(length = 20,columnDefinition = "nvarchar(20)")
     private String lastName;
     private String email;
     private String picture;

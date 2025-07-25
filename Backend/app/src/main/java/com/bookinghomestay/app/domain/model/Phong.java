@@ -31,8 +31,8 @@ public class Phong {
     @Column(name = "so_nguoi", nullable = false)
     private Integer soNguoi;
 
-    @Column(name = "virtual_tour")
-    private String virtualTour;
+    @Column(name = "tour360")
+    private String tour360;
 
     // Quan hệ nhiều-1 với Homestay
     @ManyToOne(fetch = FetchType.LAZY)

@@ -16,7 +16,7 @@ public class DichVu {
     @Column(name = "ma_dv", length = 20)
     private String maDV;
 
-    @Column(name = "ten_dv", nullable = false)
+    @Column(name = "ten_dv", nullable = false, columnDefinition = "nvarchar(100)")
     private String tenDV;
 
     @Column(name = "don_gia", nullable = false)

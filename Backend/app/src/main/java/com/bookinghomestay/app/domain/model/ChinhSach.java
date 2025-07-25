@@ -18,15 +18,15 @@ public class ChinhSach {
     @JoinColumn(name = "id_homestay", nullable = false)
     private Homestay homestay;
 
-    @Column(name = "nhan_phong", nullable = false)
+    @Column(name = "nhan_phong", nullable = false, columnDefinition = "nvarchar(100)")
     private String nhanPhong;
 
-    @Column(name = "tra_phong", nullable = false)
+    @Column(name = "tra_phong", nullable = false, columnDefinition = "nvarchar(100)")
     private String traPhong;
 
-    @Column(name = "huy_phong", nullable = false)
+    @Column(name = "huy_phong", nullable = false, columnDefinition = "nvarchar(100)")
     private String huyPhong;
 
-    @Column(name = "bua_an", nullable = false)
+    @Column(name = "bua_an", nullable = false, columnDefinition = "nvarchar(100)")
     private String buaAn;
 }
