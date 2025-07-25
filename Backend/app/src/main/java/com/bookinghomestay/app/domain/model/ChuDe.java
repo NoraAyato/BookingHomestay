@@ -17,7 +17,7 @@ public class ChuDe {
     @Column(name = "id_chude")
     private String idChuDe;
 
-    @Column(name = "ten_chude", nullable = false)
+    @Column(name = "ten_chude", nullable = false, columnDefinition = "nvarchar(100)")
     private String tenChuDe;
 
     @OneToMany(mappedBy = "chuDe", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -22,22 +22,22 @@ public class TinTuc {
     @JoinColumn(name = "id_chude", nullable = false)
     private ChuDe chuDe;
 
-    @Column(name = "tieu_de", nullable = false)
+    @Column(name = "tieu_de", nullable = false, columnDefinition = "nvarchar(100)")
     private String tieuDe;
 
-    @Column(name = "noi_dung", columnDefinition = "TEXT")
+    @Column(name = "noi_dung", columnDefinition = "nvarchar(max)")
     private String noiDung;
 
     @Column(name = "hinh_anh")
     private String hinhAnh;
 
-    @Column(name = "tac_gia")
+    @Column(name = "tac_gia", columnDefinition = "nvarchar(100)")
     private String tacGia;
 
     @Column(name = "ngay_dang")
     private LocalDateTime ngayDang;
 
-    @Column(name = "trang_thai")
+    @Column(name = "trang_thai", columnDefinition = "nvarchar(50)")
     private String trangThai;
 
 }

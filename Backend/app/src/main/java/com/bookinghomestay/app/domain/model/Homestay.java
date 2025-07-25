@@ -20,10 +20,10 @@ public class Homestay {
     @Column(name = "id_homestay", nullable = false)
     private String idHomestay;
 
-    @Column(name = "ten_homestay", nullable = false, length = 100)
+    @Column(name = "ten_homestay", nullable = false, length = 100, columnDefinition = "nvarchar(100)")
     private String tenHomestay;
 
-    @Column(name = "trang_thai", nullable = false, length = 50)
+    @Column(name = "trang_thai", nullable = false, length = 50, columnDefinition = "nvarchar(50)")
     private String trangThai;
 
     @Column(name = "price_per_night")
@@ -32,7 +32,7 @@ public class Homestay {
     @Column(name = "hinh_anh")
     private String hinhAnh;
 
-    @Column(name = "dia_chi")
+    @Column(name = "dia_chi", columnDefinition = "nvarchar(100)")
     private String diaChi;
 
     @Column(name = "ngay_tao")

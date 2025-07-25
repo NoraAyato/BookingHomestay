@@ -18,7 +18,7 @@ public class KhuVuc {
     @Column(name = "ma_kv", length = 20)
     private String maKv;
 
-    @Column(name = "ten_kv")
+    @Column(name = "ten_kv", columnDefinition = "nvarchar(100)")
     private String tenKv;
 
     @OneToMany(mappedBy = "khuVuc", cascade = CascadeType.ALL, orphanRemoval = true)

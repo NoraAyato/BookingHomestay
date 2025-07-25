@@ -18,10 +18,10 @@ public class TienNghi {
     @Column(name = "ma_tiennghi", length = 20)
     private String maTienNghi;
 
-    @Column(name = "ten_tiennghi", length = 100, nullable = false)
+    @Column(name = "ten_tiennghi", length = 100, nullable = false, columnDefinition = "nvarchar(100)")
     private String tenTienNghi;
 
-    @Column(name = "mo_ta", length = 200)
+    @Column(name = "mo_ta", length = 200, columnDefinition = "nvarchar(200)")
     private String moTa;
 
     @OneToMany(mappedBy = "tienNghi", cascade = CascadeType.ALL, orphanRemoval = true)

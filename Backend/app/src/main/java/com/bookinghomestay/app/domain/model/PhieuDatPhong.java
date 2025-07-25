@@ -21,7 +21,7 @@ public class PhieuDatPhong {
     @Column(name = "ngay_lap", nullable = false)
     private LocalDateTime ngayLap = LocalDateTime.now();
 
-    @Column(name = "trang_thai", nullable = false)
+    @Column(name = "trang_thai", nullable = false, columnDefinition = "nvarchar(100)")
     private String trangThai;
 
     @ManyToOne(fetch = FetchType.LAZY)

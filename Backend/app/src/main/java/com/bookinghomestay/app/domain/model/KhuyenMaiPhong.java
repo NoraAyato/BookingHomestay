@@ -16,7 +16,7 @@ public class KhuyenMaiPhong {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("maKM")
-    @JoinColumn(name = "ma_km", referencedColumnName = "ma_km", columnDefinition = "VARCHAR(20)")
+    @JoinColumn(name = "ma_km", referencedColumnName = "ma_km")
     private KhuyenMai khuyenMai;
 
     @ManyToOne(fetch = FetchType.LAZY)
