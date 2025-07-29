@@ -1,7 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../domain/usecases/fetch_homestays_use_case.dart';
-import '../data/models/homestay_model.dart';
-
 import 'home_event.dart';
 import 'home_state.dart';
 

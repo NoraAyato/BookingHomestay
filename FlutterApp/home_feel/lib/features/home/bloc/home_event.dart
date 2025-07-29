@@ -1,5 +1,3 @@
-
-
 abstract class HomeEvent {}
 
 class FetchHomestaysEvent extends HomeEvent {
