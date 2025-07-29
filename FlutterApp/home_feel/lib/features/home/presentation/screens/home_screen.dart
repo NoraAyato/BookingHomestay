@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:home_feel/features/home/bloc/home_event.dart';
 import 'package:home_feel/features/home/bloc/home_state.dart';
 import 'package:home_feel/features/home/bloc/location_event.dart';
-import 'package:home_feel/features/home/bloc/location_state.dart';
 import '../../bloc/home_bloc.dart';
 import '../../bloc/location_bloc.dart';
 import '../widgets/homestay_card.dart';
+import 'package:home_feel/features/bookings/presentation/screens/bookings_screen.dart';
+import 'package:home_feel/features/promotions/presentation/screens/promotions_screen.dart';
+import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,7 +18,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? selectedLocationId;
+  int _currentIndex = 0;
+  final List<Widget> _screens = const [
+    HomeScreenBody(),
+    PlaceholderWidget(title: 'Đánh giá'),
+    BookingsScreen(),
+    PromotionsScreen(),
+    ProfileScreen(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void didChangeDependencies() {
@@ -30,18 +43,61 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color(0xFFFFF3E0), // cam nhạt
+        selectedItemColor: Color(0xFFFF9800), // cam đậm
+        unselectedItemColor: Color(0xFFBDBDBD), // xám nhạt
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400, fontSize: 11),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Trang chủ',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.thumb_up_alt),
+            label: 'Đề xuất',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.book),
+            label: 'Phòng đã đặt',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_offer),
+            label: 'Ưu đãi',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Tài khoản',
+          ),
+        ],
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+    );
+  }
+}
+
+class HomeScreenBody extends StatelessWidget {
+  const HomeScreenBody({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orange[100],
         toolbarHeight: 110.0,
         flexibleSpace: Padding(
-          padding: const EdgeInsets.only(
-            top: 25.0,
-          ), //khoảng cách từ appbar tới các item
+          padding: const EdgeInsets.only(top: 25.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Phần tiêu đề và nút thông báo
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
@@ -62,12 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              // Ô tìm kiếm
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 1.0,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 1.0),
                 child: TextField(
                   readOnly: true,
                   showCursor: false,
@@ -84,10 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.orange,
                       size: 16.0,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 3.0,
-                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3.0),
                   ),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -112,7 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Section 1
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
@@ -124,43 +172,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 8.0),
-
-                      SizedBox(
-                        height:
-                            220, // tùy chỉnh chiều cao tùy theo HomestayCard
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          itemCount: state.homestays.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 12.0),
-                              child: SizedBox(
-                                width: 250, // chiều rộng của mỗi card ngang
-                                child: HomestayCard(
-                                  homestay: state.homestays[index],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Bạn có thể lặp lại Section 2 tương tự nếu cần
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'Gợi ý hôm nay',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-
                       SizedBox(
                         height: 220,
                         child: ListView.builder(
@@ -180,7 +191,37 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                         ),
                       ),
-
+                      const SizedBox(height: 24),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Gợi ý hôm nay',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8.0),
+                      SizedBox(
+                        height: 220,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          itemCount: state.homestays.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 12.0),
+                              child: SizedBox(
+                                width: 250,
+                                child: HomestayCard(
+                                  homestay: state.homestays[index],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -188,33 +229,20 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           } else if (state is HomeError) {
-            return Center(child: Text('Lỗi: ${state.message}'));
+            return Center(child: Text('Lỗi:  {state.message}'));
           }
           return const Center(child: Text('Đang tải dữ liệu...'));
         },
       ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Đánh giá'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Phòng đã đặt',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_offer),
-            label: 'Ưu đãi',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tài khoản'),
-        ],
-        currentIndex: 0,
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          // Xử lý chuyển tab
-        },
-      ),
     );
+  }
+}
+
+class PlaceholderWidget extends StatelessWidget {
+  final String title;
+  const PlaceholderWidget({super.key, required this.title});
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: Text(title));
   }
 }

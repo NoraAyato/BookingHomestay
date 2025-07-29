@@ -23,8 +23,8 @@ public class KhuyenMai {
     @Column(name = "ngay_bat_dau", nullable = false)
     private LocalDateTime ngayBatDau;
 
-    @Column(name = "hsd", nullable = false)
-    private LocalDateTime hsd;
+    @Column(name = "ngay_ket_thuc", nullable = false)
+    private LocalDateTime ngayKetThuc;
 
     @Column(name = "chiet_khau", nullable = false)
     private BigDecimal chietKhau;

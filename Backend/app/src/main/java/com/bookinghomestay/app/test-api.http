@@ -31,7 +31,7 @@ Accept: application/json
 {
   "email": "diamondboyvn@gmail.com",
   "password": "Noragami21@!!",
-  "rememberMe" : true
+  "rememberMe" : false
 }
 ### reg user
 POST http://localhost:8080/api/auth/register
@@ -53,7 +53,7 @@ Accept: application/json
 
 {
   "email": "diamondboyvn@gmail.com",
-  "otp" : "960201"
+  "otp" : "666906"
 }
 ### reg user
 POST http://localhost:8080/api/auth/reset-password
@@ -61,7 +61,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyYzQ4MThmNC03N2I3LTQyMDAtODI4YS1iMzRmMDAxYTY3MDAiLCJ0eXBlIjoicmVzZXRfcGFzc3dvcmQiLCJpYXQiOjE3NTMyNjAwODksImV4cCI6MTc1MzI2MzY4OX0.Wg5gmzSziTJwWDxUq6opmXBUDowH0QKkRLPRzr_8i8qrOFwLur-7q0Neu2ZG58EEWGsz27NzmI9ejmCdStG8Cw",
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJ0eXBlIjoicmVzZXRfcGFzc3dvcmQiLCJpYXQiOjE3NTM2NzA3NTcsImV4cCI6MTc1MzY3NDM1N30.TXaO2L3dydpbLC77xNdZB34IAX-BIlVro-adyl_O7HJyGP6XrNpnd1sx8yj5bAMF2aAFInlICQ8U3R-2UCR_5Q",
   "newPassword" : "Noragami21@!!"
 }
 
@@ -82,7 +82,7 @@ Content-Type: application/json
 }
 
 ### Lấy danh sách tất cả homestay
-GET http://localhost:8080/api/locations
+GET http://localhost:8080/api/promotions
 Accept: application/json
 
 ### Tìm kiếm homestay theo keyword
@@ -90,65 +90,8 @@ Accept: application/json
 GET http://localhost:8080/api/search/keyword?keyword=VipPRoMax
 Content-Type: application/json
 ### Tìm kiếm homestay theo từ khóa "Vịnh Hạ Long"
-GET http://localhost:8080/api/search/suggest?prefix=Vip
+GET http://localhost:8080/api/search/suggest?prefix=sa
 
 ### Gợi ý khi nhập "V"
 GET http://localhost:8080/api/search/suggest?prefix=V
 Content-Type: application/json
-#####
-POST http://localhost:9200/homestay/_search
-Content-Type: application/json
-
-{
-  "_source": ["tenHomestay", "suggest"],
-  "query": {
-    "match_all": {}
-  }
-}
-### Xóa index homestay (nếu đã tồn tại)
-DELETE https://localhost:9200/homestay
-Authorization: Basic ZWxhc3RpYzpNbFZKV1JNbG9YWDVuTHlsZ25NUg==
-Content-Type: application/json
---insecure
-
-### Xóa index homestay (nếu đã tồn tại)
-PUT https://localhost:9200/homestay
-Authorization: Basic ZWxhc3RpYzpNbFZKV1JNbG9YWDVuTHlsZ25NUg==
-Content-Type: application/json
---insecure
-
-{
-  "mappings": {
-    "properties": {
-      "id": { "type": "keyword" },
-      "tenHomestay": { "type": "text" },
-      "diaChi": { "type": "text" },
-      "khuVuc": { "type": "text" },
-      "suggest": {
-        "type": "completion",
-        "contexts": [
-          {
-            "name": "maKvContext",
-            "type": "category"
-          }
-        ]
-      }
-    }
-  }
-}
-####
-POST https://localhost:9200/homestay/_doc
-Authorization: Basic ZWxhc3RpYzpNbFZKV1JNbG9YWDVuTHlsZ25NUg==
-Content-Type: application/json
-
-{
-  "tenHomestay": "VipPRoMax",
-  "diaChi": "Hạ Long",
-  "khuVuc": "KV001",
-  "suggest": {
-    "input": ["VipPRoMax"],
-    "contexts": {
-      "maKvContext": ["KV001"]
-    }
-  }
-}
