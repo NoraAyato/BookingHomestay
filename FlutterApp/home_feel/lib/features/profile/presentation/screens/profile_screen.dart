@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:home_feel/features/auth/presentation/screens/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onLogin;
+  const ProfileScreen({super.key, this.onLogin});
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +32,7 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginScreen()),
-                      );
-                    },
+                    onTap: onLogin,
                     child: const Text(
                       'Đăng nhập/ Đăng ký',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

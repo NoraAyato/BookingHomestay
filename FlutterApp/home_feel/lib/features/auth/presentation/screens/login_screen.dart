@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
 import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
+import 'package:home_feel/features/home/presentation/screens/home_screen.dart';
+import 'package:home_feel/core/services/tab_notifier.dart';
+import 'package:get_it/get_it.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback? onClose;
+  final VoidCallback? onRegister;
+  const LoginScreen({super.key, this.onClose, this.onRegister});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -50,14 +55,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.only(top: 8),
                             child: IconButton(
                               icon: const Icon(Icons.close),
-                              onPressed: () {
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                    builder: (context) => const ProfileScreen(),
-                                  ),
-                                  (route) => false,
-                                );
-                              },
+                              onPressed: widget.onClose,
+                              padding: EdgeInsets.only(left: -20),
+                              constraints: const BoxConstraints(),
                             ),
                           ),
                         ),
@@ -167,15 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             const Text('Bạn chưa có tài khoản? '),
                             GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const RegisterScreen(),
-                                  ),
-                                );
-                              },
+                              onTap: widget.onRegister,
                               child: const Text(
                                 'Đăng ký ngay',
                                 style: TextStyle(
@@ -197,5 +189,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<bool> _onWillPop() async {
+    if (widget.onClose != null) widget.onClose!();
+    return false;
   }
 }

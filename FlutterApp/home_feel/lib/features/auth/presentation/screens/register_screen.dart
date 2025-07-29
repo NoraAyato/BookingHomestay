@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
+import 'package:home_feel/features/home/presentation/screens/home_screen.dart';
+import 'package:home_feel/core/services/tab_notifier.dart';
+import 'package:get_it/get_it.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  final VoidCallback? onClose;
+  final VoidCallback? onLogin;
+  const RegisterScreen({super.key, this.onClose, this.onLogin});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -11,10 +16,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   Future<bool> _onWillPop() async {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const ProfileScreen()),
-      (route) => false,
-    );
+    if (widget.onClose != null) widget.onClose!();
     return false;
   }
 
@@ -48,14 +50,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             padding: const EdgeInsets.only(top: 8),
                             child: IconButton(
                               icon: const Icon(Icons.arrow_back),
-                              onPressed: () {
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                    builder: (context) => const ProfileScreen(),
-                                  ),
-                                  (route) => false,
-                                );
-                              },
+                              onPressed: widget.onClose,
+                              padding: EdgeInsets.only(left: 0),
+                              constraints: const BoxConstraints(),
                             ),
                           ),
                         ),
@@ -172,14 +169,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           children: [
                             const Text('Bạn đã có tài khoản? '),
                             GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const LoginScreen(),
-                                  ),
-                                );
-                              },
+                              onTap: widget.onLogin,
                               child: const Text(
                                 'Đăng nhập ngay',
                                 style: TextStyle(

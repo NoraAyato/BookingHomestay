@@ -6,6 +6,7 @@ import '../../features/home/domain/usecases/fetch_locations_use_case.dart';
 import '../../features/home/bloc/home_bloc.dart';
 import '../../features/home/bloc/location_bloc.dart';
 import '../services/api_service.dart'; // Giả sử bạn có file này
+import 'package:home_feel/core/services/tab_notifier.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -28,6 +29,9 @@ void setupServiceLocator() {
   sl.registerLazySingleton<FetchLocationsUseCase>(
     () => FetchLocationsUseCase(sl<LocationRepositoryImpl>()),
   );
+
+  // Đăng ký TabNotifier
+  sl.registerLazySingleton<TabNotifier>(() => TabNotifier());
 
   // Đăng ký BLoC (sử dụng LazySingleton để duy trì một instance)
   sl.registerLazySingleton(() => HomeBloc(sl<FetchHomestaysUseCase>()));
