@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/features/auth/presentation/screens/login_screen.dart';
+import 'package:home_feel/features/auth/presentation/screens/register_screen.dart';
 import 'package:home_feel/features/home/bloc/home_event.dart';
 import 'package:home_feel/features/home/bloc/home_state.dart';
 import 'package:home_feel/features/home/bloc/location_event.dart';
+import 'package:home_feel/features/profile/presentation/screens/profile_tab.dart';
 import '../../bloc/home_bloc.dart';
 import '../../bloc/location_bloc.dart';
 import '../widgets/homestay_card.dart';
 import 'package:home_feel/features/bookings/presentation/screens/bookings_screen.dart';
 import 'package:home_feel/features/promotions/presentation/screens/promotions_screen.dart';
 import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
+import 'package:home_feel/core/services/tab_notifier.dart';
+import 'package:get_it/get_it.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -19,17 +24,38 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  final List<Widget> _screens = const [
-    HomeScreenBody(),
-    PlaceholderWidget(title: 'Đánh giá'),
-    BookingsScreen(),
-    PromotionsScreen(),
-    ProfileScreen(),
+  bool _showOverlay = false;
+  int? _overlayScreen; // null: không overlay, 0: login, 1: register
+  final tabNotifier = GetIt.I<TabNotifier>();
+
+  void showLogin() => setState(() { _showOverlay = true; _overlayScreen = 0; });
+  void showRegister() => setState(() { _showOverlay = true; _overlayScreen = 1; });
+  void closeOverlay() => setState(() { _showOverlay = false; _overlayScreen = null; });
+
+  List<Widget> get _screens => [
+    const HomeScreenBody(),
+    const PlaceholderWidget(title: 'Đề xuất'),
+    const BookingsScreen(),
+    const PromotionsScreen(),
+    ProfileTab(onLogin: showLogin),
   ];
 
   @override
   void initState() {
     super.initState();
+    tabNotifier.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    setState(() {
+      _currentIndex = tabNotifier.value;
+    });
+  }
+
+  @override
+  void dispose() {
+    tabNotifier.removeListener(_onTabChanged);
+    super.dispose();
   }
 
   @override
@@ -43,8 +69,20 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      body: Stack(
+        children: [
+          _screens[_currentIndex],
+          if (_showOverlay && _overlayScreen == 0)
+            Positioned.fill(
+              child: LoginScreen(onClose: closeOverlay, onRegister: showRegister),
+            ),
+          if (_showOverlay && _overlayScreen == 1)
+            Positioned.fill(
+              child: RegisterScreen(onClose: closeOverlay, onLogin: showLogin),
+            ),
+        ],
+      ),
+      bottomNavigationBar: _showOverlay ? null : BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color(0xFFFFF3E0), // cam nhạt
         selectedItemColor: Color(0xFFFF9800), // cam đậm
@@ -78,6 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _currentIndex = index;
           });
+          tabNotifier.value = index;
         },
       ),
     );
