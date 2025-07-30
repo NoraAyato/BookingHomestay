@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
-import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
-import 'package:home_feel/features/home/presentation/screens/home_screen.dart';
-import 'package:home_feel/core/services/tab_notifier.dart';
-import 'package:get_it/get_it.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onClose;
@@ -19,15 +15,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) {
-        if (!didPop) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const ProfileScreen()),
-            (route) => false,
-          );
+    return WillPopScope(
+      onWillPop: () async {
+        if (widget.onClose != null) {
+          widget.onClose!();
         }
+        return false; // Không cho phép pop
       },
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -189,10 +182,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  Future<bool> _onWillPop() async {
-    if (widget.onClose != null) widget.onClose!();
-    return false;
   }
 }

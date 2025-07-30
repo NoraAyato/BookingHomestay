@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
-import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
-import 'package:home_feel/features/home/presentation/screens/home_screen.dart';
-import 'package:home_feel/core/services/tab_notifier.dart';
-import 'package:get_it/get_it.dart';
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback? onClose;
@@ -15,15 +11,15 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  Future<bool> _onWillPop() async {
-    if (widget.onClose != null) widget.onClose!();
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: _onWillPop,
+      onWillPop: () async {
+        if (widget.onClose != null) {
+          widget.onClose!();
+        }
+        return false; // Không cho phép pop
+      },
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: SafeArea(
