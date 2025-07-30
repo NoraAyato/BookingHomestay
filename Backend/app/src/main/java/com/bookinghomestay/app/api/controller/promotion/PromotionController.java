@@ -12,11 +12,13 @@ import com.bookinghomestay.app.api.dto.ApiResponse;
 import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
 import com.bookinghomestay.app.application.promotion.query.GetAdminKhuyenMaiQueryHandle;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/promotions")
+@RequiredArgsConstructor
 public class PromotionController {
 
-    @Autowired
     private GetAdminKhuyenMaiQueryHandle getAdminKhuyenMaiQueryHandle;
 
     @GetMapping

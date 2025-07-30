@@ -11,12 +11,12 @@ import '../../bloc/location_bloc.dart';
 import '../widgets/homestay_card.dart';
 import 'package:home_feel/features/bookings/presentation/screens/bookings_screen.dart';
 import 'package:home_feel/features/promotions/presentation/screens/promotions_screen.dart';
-import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
 import 'package:home_feel/core/services/tab_notifier.dart';
 import 'package:get_it/get_it.dart';
+import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -68,56 +68,69 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          _screens[_currentIndex],
-          if (_showOverlay && _overlayScreen == 0)
-            Positioned.fill(
-              child: LoginScreen(onClose: closeOverlay, onRegister: showRegister),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<HomeBloc>(
+          create: (context) => GetIt.I<HomeBloc>(),
+        ),
+        BlocProvider<LocationBloc>(
+          create: (context) => GetIt.I<LocationBloc>(),
+        ),
+        BlocProvider<AuthBloc>(
+          create: (context) => GetIt.I<AuthBloc>(),
+        ),
+      ],
+      child: Scaffold(
+        body: Stack(
+          children: [
+            _screens[_currentIndex],
+            if (_showOverlay && _overlayScreen == 0)
+              Positioned.fill(
+                child: LoginScreen(onClose: closeOverlay, onRegister: showRegister),
+              ),
+            if (_showOverlay && _overlayScreen == 1)
+              Positioned.fill(
+                child: RegisterScreen(onClose: closeOverlay, onLogin: showLogin),
+              ),
+          ],
+        ),
+        bottomNavigationBar: _showOverlay ? null : BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: const Color(0xFFFFF3E0), // cam nhạt
+          selectedItemColor: Color(0xFFFF9800), // cam đậm
+          unselectedItemColor: Color(0xFFBDBDBD), // xám nhạt
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400, fontSize: 11),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Trang chủ',
             ),
-          if (_showOverlay && _overlayScreen == 1)
-            Positioned.fill(
-              child: RegisterScreen(onClose: closeOverlay, onLogin: showLogin),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.thumb_up_alt),
+              label: 'Đề xuất',
             ),
-        ],
-      ),
-      bottomNavigationBar: _showOverlay ? null : BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFFFFF3E0), // cam nhạt
-        selectedItemColor: Color(0xFFFF9800), // cam đậm
-        unselectedItemColor: Color(0xFFBDBDBD), // xám nhạt
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400, fontSize: 11),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Trang chủ',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.thumb_up_alt),
-            label: 'Đề xuất',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Phòng đã đặt',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_offer),
-            label: 'Ưu đãi',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Tài khoản',
-          ),
-        ],
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          tabNotifier.value = index;
-        },
+            BottomNavigationBarItem(
+              icon: Icon(Icons.book),
+              label: 'Phòng đã đặt',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.local_offer),
+              label: 'Ưu đãi',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Tài khoản',
+            ),
+          ],
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+            tabNotifier.value = index;
+          },
+        ),
       ),
     );
   }

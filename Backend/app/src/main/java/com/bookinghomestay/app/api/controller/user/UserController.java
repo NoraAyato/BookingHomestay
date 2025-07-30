@@ -1,14 +1,18 @@
 package com.bookinghomestay.app.api.controller.user;
 
+import com.bookinghomestay.app.api.dto.ApiResponse;
 import com.bookinghomestay.app.api.dto.Users.CreateUserRequestDto;
+import com.bookinghomestay.app.api.dto.Users.UserInfoDto;
 import com.bookinghomestay.app.api.dto.Users.UserResponseDto;
 import com.bookinghomestay.app.application.users.command.CreateUserCommand;
 import com.bookinghomestay.app.application.users.command.CreateUserCommandHandler;
+import com.bookinghomestay.app.application.users.query.GetCurrentUserQueryHandler;
 import com.bookinghomestay.app.application.users.query.GetUserByIdQuery;
 import com.bookinghomestay.app.application.users.query.GetUserByIdQueryHandler;
 import com.bookinghomestay.app.domain.model.User;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,14 +20,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
     private final GetUserByIdQueryHandler getUserByIdQueryHandler;
     private final CreateUserCommandHandler createUserCommandHandler;
-
-    public UserController(GetUserByIdQueryHandler handler, CreateUserCommandHandler createhandle) {
-        this.getUserByIdQueryHandler = handler;
-        this.createUserCommandHandler = createhandle;
-    }
+    private final GetCurrentUserQueryHandler getCurrentUserQueryHandler;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
@@ -51,4 +52,10 @@ public class UserController {
         return ResponseEntity.ok("User created successfully");
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserInfoDto>> getCurrentUser() {
+        UserInfoDto user = getCurrentUserQueryHandler.handle();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy thông tin người dùng thành công", user));
+    }
 }

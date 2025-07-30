@@ -13,14 +13,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final IUserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findByUserName(username)
+    public UserDetails loadUserByUsername(String userId) { // userId thực sự
+        User user = userRepository.findByIdWithRole(userId) // Sử dụng fetch join
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return org.springframework.security.core.userdetails.User.builder()
-            .username(user.getUserName())
-            .password(user.getPassWord())
-            .authorities("ROLE_" + user.getRole().getName()) // phải có ROLE_ prefix
-            .build();
+        return new CustomUserPrincipal(user); // Sử dụng custom principal
     }
 }

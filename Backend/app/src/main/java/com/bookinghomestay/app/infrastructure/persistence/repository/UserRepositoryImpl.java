@@ -45,7 +45,8 @@ public class UserRepositoryImpl implements IUserRepository {
        return jpaRepo.existsByEmail(email);
     }
 
-   
-
-   
+    @Override
+    public Optional<User> findByIdWithRole(String userId) {
+        return jpaRepo.findByIdWithRole(userId);
+    }
 }

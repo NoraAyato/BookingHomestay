@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
+import 'package:home_feel/features/auth/bloc/auth_event.dart';
+import 'package:home_feel/features/auth/bloc/auth_state.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,15 +16,39 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool rememberMe = false;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _handleLogin() {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập đầy đủ thông tin')),
+      );
+      return;
+    }
+
+    context.read<AuthBloc>().add(LoginEvent(email: email, password: password));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
         if (widget.onClose != null) {
           widget.onClose!();
         }
-        return false; // Không cho phép pop
       },
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -69,6 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 32),
                         TextField(
+                          controller: _emailController,
                           decoration: InputDecoration(
                             labelText: 'Email',
                             border: OutlineInputBorder(
@@ -80,6 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 16),
                         TextField(
+                          controller: _passwordController,
                           decoration: InputDecoration(
                             labelText: 'Mật khẩu',
                             border: OutlineInputBorder(
@@ -109,31 +139,49 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF9800),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
+                        BlocConsumer<AuthBloc, AuthState>(
+                          listener: (context, state) {
+                            if (state is AuthSuccess) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(state.authResponse.message)),
+                              );
+                              // TODO: Đóng overlay sau khi đăng nhập thành công
+                            } else if (state is AuthFailure) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(state.message)),
+                              );
+                            }
+                          },
+                          builder: (context, state) {
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: ElevatedButton(
+                               onPressed: state is AuthLoading ? null : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFFF9800),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                ),
+                                child: state is AuthLoading
+                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    : const Text(
+                                        'Đăng nhập',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
-                            ),
-                            child: const Text(
-                              'Đăng nhập',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
                         Row(
                           children: const [
                             Expanded(child: Divider()),
-                            Padding(
+                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 8),
                               child: Text('Hoặc đăng nhập nhanh bằng'),
                             ),
@@ -144,13 +192,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            IconButton(
-                              icon: Image.asset(
-                                'assets/icons/google.png',
-                                width: 36,
-                                height: 36,
-                              ),
-                              onPressed: () {},
+                            BlocConsumer<AuthBloc, AuthState>(
+                              listener: (context, state) {
+                                if (state is AuthSuccess) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(state.authResponse.message)),
+                                  );
+                                  // TODO: Đóng overlay sau khi đăng nhập thành công
+                                } else if (state is AuthFailure) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(state.message)),
+                                  );
+                                }
+                              },
+                              builder: (context, state) {
+                                return IconButton(
+                                  icon: Image.asset(
+                                    'assets/icons/google.png',
+                                    width: 36,
+                                    height: 36,
+                                  ),
+                                  onPressed: state is AuthLoading ? null : () {
+                                    // TODO: Implement Google Sign-In
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Google Sign-In chưa được implement')),
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           ],
                         ),
