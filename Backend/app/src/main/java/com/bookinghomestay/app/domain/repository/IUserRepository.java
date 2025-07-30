@@ -12,5 +12,5 @@ public interface IUserRepository {
     void deleteById(String id);
     Optional<User> findByUserName(String userName);
     boolean existsByEmail(String email);
-   
+    Optional<User> findByIdWithRole(String userId);
 }

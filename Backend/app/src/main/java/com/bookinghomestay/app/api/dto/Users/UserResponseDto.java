@@ -9,7 +9,7 @@ public class UserResponseDto {
     private String roleName;
 
     public UserResponseDto(User user) {
-        this.id = user.getId();
+        this.id = user.getUserId();
         this.userName = user.getUserName();
         this.email = user.getEmail();
         this.roleName = user.getRole().getName();

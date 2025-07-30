@@ -3,8 +3,11 @@
 GET http://localhost:8080/api/users/41583ddf-6014-4fb5-92ef-934e9ef7f725
 Accept: application/json
 
+### Get current user info
+GET http://localhost:8080/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTM4ODEyNzYsImV4cCI6MTc1Mzg4NDg3Nn0.2y82vfdRTUeSlUWoO9NyPiXY-rVTlUI6DJlsWCWOP3k
+Content-Type: application/json
 
-###
 ### Create new user
 POST http://localhost:8080/api/users
 Content-Type: application/json

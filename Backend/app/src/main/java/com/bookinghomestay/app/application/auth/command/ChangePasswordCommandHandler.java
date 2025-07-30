@@ -25,9 +25,9 @@ public class ChangePasswordCommandHandler {
 
     // handle change password when isLogin
     public AuthResponseDto handle(ChangePasswordCommand command) {
-        Optional<User> userOptional = userRepo.findByEmail(command.getEmail());
+        Optional<User> userOptional = userRepo.findById(command.getUserId()); // Tìm bằng userId
         User user = userOptional
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng với email này !"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng với ID này !"));
 
         if (!passwordEncoder.matches(command.getCurrentPassword(), user.getPassWord())) {
             throw new RuntimeException("Mật khẩu hiện tại không đúng !");

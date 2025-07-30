@@ -4,8 +4,8 @@ import lombok.Value;
 
 @Value
 public class ChangePasswordCommand {
-    String email;
-    String currentPassword;
-    String newPassword;
-    String rePassword;
+    private final String userId; // Thay đổi từ email sang userId
+    private final String currentPassword;
+    private final String newPassword;
+    private final String rePassword;
 }

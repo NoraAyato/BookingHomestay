@@ -7,11 +7,14 @@ import com.bookinghomestay.app.application.auth.command.*;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final LoginUserCommandHandler loginHandler;
@@ -22,24 +25,6 @@ public class AuthController {
     private final RefreshTokenCommandHandler refreshTokenCommandHandler;
     private final GoogleLoginCommandHandler googleLoginCommandHandler;
     private final ResetPasswordCommandHandler resetPasswordCommandHandler;
-
-    public AuthController(LoginUserCommandHandler loginHandler,
-            RegisterUserCommandHandler registerHandler,
-            ChangePasswordCommandHandler changePasswordHandler,
-            ForgotPasswordCommandHandler forgotPasswordCommandHandler,
-            VerifyOtpCommandHandler verifyOtpCommandHandler,
-            RefreshTokenCommandHandler refreshTokenCommandHandler,
-            GoogleLoginCommandHandler googleLoginCommandHandler,
-            ResetPasswordCommandHandler resetPasswordCommandHandler) {
-        this.loginHandler = loginHandler;
-        this.registerHandler = registerHandler;
-        this.changePasswordHandler = changePasswordHandler;
-        this.forgotPasswordCommandHandler = forgotPasswordCommandHandler;
-        this.verifyOtpCommandHandler = verifyOtpCommandHandler;
-        this.refreshTokenCommandHandler = refreshTokenCommandHandler;
-        this.googleLoginCommandHandler = googleLoginCommandHandler;
-        this.resetPasswordCommandHandler = resetPasswordCommandHandler;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponseDto>> login(@Valid @RequestBody LoginRequestDto dto) {
@@ -58,9 +43,9 @@ public class AuthController {
     @PostMapping("/change-password")
     public ResponseEntity<ApiResponse<AuthResponseDto>> changePassword(
             @Valid @RequestBody ChangePasswordRequestDto dto) {
-        String email = SecurityUtils.getCurrentUsername();
+        String userId = SecurityUtils.getCurrentUserId();
         AuthResponseDto response = changePasswordHandler.handle(new ChangePasswordCommand(
-                email, dto.getCurrentPassword(), dto.getNewPassword(), dto.getRePassword()));
+                userId, dto.getCurrentPassword(), dto.getNewPassword(), dto.getRePassword()));
         return ResponseEntity.ok(new ApiResponse<>(true, Messages.CHANGE_PASSWORD_SUCCESS, response));
     }
 

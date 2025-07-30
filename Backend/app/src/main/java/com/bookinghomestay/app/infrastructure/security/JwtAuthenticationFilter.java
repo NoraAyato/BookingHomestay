@@ -41,17 +41,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             if (jwtTokenProvider.validateToken(token)) {
-                String username = jwtTokenProvider.getUserId(token);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                String userId = jwtTokenProvider.getUserId(token);
+                System.out.println("JWT Filter - UserId from token: " + userId);
+                
+                try {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+                    System.out.println("JWT Filter - UserDetails loaded: " + userDetails.getClass().getSimpleName());
+                    
+                    if (userDetails instanceof CustomUserPrincipal) {
+                        CustomUserPrincipal principal = (CustomUserPrincipal) userDetails;
+                        System.out.println("JWT Filter - CustomUserPrincipal: userId=" + principal.getUserId() + 
+                                        ", userName=" + principal.getUserName() + 
+                                        ", email=" + principal.getEmail());
+                    }
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
 
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    System.out.println("JWT Filter - Authentication set in SecurityContext");
+                } catch (Exception e) {
+                    System.err.println("JWT Filter - Error loading user: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                System.err.println("JWT Filter - Invalid token");
             }
+        } else {
+            System.out.println("JWT Filter - No Authorization header or not Bearer token");
         }
 
         filterChain.doFilter(request, response);
