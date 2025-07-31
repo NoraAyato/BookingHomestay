@@ -1,5 +1,7 @@
 package com.bookinghomestay.app.api.dto.Users;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,4 +19,6 @@ public class UserInfoDto {
     private String lastName;
     private String status;
     private String role;
+    private LocalDate birthDay;
+    private boolean gender;
 }

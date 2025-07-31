@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/presentation/screens/login_screen.dart';
 import 'package:home_feel/features/auth/presentation/screens/register_screen.dart';
 import 'package:home_feel/features/home/bloc/home_event.dart';
@@ -28,9 +29,18 @@ class _HomeScreenState extends State<HomeScreen> {
   int? _overlayScreen; // null: không overlay, 0: login, 1: register
   final tabNotifier = GetIt.I<TabNotifier>();
 
-  void showLogin() => setState(() { _showOverlay = true; _overlayScreen = 0; });
-  void showRegister() => setState(() { _showOverlay = true; _overlayScreen = 1; });
-  void closeOverlay() => setState(() { _showOverlay = false; _overlayScreen = null; });
+  void showLogin() => setState(() {
+    _showOverlay = true;
+    _overlayScreen = 0;
+  });
+  void showRegister() => setState(() {
+    _showOverlay = true;
+    _overlayScreen = 1;
+  });
+  void closeOverlay() => setState(() {
+    _showOverlay = false;
+    _overlayScreen = null;
+  });
 
   List<Widget> get _screens => [
     const HomeScreenBody(),
@@ -44,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     tabNotifier.addListener(_onTabChanged);
+    
   }
 
   void _onTabChanged() {
@@ -70,14 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HomeBloc>(
-          create: (context) => GetIt.I<HomeBloc>(),
-        ),
+        BlocProvider<HomeBloc>(create: (context) => GetIt.I<HomeBloc>()),
         BlocProvider<LocationBloc>(
           create: (context) => GetIt.I<LocationBloc>(),
-        ),
-        BlocProvider<AuthBloc>(
-          create: (context) => GetIt.I<AuthBloc>(),
         ),
       ],
       child: Scaffold(
@@ -86,51 +92,65 @@ class _HomeScreenState extends State<HomeScreen> {
             _screens[_currentIndex],
             if (_showOverlay && _overlayScreen == 0)
               Positioned.fill(
-                child: LoginScreen(onClose: closeOverlay, onRegister: showRegister),
+                child: LoginScreen(
+                  onClose: closeOverlay,
+                  onRegister: showRegister,
+                ),
               ),
             if (_showOverlay && _overlayScreen == 1)
               Positioned.fill(
-                child: RegisterScreen(onClose: closeOverlay, onLogin: showLogin),
+                child: RegisterScreen(
+                  onClose: closeOverlay,
+                  onLogin: showLogin,
+                ),
               ),
           ],
         ),
-        bottomNavigationBar: _showOverlay ? null : BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: const Color(0xFFFFF3E0), // cam nhạt
-          selectedItemColor: Color(0xFFFF9800), // cam đậm
-          unselectedItemColor: Color(0xFFBDBDBD), // xám nhạt
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400, fontSize: 11),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Trang chủ',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.thumb_up_alt),
-              label: 'Đề xuất',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.book),
-              label: 'Phòng đã đặt',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.local_offer),
-              label: 'Ưu đãi',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Tài khoản',
-            ),
-          ],
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-            tabNotifier.value = index;
-          },
-        ),
+        bottomNavigationBar: _showOverlay
+            ? null
+            : BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                backgroundColor: const Color(0xFFFFF3E0), // cam nhạt
+                selectedItemColor: Color(0xFFFF9800), // cam đậm
+                unselectedItemColor: Color(0xFFBDBDBD), // xám nhạt
+                selectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 11,
+                ),
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Trang chủ',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.thumb_up_alt),
+                    label: 'Đề xuất',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.book),
+                    label: 'Phòng đã đặt',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.local_offer),
+                    label: 'Ưu đãi',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    label: 'Tài khoản',
+                  ),
+                ],
+                currentIndex: _currentIndex,
+                onTap: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                  tabNotifier.value = index;
+                },
+              ),
       ),
     );
   }
@@ -171,7 +191,10 @@ class HomeScreenBody extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 1.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 1.0,
+                ),
                 child: TextField(
                   readOnly: true,
                   showCursor: false,
@@ -188,7 +211,10 @@ class HomeScreenBody extends StatelessWidget {
                       color: Colors.orange,
                       size: 16.0,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3.0),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 3.0,
+                    ),
                   ),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(

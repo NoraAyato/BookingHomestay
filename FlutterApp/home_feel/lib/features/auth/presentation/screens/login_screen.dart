@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/bloc/auth_state.dart';
+import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
 import 'register_screen.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onClose;
@@ -14,10 +16,18 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+final GoogleSignIn _googleSignIn = GoogleSignIn(
+  scopes: ['email', 'profile'],
+  serverClientId:
+      '538549170516-t87c9ju6tpqeu4l3qijk22jpu2i6gd7c.apps.googleusercontent.com',
+);
+
 class _LoginScreenState extends State<LoginScreen> {
   bool rememberMe = false;
+  bool _isFormValid = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
   @override
   void dispose() {
@@ -26,10 +36,29 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_validateForm);
+    _passwordController.addListener(_validateForm);
+  }
+
+  void _validateForm() {
+    final isValid =
+        _emailRegex.hasMatch(_emailController.text.trim()) &&
+        _passwordController.text.isNotEmpty;
+
+    if (isValid != _isFormValid) {
+      setState(() {
+        _isFormValid = isValid;
+      });
+    }
+  }
+
   void _handleLogin() {
     final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    
+    final password = _passwordController.text;
+
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Vui lòng nhập đầy đủ thông tin')),
@@ -37,7 +66,37 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    context.read<AuthBloc>().add(LoginEvent(email: email, password: password));
+    context.read<AuthBloc>().add(
+      LoginEvent(email: email, password: password, rememberMe: rememberMe),
+    );
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return; // Người dùng hủy đăng nhập
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      if (idToken == null) throw Exception("Không lấy được idToken");
+
+      final email = googleUser.email;
+      final name = googleUser.displayName ?? '';
+      final picture = googleUser.photoUrl;
+
+      context.read<AuthBloc>().add(
+        GoogleLoginEvent(
+          idToken: idToken,
+          email: email,
+          name: name,
+          picture: picture,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Google Sign-In thất bại: $e')));
+    }
   }
 
   @override
@@ -143,9 +202,20 @@ class _LoginScreenState extends State<LoginScreen> {
                           listener: (context, state) {
                             if (state is AuthSuccess) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(state.authResponse.message)),
+                                SnackBar(
+                                  content: Text(state.authResponse.message),
+                                ),
                               );
-                              // TODO: Đóng overlay sau khi đăng nhập thành công
+                              if (widget.onClose != null) {
+                                widget.onClose!();
+                              } else {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ProfileScreen(),
+                                  ),
+                                );
+                              }
                             } else if (state is AuthFailure) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(state.message)),
@@ -153,19 +223,26 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                           },
                           builder: (context, state) {
+                            final isDisabled =
+                                !_isFormValid || state is AuthLoading;
+
                             return SizedBox(
                               width: double.infinity,
                               height: 48,
                               child: ElevatedButton(
-                               onPressed: state is AuthLoading ? null : _handleLogin,
+                                onPressed: isDisabled ? null : _handleLogin,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFF9800),
+                                  backgroundColor: isDisabled
+                                      ? Colors.grey
+                                      : const Color(0xFFFF9800),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                 ),
                                 child: state is AuthLoading
-                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    ? const CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
                                     : const Text(
                                         'Đăng nhập',
                                         style: TextStyle(
@@ -181,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           children: const [
                             Expanded(child: Divider()),
-                             Padding(
+                            Padding(
                               padding: EdgeInsets.symmetric(horizontal: 8),
                               child: Text('Hoặc đăng nhập nhanh bằng'),
                             ),
@@ -196,7 +273,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               listener: (context, state) {
                                 if (state is AuthSuccess) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(state.authResponse.message)),
+                                    SnackBar(
+                                      content: Text(state.authResponse.message),
+                                    ),
                                   );
                                   // TODO: Đóng overlay sau khi đăng nhập thành công
                                 } else if (state is AuthFailure) {
@@ -212,12 +291,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: 36,
                                     height: 36,
                                   ),
-                                  onPressed: state is AuthLoading ? null : () {
-                                    // TODO: Implement Google Sign-In
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Google Sign-In chưa được implement')),
-                                    );
-                                  },
+                                  onPressed: state is AuthLoading
+                                      ? null
+                                      : _handleGoogleLogin,
                                 );
                               },
                             ),

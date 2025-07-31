@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:home_feel/features/auth/data/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/data/repositories/location_repository_impl.dart';
 import '../../features/home/domain/usecases/fetch_homestays_use_case.dart';
@@ -21,16 +23,14 @@ import '../../features/auth/domain/usecases/change_password_usecase.dart';
 import '../../features/auth/domain/usecases/forgot_password_usecase.dart';
 import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
 import '../../features/auth/domain/usecases/reset_password_usecase.dart';
+import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
 import '../../features/auth/bloc/auth_bloc.dart';
 
 final GetIt sl = GetIt.instance;
 
-void setupServiceLocator() {
+Future<void> setupServiceLocator() async {
   // Đăng ký Dio
   sl.registerLazySingleton<Dio>(() => Dio());
-
-  // Đăng ký ApiService
-  sl.registerLazySingleton<ApiService>(() => ApiService());
 
   // Đăng ký Auth dependencies
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -39,7 +39,7 @@ void setupServiceLocator() {
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(sl<AuthRemoteDataSource>()),
   );
-  
+
   // Auth Use Cases
   sl.registerLazySingleton<LoginUseCase>(
     () => LoginUseCase(sl<AuthRepository>()),
@@ -65,7 +65,20 @@ void setupServiceLocator() {
   sl.registerLazySingleton<ResetPasswordUseCase>(
     () => ResetPasswordUseCase(sl<AuthRepository>()),
   );
-  
+  sl.registerLazySingleton<GetCurrentUserUseCase>(
+    () => GetCurrentUserUseCase(sl<AuthRepository>()),
+  );
+  // SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => prefs);
+  // Đăng ký AuthService
+  sl.registerLazySingleton<AuthService>(
+    () => AuthService(sl<SharedPreferences>()),
+  );
+  // Đăng ký ApiService
+  sl.registerLazySingleton<ApiService>(
+    () => ApiService(sl<AuthService>(), sl<RefreshTokenUseCase>()),
+  );
   // Auth BLoC
   sl.registerLazySingleton<AuthBloc>(
     () => AuthBloc(
@@ -77,6 +90,8 @@ void setupServiceLocator() {
       forgotPasswordUseCase: sl<ForgotPasswordUseCase>(),
       verifyOtpUseCase: sl<VerifyOtpUseCase>(),
       resetPasswordUseCase: sl<ResetPasswordUseCase>(),
+      getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
+      authService: sl<AuthService>(),
     ),
   );
 

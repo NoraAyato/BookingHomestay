@@ -1,3 +1,5 @@
+import 'package:home_feel/features/auth/data/models/user_info.dart';
+
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../models/auth_request.dart';
@@ -78,5 +80,10 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> logout() async {
     await remoteDataSource.logout();
+  }
+
+  @override
+  Future<UserInfo> getCurrentUser(String accessToken) async {
+    return await remoteDataSource.getCurrentUser(accessToken);
   }
 } 
