@@ -1,3 +1,5 @@
+import 'package:home_feel/features/auth/data/models/user_info.dart';
+
 import '../../data/models/auth_response.dart';
 
 abstract class AuthRepository {
@@ -9,5 +11,6 @@ abstract class AuthRepository {
   Future<AuthResponse> forgotPassword(String email);
   Future<AuthResponse> verifyOtp(String email, String otp);
   Future<AuthResponse> resetPassword(String token, String newPassword);
+  Future<UserInfo> getCurrentUser(String accessToken);
   Future<void> logout();
 } 

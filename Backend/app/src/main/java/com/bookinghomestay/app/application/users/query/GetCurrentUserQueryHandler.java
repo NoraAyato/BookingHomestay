@@ -31,6 +31,8 @@ public class GetCurrentUserQueryHandler {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getStatus(),
-                user.getRole().getName());
+                user.getRole().getName(),
+                user.getBirthday(),
+                user.isGender());
     }
 }

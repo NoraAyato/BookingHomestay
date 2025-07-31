@@ -6,8 +6,8 @@ import 'package:home_feel/features/home/bloc/location_bloc.dart';
 import 'app/app.dart';
 import 'core/services/service_locator.dart';
 
-void main() {
-  setupServiceLocator();
-  // Đăng ký các bloc với GetIt (nếu chưa làm)
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupServiceLocator();
   runApp(const MyApp());
 }

@@ -3,6 +3,7 @@ import '../../../../core/constants/api.dart';
 import '../models/auth_request.dart';
 import '../models/google_auth_request.dart';
 import '../models/auth_response.dart';
+import '../models/user_info.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(AuthRequest request);
@@ -13,6 +14,7 @@ abstract class AuthRemoteDataSource {
   Future<AuthResponse> forgotPassword(ForgotPasswordRequest request);
   Future<AuthResponse> verifyOtp(VerifyOtpRequest request);
   Future<AuthResponse> resetPassword(ResetPasswordRequest request);
+  Future<UserInfo> getCurrentUser(String accessToken);
   Future<void> logout();
 }
 
@@ -30,7 +32,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return AuthResponse.fromJson(response.data);
     } catch (e) {
-      throw Exception('Login failed: $e');
+      rethrow;
     }
   }
 
@@ -43,7 +45,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return AuthResponse.fromJson(response.data);
     } catch (e) {
-      throw Exception('Register failed: $e');
+      rethrow;
     }
   }
 
@@ -56,7 +58,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return AuthResponse.fromJson(response.data);
     } catch (e) {
-      throw Exception('Google login failed: $e');
+      rethrow;
     }
   }
 
@@ -69,7 +71,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return AuthResponse.fromJson(response.data);
     } catch (e) {
-      throw Exception('Refresh token failed: $e');
+      rethrow;
     }
   }
 
@@ -82,7 +84,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return AuthResponse.fromJson(response.data);
     } catch (e) {
-      throw Exception('Change password failed: $e');
+      rethrow;
     }
   }
 
@@ -95,7 +97,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return AuthResponse.fromJson(response.data);
     } catch (e) {
-      throw Exception('Forgot password failed: $e');
+      rethrow;
     }
   }
 
@@ -108,7 +110,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return AuthResponse.fromJson(response.data);
     } catch (e) {
-      throw Exception('Verify OTP failed: $e');
+      rethrow;
     }
   }
 
@@ -121,16 +123,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return AuthResponse.fromJson(response.data);
     } catch (e) {
-      throw Exception('Reset password failed: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<UserInfo> getCurrentUser(String accessToken) async {
+    try {
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}${ApiConstants.users}${ApiConstants.currentUser}',
+        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+      );
+      return UserInfo.fromJson(response.data['data']);
+    } catch (e) {
+      rethrow;
     }
   }
 
   @override
   Future<void> logout() async {
     try {
-      await dio.post('${ApiConstants.baseUrl}${ApiConstants.auth}${ApiConstants.logout}');
+      await dio.post(
+        '${ApiConstants.baseUrl}${ApiConstants.auth}${ApiConstants.logout}',
+      );
     } catch (e) {
-      throw Exception('Logout failed: $e');
+      rethrow;
     }
   }
-} 
+}

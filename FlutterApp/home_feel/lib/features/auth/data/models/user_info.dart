@@ -7,6 +7,8 @@ class UserInfo {
   final String? phoneNumber;
   final String? picture;
   final String? role;
+  final String? birthDay;
+  final bool? gender;
 
   UserInfo({
     required this.userId,
@@ -17,6 +19,8 @@ class UserInfo {
     this.phoneNumber,
     this.picture,
     this.role,
+    this.birthDay,
+    this.gender,
   });
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
@@ -29,6 +33,22 @@ class UserInfo {
       phoneNumber: json['phoneNumber'],
       picture: json['picture'],
       role: json['role'],
+      birthDay: json['birthDay'],
+      gender: json['gender'],
     );
   }
-} 
+  Map<String, dynamic> toJson() {
+    return {
+      'userId': userId,
+      'userName': userName,
+      'email': email,
+      'firstName': firstName,
+      'lastName': lastName,
+      'phoneNumber': phoneNumber,
+      'picture': picture,
+      'role': role,
+      'birthDay': birthDay,
+      'gender': gender,
+    };
+  }
+}
