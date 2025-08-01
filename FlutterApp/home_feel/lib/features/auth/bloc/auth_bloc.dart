@@ -223,7 +223,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final data = e.response!.data;
         final message =
             data['message'] ?? data['error'] ?? 'Lỗi không xác định';
-            print('Error message: $message');
         return AuthFailure(message);
       } catch (_) {
         return AuthFailure('Lỗi khi phân tích dữ liệu phản hồi từ server');

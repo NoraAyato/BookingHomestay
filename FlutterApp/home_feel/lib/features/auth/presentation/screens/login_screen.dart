@@ -6,6 +6,7 @@ import 'package:home_feel/features/auth/bloc/auth_state.dart';
 import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
 import 'register_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onClose;
@@ -25,6 +26,7 @@ final GoogleSignIn _googleSignIn = GoogleSignIn(
 class _LoginScreenState extends State<LoginScreen> {
   bool rememberMe = false;
   bool _isFormValid = false;
+  bool _showPassword = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -175,9 +177,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _showPassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _showPassword = !_showPassword;
+                                });
+                              },
+                            ),
                           ),
-                          obscureText: true,
+                          obscureText: !_showPassword,
                         ),
+
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -192,7 +208,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             const Text('Ghi nhớ tôi'),
                             const Spacer(),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ForgotPasswordScreen(),
+                                  ),
+                                );
+                              },
                               child: const Text('Quên mật khẩu'),
                             ),
                           ],
