@@ -16,7 +16,7 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
-          final isLoggedIn = state is AuthSuccess;
+          final isLoggedIn = state is AuthSuccess && state.authResponse.data != null;
           final userInfo = isLoggedIn ? state.userInfo : null;
           
           return ListView(
