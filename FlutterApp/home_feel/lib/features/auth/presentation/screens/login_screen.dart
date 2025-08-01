@@ -26,6 +26,7 @@ final GoogleSignIn _googleSignIn = GoogleSignIn(
 class _LoginScreenState extends State<LoginScreen> {
   bool rememberMe = false;
   bool _isFormValid = false;
+  bool _showPassword = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final RegExp _emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -176,9 +177,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _showPassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _showPassword = !_showPassword;
+                                });
+                              },
+                            ),
                           ),
-                          obscureText: true,
+                          obscureText: !_showPassword,
                         ),
+
                         const SizedBox(height: 8),
                         Row(
                           children: [
