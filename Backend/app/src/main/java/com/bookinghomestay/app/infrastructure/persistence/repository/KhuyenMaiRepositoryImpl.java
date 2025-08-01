@@ -22,4 +22,34 @@ public class KhuyenMaiRepositoryImpl implements IKhuyenMaiRepository {
         return jpaKhuyenMaiRepository.getAdminPromotions();
     }
 
+    @Override
+    public KhuyenMai getKhuyenMaiById(String id) {
+        return jpaKhuyenMaiRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Khuyến mãi không tồn tại !"));
+    }
+
+    @Override
+    public KhuyenMai createKhuyenMai(KhuyenMai khuyenMai) {
+        return jpaKhuyenMaiRepository.save(khuyenMai);
+    }
+
+    @Override
+    public KhuyenMai updateKhuyenMai(KhuyenMai khuyenMai) {
+        return jpaKhuyenMaiRepository.save(khuyenMai);
+    }
+
+    @Override
+    public void deleteKhuyenMai(String id) {
+        if (!jpaKhuyenMaiRepository.existsById(id)) {
+            throw new RuntimeException("Khuyến mãi không tồn tại !");
+        }
+        jpaKhuyenMaiRepository.deleteById(id);
+    }
+
+    @Override
+    public List<KhuyenMai> getKhuyenMaiByUserId(String userId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getKhuyenMaiByUserId'");
+    }
+
 }

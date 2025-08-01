@@ -30,4 +30,5 @@ public class PromotionController {
                 khuyenMais);
         return ResponseEntity.ok(response);
     }
+
 }

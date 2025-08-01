@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 public class CreateUserCommandHandler {
 
     private final IUserRepository userRepository;
-    private final ApplicationEventPublisher eventPublisher;
-
+   
     public void handle(CreateUserCommand command) {
         Role role = new Role();
         role.setRoleId(2L);
