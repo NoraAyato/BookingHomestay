@@ -2,6 +2,8 @@ package com.bookinghomestay.app.domain.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -54,4 +56,14 @@ public class User {
         defaultRole.setRoleId(2L);
         this.role = defaultRole;
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserLogin> userLogins = new ArrayList<>();
+    @OneToMany(mappedBy = "nguoiDung", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhieuDatPhong> danhSachPhieu;
+    @OneToMany(mappedBy = "nguoiDung", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Homestay> homestays = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserNotification> userNotifications = new ArrayList<>();
+
 }
