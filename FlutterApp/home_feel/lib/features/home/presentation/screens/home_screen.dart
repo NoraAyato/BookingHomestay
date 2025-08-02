@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/core/widgets/loading_overlay.dart';
 import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/presentation/screens/login_screen.dart';
 import 'package:home_feel/features/auth/presentation/screens/register_screen.dart';
+import 'package:home_feel/features/common/bloc/loading_bloc.dart';
 import 'package:home_feel/features/home/bloc/home_event.dart';
 import 'package:home_feel/features/home/bloc/home_state.dart';
 import 'package:home_feel/features/home/bloc/location_event.dart';
@@ -28,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showOverlay = false;
   int? _overlayScreen; // null: không overlay, 0: login, 1: register
   final tabNotifier = GetIt.I<TabNotifier>();
+  // LoadingBloc cho overlay loading
+  final _loadingBloc = GetIt.I<LoadingBloc>();
 
   void showLogin() => setState(() {
     _showOverlay = true;
@@ -54,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     tabNotifier.addListener(_onTabChanged);
-    
   }
 
   void _onTabChanged() {
@@ -79,79 +82,84 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<HomeBloc>(create: (context) => GetIt.I<HomeBloc>()),
-        BlocProvider<LocationBloc>(
-          create: (context) => GetIt.I<LocationBloc>(),
-        ),
-      ],
-      child: Scaffold(
-        body: Stack(
-          children: [
-            _screens[_currentIndex],
-            if (_showOverlay && _overlayScreen == 0)
-              Positioned.fill(
-                child: LoginScreen(
-                  onClose: closeOverlay,
-                  onRegister: showRegister,
+    return BlocBuilder<LoadingBloc, LoadingState>(
+      bloc: _loadingBloc,
+      builder: (context, loadingState) {
+        return Scaffold(
+          body: LoadingOverlay(
+            isLoading: loadingState.isLoading,
+            icons: [
+              Icon(Icons.flash_on, color: Colors.orange, size: 24),
+              Icon(Icons.hotel, color: Colors.orange, size: 24),
+              Icon(Icons.local_offer, color: Colors.orange, size: 24),
+            ],
+            child: Stack(
+              children: [
+                _screens[_currentIndex],
+                if (_showOverlay && _overlayScreen == 0)
+                  Positioned.fill(
+                    child: LoginScreen(
+                      onClose: closeOverlay,
+                      onRegister: showRegister,
+                    ),
+                  ),
+                if (_showOverlay && _overlayScreen == 1)
+                  Positioned.fill(
+                    child: RegisterScreen(
+                      onClose: closeOverlay,
+                      onLogin: showLogin,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: _showOverlay
+              ? null
+              : BottomNavigationBar(
+                  type: BottomNavigationBarType.fixed,
+                  backgroundColor: const Color(0xFFFFF3E0), // cam nhạt
+                  selectedItemColor: Color(0xFFFF9800), // cam đậm
+                  unselectedItemColor: Color(0xFFBDBDBD), // xám nhạt
+                  selectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 11,
+                  ),
+                  items: const [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.home),
+                      label: 'Trang chủ',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.thumb_up_alt),
+                      label: 'Đề xuất',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.book),
+                      label: 'Phòng đã đặt',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.local_offer),
+                      label: 'Ưu đãi',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person),
+                      label: 'Tài khoản',
+                    ),
+                  ],
+                  currentIndex: _currentIndex,
+                  onTap: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                    tabNotifier.value = index;
+                  },
                 ),
-              ),
-            if (_showOverlay && _overlayScreen == 1)
-              Positioned.fill(
-                child: RegisterScreen(
-                  onClose: closeOverlay,
-                  onLogin: showLogin,
-                ),
-              ),
-          ],
-        ),
-        bottomNavigationBar: _showOverlay
-            ? null
-            : BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                backgroundColor: const Color(0xFFFFF3E0), // cam nhạt
-                selectedItemColor: Color(0xFFFF9800), // cam đậm
-                unselectedItemColor: Color(0xFFBDBDBD), // xám nhạt
-                selectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 11,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 11,
-                ),
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.home),
-                    label: 'Trang chủ',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.thumb_up_alt),
-                    label: 'Đề xuất',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.book),
-                    label: 'Phòng đã đặt',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.local_offer),
-                    label: 'Ưu đãi',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: 'Tài khoản',
-                  ),
-                ],
-                currentIndex: _currentIndex,
-                onTap: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                  tabNotifier.value = index;
-                },
-              ),
-      ),
+        );
+      },
     );
   }
 }

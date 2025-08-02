@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/core/widgets/app_dialog.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/bloc/auth_state.dart';
@@ -37,9 +38,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void _handleForgotPassword() {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Vui lòng nhập email!')));
+      showAppDialog(
+        context: context,
+        title: 'Lỗi',
+        message: 'Vui lòng nhập email của bạn.',
+        type: AppDialogType.error,
+        buttonText: 'Đóng',
+      );
       return;
     }
     context.read<AuthBloc>().add(ForgotPasswordEvent(email: email));
@@ -72,21 +77,39 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             : null,
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is AuthLoading) {
-            // Có thể show loading indicator nếu muốn
+            // Show loading overlay nếu đã tích hợp ở màn hình cha
           } else if (state is AuthSuccess) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    VerifyOtpScreen(email: _emailController.text.trim()),
-              ),
+            await showAppDialog(
+              context: context,
+              title: 'Thành công',
+              message:
+                  'Đã gửi mã OTP về email. Vui lòng kiểm tra email để xác minh.',
+              type: AppDialogType.success,
+              buttonText: 'Tiếp tục',
+              onButtonPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        VerifyOtpScreen(email: _emailController.text.trim()),
+                  ),
+                );
+              },
+              barrierDismissible: false,
             );
           } else if (state is AuthFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            await showAppDialog(
+              context: context,
+              title: 'Lỗi',
+              message: state.message,
+              type: AppDialogType.error,
+              buttonText: 'Đóng',
+              onButtonPressed: () => Navigator.of(context).pop(),
+              barrierDismissible: true,
+            );
           }
         },
         builder: (context, state) {

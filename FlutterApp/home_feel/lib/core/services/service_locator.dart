@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:home_feel/features/auth/data/services/auth_service.dart';
+import 'package:home_feel/features/common/bloc/loading_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/data/repositories/location_repository_impl.dart';
@@ -113,7 +114,7 @@ Future<void> setupServiceLocator() async {
 
   // Đăng ký TabNotifier
   sl.registerLazySingleton<TabNotifier>(() => TabNotifier());
-
+  sl.registerLazySingleton<LoadingBloc>(() => LoadingBloc());
   // Đăng ký BLoC
   sl.registerLazySingleton(() => HomeBloc(sl<FetchHomestaysUseCase>()));
   sl.registerLazySingleton(() => LocationBloc(sl<FetchLocationsUseCase>()));

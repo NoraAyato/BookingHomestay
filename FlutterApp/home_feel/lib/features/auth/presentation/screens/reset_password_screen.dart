@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/core/widgets/app_dialog.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/bloc/auth_state.dart';
@@ -64,19 +65,33 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is AuthSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Đổi mật khẩu thành công!')),
-            );
-            Navigator.popUntil(
-              context,
-              (route) => route.isFirst || route.settings.name == '/login',
+            await showAppDialog(
+              context: context,
+              title: 'Thành công',
+              message: 'Mật khẩu đã được đổi thành công.',
+              type: AppDialogType.success,
+              buttonText: 'Đóng',
+              onButtonPressed: () {
+                Navigator.of(context).pop();
+                Navigator.popUntil(
+                  context,
+                  (route) => route.isFirst || route.settings.name == '/login',
+                );
+              },
+              barrierDismissible: false,
             );
           } else if (state is AuthFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            await showAppDialog(
+              context: context,
+              title: 'Lỗi',
+              message: state.message,
+              type: AppDialogType.error,
+              buttonText: 'Đóng',
+              onButtonPressed: () => Navigator.of(context).pop(),
+              barrierDismissible: true,
+            );
           }
         },
         child: SingleChildScrollView(
