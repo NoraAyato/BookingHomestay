@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/core/widgets/app_dialog.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/bloc/auth_state.dart';
@@ -62,8 +63,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập đầy đủ thông tin')),
+      showAppDialog(
+        context: context,
+        title: 'Lỗi',
+        message: 'Vui lòng nhập đầy đủ thông tin.',
+        type: AppDialogType.error,
+        buttonText: 'Đóng',
       );
       return;
     }
@@ -95,9 +100,13 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Google Sign-In thất bại: $e')));
+      showAppDialog(
+        context: context,
+        title: 'Lỗi',
+        message: 'Đăng nhập bằng Google thất bại. Vui lòng thử lại.',
+        type: AppDialogType.error,
+        buttonText: 'Đóng',
+      );
     }
   }
 
@@ -223,26 +232,40 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
                         BlocConsumer<AuthBloc, AuthState>(
-                          listener: (context, state) {
+                          listener: (context, state) async {
                             if (state is AuthSuccess) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(state.authResponse.message),
-                                ),
+                              await showAppDialog(
+                                context: context,
+                                title: 'Đăng nhập thành công',
+                                message: state.authResponse.message,
+                                type: AppDialogType.success,
+                                buttonText: 'Đóng',
+                                onButtonPressed: () {
+                                  Navigator.of(context).pop();
+                                  if (widget.onClose != null) {
+                                    widget.onClose!();
+                                  } else {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ProfileScreen(),
+                                      ),
+                                    );
+                                  }
+                                },
+                                barrierDismissible: false,
                               );
-                              if (widget.onClose != null) {
-                                widget.onClose!();
-                              } else {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ProfileScreen(),
-                                  ),
-                                );
-                              }
                             } else if (state is AuthFailure) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(state.message)),
+                              await showAppDialog(
+                                context: context,
+                                title: 'Lỗi',
+                                message: state.message,
+                                type: AppDialogType.error,
+                                buttonText: 'Đóng',
+                                onButtonPressed: () =>
+                                    Navigator.of(context).pop(),
+                                barrierDismissible: true,
                               );
                             }
                           },
@@ -293,21 +316,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            BlocConsumer<AuthBloc, AuthState>(
-                              listener: (context, state) {
-                                if (state is AuthSuccess) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(state.authResponse.message),
-                                    ),
-                                  );
-                                  // TODO: Đóng overlay sau khi đăng nhập thành công
-                                } else if (state is AuthFailure) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(state.message)),
-                                  );
-                                }
-                              },
+                            BlocBuilder<AuthBloc, AuthState>(
                               builder: (context, state) {
                                 return IconButton(
                                   icon: Image.asset(

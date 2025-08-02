@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/core/widgets/app_dialog.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/bloc/auth_state.dart';
@@ -87,21 +88,38 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is AuthSuccess &&
               state.authResponse.data != null &&
               (state.authResponse.data?.accessToken != null)) {
             final token = state.authResponse.data?.accessToken ?? '';
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ResetPasswordScreen(token: token),
-              ),
+            await showAppDialog(
+              context: context,
+              title: 'Thành công',
+              message: 'Xác minh OTP thành công. Vui lòng đặt lại mật khẩu.',
+              type: AppDialogType.success,
+              buttonText: 'Tiếp tục',
+              onButtonPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ResetPasswordScreen(token: token),
+                  ),
+                );
+              },
+              barrierDismissible: false,
             );
           } else if (state is AuthFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            await showAppDialog(
+              context: context,
+              title: 'Lỗi',
+              message: state.message,
+              type: AppDialogType.error,
+              buttonText: 'Đóng',
+              onButtonPressed: () => Navigator.of(context).pop(),
+              barrierDismissible: true,
+            );
           }
         },
         child: SingleChildScrollView(

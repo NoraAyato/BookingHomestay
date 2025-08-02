@@ -38,3 +38,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icons/google.png
+    - assets/icons/ic_booking_complete.png
+    - assets/icons/ic_cancel_booking.png
+    - assets/icons/ic_continue_pay.png
+    - assets/icons/ic_empty_search.png
+    - assets/icons/img_coupon_no_data.png

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:home_feel/core/widgets/app_dialog.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/bloc/auth_state.dart';
@@ -89,9 +90,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Lỗi đăng nhập Google: $e')));
+      showAppDialog(
+        context: context,
+        title: 'Lỗi',
+        message: 'Không thể đăng nhập bằng Google. Vui lòng thử lại.',
+        type: AppDialogType.error,
+        buttonText: 'Đóng',
+      );
     }
   }
 
@@ -131,20 +136,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: BlocConsumer<AuthBloc, AuthState>(
                       listener: (context, state) {
                         if (state is AuthSuccess) {
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(
-                              SnackBar(
-                                content: Text(state.authResponse.message),
-                              ),
-                            );
+                          showAppDialog(
+                            context: context,
+                            title: 'Đăng ký thành công',
+                            message: state.authResponse.message,
+                            type: AppDialogType.success,
+                            buttonText: 'Đóng',
+                          );
                           widget.onLogin?.call();
                         } else if (state is AuthFailure) {
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(
-                              SnackBar(content: Text(state.message)),
-                            );
+                          showAppDialog(
+                            context: context,
+                            title: 'Lỗi',
+                            message: state.message,
+                            type: AppDialogType.error,
+                            buttonText: 'Đóng',
+                          );
                         }
                       },
                       builder: (context, state) {
