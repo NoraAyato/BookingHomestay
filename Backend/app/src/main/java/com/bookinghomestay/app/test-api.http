@@ -1,17 +1,29 @@
 ### Get user by ID
+GET http://localhost:8080/api/homestays/HS01/reviews?haiLongRange=3-5&reviewerType=others&currentUserId=U123
+Accept: application/json
 ### Get user by ID
 GET http://localhost:8080/api/users/41583ddf-6014-4fb5-92ef-934e9ef7f725
 Accept: application/json
 
 ### Lấy danh sách thông báo của user hiện tại (đã đăng nhập)
 GET http://localhost:8080/api/notification/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQwNjgzMzksImV4cCI6MTc1NDA3MTkzOX0.bN0WcS_Zrl7guvLJbGu9eJyPBO5SuY_T39zGRqEb1s4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQxMjQ5MjYsImV4cCI6MTc1NDEyODUyNn0.Jh4MNvgT48u7kyLN9wfnocIDbgBV4TtQRkIxIurS3fQ
 Content-Type: application/json
 
+### Test: Lấy tất cả ảnh của homestay
+GET http://localhost:8080/api/homestays/HS-abcc168b-3a74-4bd9-98cb-09f5b377ea94/images
+Accept: application/json
 ### Get current user info
 GET http://localhost:8080/api/users/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTM5Njc5MDAsImV4cCI6MTc1Mzk3MTUwMH0.bVoN_AwVLrnfJ3_KZlje3Dm12UFZKzTbR3n8voMdMwg
 Content-Type: application/json
+### Lấy thông tin chi tiết Homestay (bao gồm chính sách, tiện ích, đánh giá...)
+GET http://localhost:8080/api/homestays/HS-abcc168b-3a74-4bd9-98cb-09f5b377ea94
+Accept: application/json
+
+### Lấy tất cả tin tức
+GET http://localhost:8080/api/news
+Accept: application/json
 
 ### Create new user
 POST http://localhost:8080/api/users

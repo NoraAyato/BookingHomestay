@@ -4,10 +4,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bookinghomestay.app.api.dto.ApiResponse;
-import com.bookinghomestay.app.api.dto.Nofication.UserNotificationResponeDto;
-import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
+import com.bookinghomestay.app.api.dto.Nofication.NotificationResponeDto;
 import com.bookinghomestay.app.application.nofication.command.SetReadNotificationCommand;
 import com.bookinghomestay.app.application.nofication.command.SetReadNotificationHandler;
+import com.bookinghomestay.app.application.nofication.query.GetPublicNotificationHandler;
 import com.bookinghomestay.app.application.nofication.query.GetUserNotificationsHandler;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
@@ -26,9 +26,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class NotificationController {
     private final GetUserNotificationsHandler getUserNotificationsHandler;
     private final SetReadNotificationHandler setReadNotificationHandler;
+    private final GetPublicNotificationHandler notificationService;
+
+    @GetMapping("/public")
+    public ResponseEntity<ApiResponse<List<NotificationResponeDto>>> getPublicNotifications() {
+        var notifications = notificationService.handle(); // lấy forAll=true
+        return ResponseEntity.ok(new ApiResponse<>(true, "Danh sách thông báo công khai", notifications));
+    }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<List<UserNotificationResponeDto>>> getMyNotifications() {
+    public ResponseEntity<ApiResponse<List<NotificationResponeDto>>> getMyNotifications() {
         String userId = SecurityUtils.getCurrentUserId(); // bạn cần cài sẵn SecurityUtils
         var notifications = getUserNotificationsHandler.handle(userId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách thông báo thành công!", notifications));

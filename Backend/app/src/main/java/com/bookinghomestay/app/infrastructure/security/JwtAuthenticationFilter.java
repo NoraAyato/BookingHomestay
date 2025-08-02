@@ -26,7 +26,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/api/Homestays") || // API public
                 path.startsWith("/img") || path.startsWith("/api/search/**") || 
                 path.startsWith("/api/locations/**") || 
-                path.startsWith("/api/promotions/**");
+                path.startsWith("/api/promotions/**") ||
+                path.startsWith("/api/notification/public") ||
+                path.startsWith("/api/news");
     }
 
     @Override

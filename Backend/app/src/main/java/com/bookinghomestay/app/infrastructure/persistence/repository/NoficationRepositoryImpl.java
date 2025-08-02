@@ -5,17 +5,18 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
+import com.bookinghomestay.app.domain.model.Notification;
 import com.bookinghomestay.app.domain.model.UserNotification;
 import com.bookinghomestay.app.domain.repository.INoficationRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Repository
+@RequiredArgsConstructor
 public class NoficationRepositoryImpl implements INoficationRepository {
 
     private final JpaNoficationRepository jpaNoficationRepository;
-
-    public NoficationRepositoryImpl(JpaNoficationRepository jpaNoficationRepository) {
-        this.jpaNoficationRepository = jpaNoficationRepository;
-    }
+    private final JpaNotificationRepository jpaNotificationRepository;
 
     @Override
     public List<UserNotification> findByUser_UserId(String userId) {
@@ -40,6 +41,11 @@ public class NoficationRepositoryImpl implements INoficationRepository {
     @Override
     public Optional<UserNotification> findById(Long id) {
         return jpaNoficationRepository.findById(id);
+    }
+
+    @Override
+    public List<Notification> findPublicNotifications() {
+       return jpaNotificationRepository.findByForAllTrueOrderByNgayGuiDesc();
     }
 
 }
