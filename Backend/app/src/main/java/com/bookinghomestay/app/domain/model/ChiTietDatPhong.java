@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -25,10 +26,10 @@ public class ChiTietDatPhong {
     private String maPhong;
 
     @Column(name = "ngay_den", nullable = false)
-    private LocalDate ngayDen;
+    private LocalDateTime ngayDen;
 
     @Column(name = "ngay_di", nullable = false)
-    private LocalDate ngayDi;
+    private LocalDateTime ngayDi;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_pdphong", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_ctdp_pdphong"))

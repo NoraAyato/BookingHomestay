@@ -11,7 +11,7 @@ public interface JpaNoficationRepository extends JpaRepository<UserNotification,
 
     // Tìm thông báo chưa đọc
     List<UserNotification> findByUser_UserIdAndDaDocFalse(String userId);
-
+    
     // Kiểm tra có thông báo chưa đọc
     boolean existsByUser_UserIdAndDaDocFalse(String userId);
 }

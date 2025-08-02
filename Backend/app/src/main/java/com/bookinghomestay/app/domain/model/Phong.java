@@ -22,11 +22,14 @@ public class Phong {
     @Column(name = "ten_phong", length = 100, nullable = false)
     private String tenPhong;
 
-    @Column(name = "trang_thai", length = 50, nullable = false)
-    private String trangThai = "Trống";
+    @Column(name = "trang_thai", length = 50, columnDefinition = "nvarchar(50)", nullable = false)
+    private String trangThai = "Hoạt động";
 
     @Column(name = "don_gia", nullable = false)
     private BigDecimal donGia;
+
+    @Column(name = "don_gia_theo_gio", nullable = true)
+    private BigDecimal donGiaTheoGio;
 
     @Column(name = "so_nguoi", nullable = false)
     private Integer soNguoi;

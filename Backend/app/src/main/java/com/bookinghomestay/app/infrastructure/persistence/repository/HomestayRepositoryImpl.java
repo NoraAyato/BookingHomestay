@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
+import java.util.Optional;
 
 @Repository
 public class HomestayRepositoryImpl implements IHomestayRepository {
@@ -23,5 +24,10 @@ public class HomestayRepositoryImpl implements IHomestayRepository {
     @Override
     public List<Homestay> getTopRated() {
         return jpaRepo.findTop5ByOrderByHangDesc();
+    }
+
+    @Override
+    public Optional<Homestay> findById(String id) {
+        return jpaRepo.findById(id);
     }
 }

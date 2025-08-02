@@ -32,6 +32,9 @@ public class Homestay {
     @Column(name = "hinh_anh")
     private String hinhAnh;
 
+    @Column(name = "gioi_thieu", columnDefinition = "nvarchar(max)", nullable = true)
+    private String gioiThieu;
+
     @Column(name = "dia_chi", columnDefinition = "nvarchar(100)")
     private String diaChi;
 

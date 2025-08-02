@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserNotificationResponeDto {
+public class NotificationResponeDto {
 
     private Long id;
     private String tieuDe;
