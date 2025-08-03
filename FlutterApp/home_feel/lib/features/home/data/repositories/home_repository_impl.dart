@@ -1,30 +1,54 @@
-import 'package:dio/dio.dart';
-import 'package:home_feel/core/constants/api.dart';
-import 'package:home_feel/core/services/api_service.dart';
-import '../models/homestay_model.dart';
+import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
+import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
+import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/features/home/data/models/homestay_search_model.dart';
+import 'package:home_feel/features/home/data/models/homestay_suggest_model.dart';
+import 'package:home_feel/features/home/domain/repositories/home_repository.dart';
+import 'package:home_feel/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:home_feel/features/home/data/models/homestay_model.dart';
+import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 
-class HomeRepositoryImpl {
-  final ApiService apiService;
+class HomeRepositoryImpl implements HomeRepository {
+  @override
+  Future<ApiResponse<HomestayTienNghiResponseModel>> getHomestayTienNghi(
+    String id,
+  ) {
+    return _remoteDataSource.getHomestayTienNghi(id);
+  }
 
-  HomeRepositoryImpl(this.apiService);
+  @override
+  Future<ApiResponse<HomestayImageResponseModel>> getHomestayImages(String id) {
+    return _remoteDataSource.getHomestayImages(id);
+  }
 
-  Future<List<HomestayModel>> fetchHomestays({
+  @override
+  Future<ApiResponse<HomestayDetailModel>> getHomestayDetail(String id) {
+    return _remoteDataSource.getHomestayDetail(id);
+  }
+
+  final HomeRemoteDataSource _remoteDataSource;
+
+  HomeRepositoryImpl(this._remoteDataSource);
+
+  @override
+  Future<ApiResponse<List<HomestayModel>>> fetchHomestays({
     String? location,
     String? filterType,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (location != null) queryParams['location'] = location;
-      if (filterType != null) queryParams['type'] = filterType;
-      final response = await apiService.get(
-        ApiConstants.homestays,
-        queryParameters: queryParams,
-      );
-      return (response.data as List)
-          .map((json) => HomestayModel.fromJson(json))
-          .toList();
-    } catch (e) {
-      throw Exception('Failed to fetch homestays: $e');
-    }
+    return await _remoteDataSource.fetchHomestays();
+  }
+
+  @override
+  Future<List<HomestaySearchModel>> searchHomestaysByKeyword(String keyword) {
+    return _remoteDataSource
+        .searchHomestayByKeyword(keyword)
+        .then((response) => response.data ?? []);
+  }
+
+  @override
+  Future<List<HomestaySuggestModel>> suggestHomestays(String prefix) {
+    return _remoteDataSource
+        .getSuggestedHomestays(prefix)
+        .then((response) => response.data ?? []);
   }
 }

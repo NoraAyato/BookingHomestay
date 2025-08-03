@@ -1,14 +1,31 @@
+import 'package:home_feel/features/home/domain/usecases/get_homestay_tiennghi.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:home_feel/core/services/api_service.dart';
+import 'package:home_feel/core/services/tab_notifier.dart';
 import 'package:home_feel/features/auth/data/services/auth_service.dart';
 import 'package:home_feel/features/common/bloc/loading_bloc.dart';
+import 'package:home_feel/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:home_feel/features/home/data/repositories/home_repository_impl.dart';
+import 'package:home_feel/features/home/domain/repositories/home_repository.dart';
+import 'package:home_feel/features/home/domain/usecases/fetch_homestays_use_case.dart';
+import 'package:home_feel/features/home/domain/usecases/get_suggested_homestays.dart';
+import 'package:home_feel/features/home/domain/usecases/search_homestay_by_keyword.dart';
+import 'package:home_feel/features/home/domain/usecases/get_homestay_detail.dart';
+import 'package:home_feel/features/home/domain/usecases/get_homestay_images.dart';
+
+import 'package:home_feel/features/home/presentation/bloc/home_bloc.dart';
 import 'package:home_feel/features/profile/domain/usecases/update_profile_usecase.dart';
+
+// News Feature
+import 'package:home_feel/features/news/data/datasources/news_remote_data_source.dart';
+import 'package:home_feel/features/news/data/repositories/news_repository_impl.dart';
+import 'package:home_feel/features/news/domain/repositories/news_repository.dart';
+import 'package:home_feel/features/news/domain/usecases/get_all_news_use_case.dart';
+import 'package:home_feel/features/news/domain/usecases/get_news_detail_use_case.dart';
+import 'package:home_feel/features/news/presentation/bloc/news_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../features/home/data/repositories/home_repository_impl.dart';
-import '../../features/home/domain/usecases/fetch_homestays_use_case.dart';
-import '../../features/home/bloc/home_bloc.dart';
-import '../services/api_service.dart';
-import 'package:home_feel/core/services/tab_notifier.dart';
 
 // Promotion dependencies
 import '../../features/promotion/data/datasources/promotion_remote_data_source.dart';
@@ -38,16 +55,6 @@ import 'package:home_feel/features/profile/domain/usecases/upload_avatar_usecase
 import 'package:home_feel/features/profile/data/datasources/user_remote_data_source.dart';
 import 'package:home_feel/features/profile/data/repositories/user_repository_impl.dart';
 import 'package:home_feel/features/profile/domain/repositories/user_repository.dart';
-
-// Location dependencies
-import 'package:home_feel/features/location/data/datasources/location_remote_data_source.dart';
-import 'package:home_feel/features/location/data/repositories/location_repository_impl.dart';
-import 'package:home_feel/features/location/domain/usecases/fetch_locations_use_case.dart';
-import 'package:home_feel/features/location/domain/usecases/fetch_provinces_use_case.dart';
-import 'package:home_feel/features/location/domain/usecases/fetch_districts_by_province_use_case.dart';
-import 'package:home_feel/features/location/domain/usecases/fetch_wards_by_district_use_case.dart';
-import 'package:home_feel/features/location/domain/usecases/get_location_by_id_use_case.dart';
-import 'package:home_feel/features/location/presentation/bloc/location_bloc.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -118,55 +125,50 @@ Future<void> setupServiceLocator() async {
     ),
   );
 
-  // Đăng ký Home Repository và Use Case
-  sl.registerLazySingleton<HomeRepositoryImpl>(
-    () => HomeRepositoryImpl(sl<ApiService>()),
+  // Đăng ký Home Feature
+  // Data sources
+  sl.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(sl<ApiService>()),
   );
+
+  // Repository
+  sl.registerLazySingleton<HomeRepository>(
+    () => HomeRepositoryImpl(sl<HomeRemoteDataSource>()),
+  );
+
+  // Use Cases
   sl.registerLazySingleton<FetchHomestaysUseCase>(
-    () => FetchHomestaysUseCase(sl<HomeRepositoryImpl>()),
+    () => FetchHomestaysUseCase(sl<HomeRepository>()),
   );
-
-  // Đăng ký Location dependencies
-  // Data source
-  sl.registerLazySingleton<LocationRemoteDataSource>(
-    () => LocationRemoteDataSourceImpl(sl<ApiService>()),
+  // Use Cases cho search, suggest, detail
+  sl.registerLazySingleton<SearchHomestayByKeyword>(
+    () => SearchHomestayByKeyword(sl<HomeRepository>()),
   );
-
-  // Repository implementation
-  sl.registerLazySingleton<LocationRepositoryImpl>(
-    () => LocationRepositoryImpl(sl<LocationRemoteDataSource>()),
+  sl.registerLazySingleton<GetSuggestedHomestays>(
+    () => GetSuggestedHomestays(sl<HomeRepository>()),
   );
-
-  // Use cases
-  sl.registerLazySingleton<FetchLocationsUseCase>(
-    () => FetchLocationsUseCase(sl<LocationRepositoryImpl>()),
+  sl.registerLazySingleton<GetHomestayDetail>(
+    () => GetHomestayDetail(sl<HomeRepository>()),
   );
-  sl.registerLazySingleton<FetchProvincesUseCase>(
-    () => FetchProvincesUseCase(sl<LocationRepositoryImpl>()),
+  sl.registerLazySingleton<GetHomestayImages>(
+    () => GetHomestayImages(sl<HomeRepository>()),
   );
-  sl.registerLazySingleton<FetchDistrictsByProvinceUseCase>(
-    () => FetchDistrictsByProvinceUseCase(sl<LocationRepositoryImpl>()),
+  sl.registerLazySingleton<GetHomestayTienNghi>(
+    () => GetHomestayTienNghi(sl<HomeRepository>()),
   );
-  sl.registerLazySingleton<FetchWardsByDistrictUseCase>(
-    () => FetchWardsByDistrictUseCase(sl<LocationRepositoryImpl>()),
-  );
-  sl.registerLazySingleton<GetLocationByIdUseCase>(
-    () => GetLocationByIdUseCase(sl<LocationRepositoryImpl>()),
-  );
-
   // Đăng ký TabNotifier
   sl.registerLazySingleton<TabNotifier>(() => TabNotifier());
   sl.registerLazySingleton<LoadingBloc>(() => LoadingBloc());
 
   // Đăng ký BLoC
-  sl.registerLazySingleton(() => HomeBloc(sl<FetchHomestaysUseCase>()));
-  sl.registerFactory<LocationBloc>(
-    () => LocationBloc(
-      fetchLocationsUseCase: sl<FetchLocationsUseCase>(),
-      fetchProvincesUseCase: sl<FetchProvincesUseCase>(),
-      fetchDistrictsByProvinceUseCase: sl<FetchDistrictsByProvinceUseCase>(),
-      fetchWardsByDistrictUseCase: sl<FetchWardsByDistrictUseCase>(),
-      getLocationByIdUseCase: sl<GetLocationByIdUseCase>(),
+  sl.registerLazySingleton(
+    () => HomeBloc(
+      sl<FetchHomestaysUseCase>(),
+      sl<GetSuggestedHomestays>(),
+      sl<SearchHomestayByKeyword>(),
+      sl<GetHomestayDetail>(),
+      sl<GetHomestayImages>(),
+      sl<GetHomestayTienNghi>(),
     ),
   );
 
@@ -185,6 +187,23 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerLazySingleton<ProfileBloc>(
     () => ProfileBloc(sl<UploadAvatarUseCase>(), sl<UpdateProfileUseCase>()),
+  );
+
+  // Đăng ký News dependencies
+  sl.registerLazySingleton<NewsRemoteDataSource>(
+    () => NewsRemoteDataSourceImpl(sl<ApiService>()),
+  );
+  sl.registerLazySingleton<NewsRepository>(
+    () => NewsRepositoryImpl(sl<NewsRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<GetAllNewsUseCase>(
+    () => GetAllNewsUseCase(sl<NewsRepository>()),
+  );
+  sl.registerLazySingleton<GetNewsDetailUseCase>(
+    () => GetNewsDetailUseCase(sl<NewsRepository>()),
+  );
+  sl.registerLazySingleton<NewsBloc>(
+    () => NewsBloc(sl<GetAllNewsUseCase>(), sl<GetNewsDetailUseCase>()),
   );
 
   // Đăng ký Promotion dependencies

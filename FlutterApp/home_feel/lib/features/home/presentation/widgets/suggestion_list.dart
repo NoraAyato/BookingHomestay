@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../bloc/home_bloc.dart';
-import '../../bloc/home_state.dart';
-import 'homestay_card.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/home_bloc.dart';
+import '../bloc/home_state.dart';
+import 'homestay_card.dart';
 
 class SuggestionList extends StatelessWidget {
   const SuggestionList({super.key});
