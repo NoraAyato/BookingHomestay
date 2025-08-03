@@ -6,7 +6,7 @@ class UploadAvatarUseCase {
 
   UploadAvatarUseCase(this.repository);
 
-  Future<ApiResponse> call(String token, String filePath) async {
-    return await repository.uploadAvatar(token, filePath);
+  Future<ApiResponse> call(String filePath) async {
+    return await repository.uploadAvatar(filePath);
   }
 }

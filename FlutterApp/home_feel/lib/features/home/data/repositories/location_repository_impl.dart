@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:home_feel/core/constants/api.dart';
 import 'package:home_feel/core/services/api_service.dart';
 
-import '../models/location_model.dart';
+import '../../../location/data/models/location_model.dart';
 
 class LocationRepositoryImpl {
   final ApiService apiService;

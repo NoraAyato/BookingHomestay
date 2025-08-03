@@ -4,9 +4,9 @@ import 'package:get_it/get_it.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/home/bloc/home_bloc.dart';
-import 'package:home_feel/features/home/bloc/location_bloc.dart';
 import 'package:home_feel/features/home/presentation/screens/home_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:home_feel/features/location/presentation/bloc/location_bloc.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
