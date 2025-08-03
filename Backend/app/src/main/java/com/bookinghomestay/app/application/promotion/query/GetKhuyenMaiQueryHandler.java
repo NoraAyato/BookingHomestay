@@ -14,21 +14,18 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class GetAdminKhuyenMaiQueryHandle {
 
+public class GetKhuyenMaiQueryHandler {
     private final IKhuyenMaiRepository khuyenMaiRepository;
 
-    public List<PromotionResponeDto> handle() {
+    public PromotionResponeDto handle(String kmId) {
         try {
-            List<KhuyenMai> khuyenMais = khuyenMaiRepository.getAdminKm();
-            if (khuyenMais == null) {
-                return List.of();
-            }
-            return khuyenMais.stream()
-                    .map(PromotionMapper::toDto)
-                    .collect(Collectors.toList());
+            KhuyenMai khuyenMai = khuyenMaiRepository.getKhuyenMaiById(kmId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khuyến mãi với ID: " + kmId));
+            return PromotionMapper.toDto(khuyenMai);
         } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi lấy danh sách khuyến mãi", e);
+            throw new RuntimeException("Lỗi khi lấy khuyến mãi: " + e.getMessage(), e);
         }
     }
+
 }

@@ -45,3 +45,5 @@ flutter:
     - assets/icons/ic_continue_pay.png
     - assets/icons/ic_empty_search.png
     - assets/icons/img_coupon_no_data.png
+    - assets/images/gift_illustration.png
+    - assets/icons/confirm_pay_at_hotel.png

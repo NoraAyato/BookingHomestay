@@ -105,6 +105,9 @@ Content-Type: application/json
 GET http://localhost:8080/api/promotions
 Accept: application/json
 
+### Lấy danh sách tất cả homestay
+GET http://localhost:8080/api/promotions/KM006
+Accept: application/json
 ### Tìm kiếm homestay theo keyword
 ### Tìm kiếm homestay theo từ khóa "Vịnh Hạ Long"
 GET http://localhost:8080/api/search/keyword?keyword=VipPRoMax

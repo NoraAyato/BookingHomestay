@@ -22,4 +22,5 @@ public class PromotionMapper {
                 khuyenMai.getSoLuong(),
                 khuyenMai.getNgayTao());
     }
+    
 }

@@ -7,12 +7,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/usecases/fetch_homestays_use_case.dart';
 import '../../features/home/bloc/home_bloc.dart';
-import '../../features/location/data/repositories/location_repository_impl.dart';
-import '../../features/location/domain/repositories/location_repository.dart';
-import '../../features/location/domain/usecases/fetch_locations_use_case.dart';
-import '../../features/location/presentation/bloc/location_bloc.dart';
 import '../services/api_service.dart';
 import 'package:home_feel/core/services/tab_notifier.dart';
+
+// Promotion dependencies
+import '../../features/promotion/data/datasources/promotion_remote_data_source.dart';
+import '../../features/promotion/data/repositories/promotion_repository_impl.dart';
+import '../../features/promotion/domain/usecases/get_admin_khuyen_mai_usecase.dart';
+import '../../features/promotion/domain/usecases/get_khuyen_mai_by_id_usecase.dart';
+import '../../features/promotion/presentation/bloc/promotion_bloc.dart';
 
 // Auth dependencies
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
@@ -39,7 +42,6 @@ import 'package:home_feel/features/profile/domain/repositories/user_repository.d
 // Location dependencies
 import 'package:home_feel/features/location/data/datasources/location_remote_data_source.dart';
 import 'package:home_feel/features/location/data/repositories/location_repository_impl.dart';
-import 'package:home_feel/features/location/domain/repositories/location_repository.dart';
 import 'package:home_feel/features/location/domain/usecases/fetch_locations_use_case.dart';
 import 'package:home_feel/features/location/domain/usecases/fetch_provinces_use_case.dart';
 import 'package:home_feel/features/location/domain/usecases/fetch_districts_by_province_use_case.dart';
@@ -183,5 +185,25 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerLazySingleton<ProfileBloc>(
     () => ProfileBloc(sl<UploadAvatarUseCase>(), sl<UpdateProfileUseCase>()),
+  );
+
+  // Đăng ký Promotion dependencies
+  sl.registerLazySingleton<PromotionRemoteDataSource>(
+    () => PromotionRemoteDataSourceImpl(sl<ApiService>()),
+  );
+  sl.registerLazySingleton<PromotionRepositoryImpl>(
+    () => PromotionRepositoryImpl(sl<PromotionRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<GetAdminKhuyenMaiUseCase>(
+    () => GetAdminKhuyenMaiUseCase(sl<PromotionRepositoryImpl>()),
+  );
+  sl.registerLazySingleton<GetKhuyenMaiByIdUseCase>(
+    () => GetKhuyenMaiByIdUseCase(sl<PromotionRepositoryImpl>()),
+  );
+  sl.registerFactory<PromotionBloc>(
+    () => PromotionBloc(
+      getAdminKhuyenMaiUseCase: sl<GetAdminKhuyenMaiUseCase>(),
+      getKhuyenMaiByIdUseCase: sl<GetKhuyenMaiByIdUseCase>(),
+    ),
   );
 }

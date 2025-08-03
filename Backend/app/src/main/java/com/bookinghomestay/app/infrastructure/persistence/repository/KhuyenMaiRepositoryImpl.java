@@ -1,6 +1,7 @@
 package com.bookinghomestay.app.infrastructure.persistence.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -23,9 +24,8 @@ public class KhuyenMaiRepositoryImpl implements IKhuyenMaiRepository {
     }
 
     @Override
-    public KhuyenMai getKhuyenMaiById(String id) {
-        return jpaKhuyenMaiRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Khuyến mãi không tồn tại !"));
+    public Optional<KhuyenMai> getKhuyenMaiById(String id) {
+        return jpaKhuyenMaiRepository.findById(id);
     }
 
     @Override

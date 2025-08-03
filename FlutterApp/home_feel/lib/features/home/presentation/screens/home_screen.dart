@@ -13,7 +13,7 @@ import 'package:home_feel/features/profile/presentation/screens/profile_tab.dart
 import '../../bloc/home_bloc.dart';
 import '../widgets/homestay_card.dart';
 import 'package:home_feel/features/bookings/presentation/screens/bookings_screen.dart';
-import 'package:home_feel/features/promotions/presentation/screens/promotions_screen.dart';
+import 'package:home_feel/features/promotion/presentation/screens/promotions_screen.dart';
 import 'package:home_feel/core/services/tab_notifier.dart';
 import 'package:get_it/get_it.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
