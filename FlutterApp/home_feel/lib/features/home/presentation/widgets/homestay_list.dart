@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../bloc/home_bloc.dart';
-import '../../bloc/home_state.dart';
-import 'homestay_card.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/features/home/presentation/screens/homestay_detail_screen.dart';
+import '../bloc/home_bloc.dart';
+import '../bloc/home_state.dart';
+import 'homestay_card.dart';
 
 class HomestayList extends StatelessWidget {
   const HomestayList({super.key});
@@ -21,18 +22,31 @@ class HomestayList extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               itemCount: state.homestays.length,
               itemBuilder: (context, index) {
+                final homestay = state.homestays[index];
                 return Padding(
                   padding: const EdgeInsets.only(right: 12.0),
                   child: SizedBox(
                     width: 250,
-                    child: HomestayCard(homestay: state.homestays[index]),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => HomestayDetailScreen(
+                              id: homestay.id.toString(),
+                            ),
+                          ),
+                        );
+                      },
+                      child: HomestayCard(homestay: homestay),
+                    ),
                   ),
                 );
               },
             ),
           );
         } else if (state is HomeError) {
-          return Center(child: Text('Lỗi:  {state.message}'));
+          return Center(child: Text('Lỗi: ${state.message}'));
         }
         return const Center(child: Text('Đang tải dữ liệu...'));
       },

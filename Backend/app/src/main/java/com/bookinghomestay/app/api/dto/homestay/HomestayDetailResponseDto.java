@@ -1,5 +1,7 @@
 package com.bookinghomestay.app.api.dto.homestay;
 
+import java.math.BigDecimal;
+
 import lombok.*;
 
 @Data
@@ -11,6 +13,8 @@ public class HomestayDetailResponseDto {
     private String tenHomestay;
     private String diaChi;
     private String gioiThieu;
+    private BigDecimal giaTien;
+    private BigDecimal hang;
     private ChinhSachDto chinhSach;
     private int tongDanhGia;
     private double diemHaiLongTrungBinh;

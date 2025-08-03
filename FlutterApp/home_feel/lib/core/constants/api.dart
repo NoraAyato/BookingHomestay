@@ -26,4 +26,7 @@ class ApiConstants {
   static const String users = '/api/users';
   static const String currentUser = '/me';
   static const String updateUserPicture = '/me/update-picture';
+
+  // News endpoints
+  static const String news = '/api/news';
 }

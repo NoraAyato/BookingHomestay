@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/bloc/auth_event.dart';
-import 'package:home_feel/features/home/bloc/home_bloc.dart';
+import 'package:home_feel/features/news/presentation/bloc/news_bloc.dart';
+import 'package:home_feel/features/news/presentation/bloc/news_event.dart';
+
+import 'package:home_feel/features/home/presentation/bloc/home_bloc.dart';
 import 'package:home_feel/features/home/presentation/screens/home_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:home_feel/features/location/presentation/bloc/location_bloc.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,8 +27,8 @@ class MyApp extends StatelessWidget {
           lazy: true, // Chỉ tạo khi cần
         ),
         BlocProvider(
-          create: (context) => GetIt.I.get<LocationBloc>(),
-          lazy: true, // Chỉ tạo khi cần
+          create: (context) => GetIt.I.get<NewsBloc>()..add(GetAllNewsEvent()),
+          lazy: false,
         ),
       ],
       child: MaterialApp(

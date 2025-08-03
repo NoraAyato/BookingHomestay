@@ -1,12 +1,13 @@
-import '../../data/models/homestay_model.dart';
-import '../../data/repositories/home_repository_impl.dart';
+import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/features/home/data/models/homestay_model.dart';
+import 'package:home_feel/features/home/domain/repositories/home_repository.dart';
 
 class FetchHomestaysUseCase {
-  final HomeRepositoryImpl repository;
+  final HomeRepository repository;
 
   FetchHomestaysUseCase(this.repository);
 
-  Future<List<HomestayModel>> call({
+  Future<ApiResponse<List<HomestayModel>>> call({
     String? location,
     String? filterType,
   }) async {

@@ -8,6 +8,9 @@ import com.bookinghomestay.app.domain.repository.IDanhGiaRepository;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import java.math.BigDecimal;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,7 +31,7 @@ public class GetHomestayDetailQueryHandler {
                 int tongDanhGia = danhGiaRepository.countByHomestayId(query.getHomestayId());
                 Double diemTB = danhGiaRepository.averageHaiLongByHomestayId(query.getHomestayId());
                 double diemTrungBinh = diemTB != null ? diemTB : 0.0;
-
+                
                 return HomestayDetailResponseDto.builder()
                                 .id(homestay.getIdHomestay())
                                 .tenHomestay(homestay.getTenHomestay())
@@ -36,6 +39,8 @@ public class GetHomestayDetailQueryHandler {
                                 .gioiThieu(homestay.getGioiThieu())
                                 .tongDanhGia(tongDanhGia)
                                 .diemHaiLongTrungBinh(diemTrungBinh)
+                                .giaTien(homestay.getPricePerNight())
+                                .hang(homestay.getHang() != null ? homestay.getHang() : BigDecimal.ZERO)
                                 .chinhSach(
                                                 HomestayDetailResponseDto.ChinhSachDto.builder()
                                                                 .nhanPhong(chinhSach.getNhanPhong())

@@ -5,18 +5,21 @@ import 'package:home_feel/features/auth/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/presentation/screens/login_screen.dart';
 import 'package:home_feel/features/auth/presentation/screens/register_screen.dart';
 import 'package:home_feel/features/common/bloc/loading_bloc.dart';
-import 'package:home_feel/features/home/bloc/home_event.dart';
-import 'package:home_feel/features/home/bloc/home_state.dart';
-import 'package:home_feel/features/location/presentation/bloc/location_event.dart';
-import 'package:home_feel/features/location/presentation/bloc/location_bloc.dart';
+import 'package:home_feel/features/home/presentation/bloc/home_bloc.dart';
+import 'package:home_feel/features/home/presentation/bloc/home_event.dart';
+import 'package:home_feel/features/home/presentation/bloc/home_state.dart';
 import 'package:home_feel/features/profile/presentation/screens/profile_tab.dart';
-import '../../bloc/home_bloc.dart';
 import '../widgets/homestay_card.dart';
 import 'package:home_feel/features/bookings/presentation/screens/bookings_screen.dart';
 import 'package:home_feel/features/promotion/presentation/screens/promotions_screen.dart';
 import 'package:home_feel/core/services/tab_notifier.dart';
 import 'package:get_it/get_it.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
+import 'package:home_feel/features/news/presentation/bloc/news_bloc.dart';
+import 'package:home_feel/features/news/presentation/bloc/news_event.dart';
+import 'package:home_feel/features/news/presentation/bloc/news_state.dart';
+import 'package:home_feel/features/news/presentation/screens/news_detail_screen.dart';
+import 'package:home_feel/features/news/presentation/widgets/news_card.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/homestay_list.dart';
@@ -80,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Gọi event khi context đã sẵn sàng
-    context.read<LocationBloc>().add(FetchAllLocationsEvent());
+
     context.read<HomeBloc>().add(FetchHomestaysEvent());
   }
 
@@ -93,9 +96,9 @@ class _HomeScreenState extends State<HomeScreen> {
           body: LoadingOverlay(
             isLoading: loadingState.isLoading,
             icons: [
-              Icon(Icons.flash_on, color: Colors.orange, size: 24),
-              Icon(Icons.hotel, color: Colors.orange, size: 24),
-              Icon(Icons.local_offer, color: Colors.orange, size: 24),
+              const Icon(Icons.flash_on, color: Colors.orange, size: 24),
+              const Icon(Icons.hotel, color: Colors.orange, size: 24),
+              const Icon(Icons.local_offer, color: Colors.orange, size: 24),
             ],
             child: Stack(
               children: [
@@ -122,8 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
               : BottomNavigationBar(
                   type: BottomNavigationBarType.fixed,
                   backgroundColor: const Color(0xFFFFF3E0), // cam nhạt
-                  selectedItemColor: Color(0xFFFF9800), // cam đậm
-                  unselectedItemColor: Color(0xFFBDBDBD), // xám nhạt
+                  selectedItemColor: const Color(0xFFFF9800), // cam đậm
+                  unselectedItemColor: const Color(0xFFBDBDBD), // xám nhạt
                   selectedLabelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 11,
@@ -168,10 +171,39 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class HomeScreenBody extends StatelessWidget {
+class HomeScreenBody extends StatefulWidget {
   const HomeScreenBody({super.key});
+
+  @override
+  State<HomeScreenBody> createState() => _HomeScreenBodyState();
+}
+
+class _HomeScreenBodyState extends State<HomeScreenBody>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNews();
+  }
+
+  void _loadNews() {
+    if (mounted) {
+      context.read<NewsBloc>().add(GetAllNewsEvent());
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadNews();
+  }
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(110),
@@ -200,6 +232,72 @@ class HomeScreenBody extends StatelessWidget {
             ),
             const SizedBox(height: 8.0),
             const SuggestionList(),
+            const SizedBox(height: 24),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Lời khuyên cần biết',
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            BlocBuilder<NewsBloc, NewsState>(
+              builder: (context, state) {
+                if (state is NewsLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state is NewsLoaded) {
+                  if (state.news.isEmpty) {
+                    return const Center(child: Text('Không có tin tức nào'));
+                  }
+
+                  return SizedBox(
+                    height: 280,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: state.news.length,
+                      itemBuilder: (context, index) {
+                        return NewsCard(
+                          news: state.news[index],
+                          onTap: () {
+                            context.read<NewsBloc>().add(
+                              GetNewsDetailEvent(state.news[index].maTinTuc),
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BlocProvider.value(
+                                  value: context.read<NewsBloc>(),
+                                  child: const NewsDetailScreen(),
+                                ),
+                                maintainState: true,
+                              ),
+                            ).then((_) {
+                              if (mounted) {
+                                // Fetch lại data khi quay về
+                                Future.microtask(() {
+                                  context.read<NewsBloc>().add(
+                                    GetAllNewsEvent(),
+                                  );
+                                });
+                              }
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  );
+                }
+
+                if (state is NewsError) {
+                  return Center(child: Text(state.message));
+                }
+
+                return const SizedBox.shrink();
+              },
+            ),
             const SizedBox(height: 20),
           ],
         ),
