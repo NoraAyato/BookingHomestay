@@ -21,8 +21,9 @@ public class GetAdminKhuyenMaiQueryHandle {
     public List<PromotionResponeDto> handle() {
         try {
             List<KhuyenMai> khuyenMais = khuyenMaiRepository.getAdminKm();
-            if (khuyenMais == null)
+            if (khuyenMais == null) {
                 return List.of();
+            }
             return khuyenMais.stream()
                     .map(PromotionMapper::toDto)
                     .collect(Collectors.toList());

@@ -2,16 +2,14 @@ import 'package:dio/dio.dart';
 import 'package:home_feel/core/constants/api.dart';
 import 'package:home_feel/core/models/api_response.dart';
 import 'package:home_feel/core/services/api_service.dart';
+import 'package:home_feel/core/exceptions/auth_exception.dart';
 
 class UserRemoteDataSource {
   final ApiService apiService;
 
   UserRemoteDataSource(this.apiService);
 
-  Future<ApiResponse> uploadAvatar({
-    required String filePath,
-    required String accessToken,
-  }) async {
+  Future<ApiResponse> uploadAvatar({required String filePath}) async {
     try {
       final file = await MultipartFile.fromFile(
         filePath,
@@ -21,7 +19,6 @@ class UserRemoteDataSource {
       final response = await apiService.put(
         '/api/users/me/update-picture',
         data: formData,
-        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
       final responseData = response.data;
       return ApiResponse(
@@ -30,6 +27,15 @@ class UserRemoteDataSource {
         data: responseData['data'],
       );
     } on DioException catch (e) {
+      if (e.error is AuthException) {
+        final authError = e.error as AuthException;
+        return ApiResponse(
+          success: false,
+          message: authError.message,
+          data: {'shouldLogout': authError.shouldLogout},
+        );
+      }
+
       final errorData = e.response?.data;
       return ApiResponse(
         success: false,
@@ -46,7 +52,6 @@ class UserRemoteDataSource {
   }
 
   Future<ApiResponse> updateProfile({
-    required String accessToken,
     required String userName,
     required String phoneNumber,
     required bool gender,
@@ -61,7 +66,6 @@ class UserRemoteDataSource {
           'gender': gender,
           'birthday': birthday.toIso8601String(),
         },
-        options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
       );
       final responseData = response.data;
       return ApiResponse(
@@ -70,6 +74,15 @@ class UserRemoteDataSource {
         data: responseData['data'],
       );
     } on DioException catch (e) {
+      if (e.error is AuthException) {
+        final authError = e.error as AuthException;
+        return ApiResponse(
+          success: false,
+          message: authError.message,
+          data: {'shouldLogout': authError.shouldLogout},
+        );
+      }
+
       final errorData = e.response?.data;
       return ApiResponse(
         success: false,

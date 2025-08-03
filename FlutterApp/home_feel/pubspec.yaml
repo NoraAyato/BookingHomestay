@@ -23,6 +23,7 @@ dependencies:
     sdk: flutter
   google_sign_in: ^6.1.5
   image_picker: ^1.1.2
+  equatable: ^2.0.7
 
 dev_dependencies:
   flutter_test:
@@ -44,3 +45,5 @@ flutter:
     - assets/icons/ic_continue_pay.png
     - assets/icons/ic_empty_search.png
     - assets/icons/img_coupon_no_data.png
+    - assets/images/gift_illustration.png
+    - assets/icons/confirm_pay_at_hotel.png

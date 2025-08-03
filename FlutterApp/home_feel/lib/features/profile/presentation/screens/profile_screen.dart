@@ -91,13 +91,9 @@ class _ProfileScreenContent extends StatelessWidget {
                                   source: ImageSource.gallery,
                                 );
                                 if (pickedFile != null) {
-                                  final token =
-                                      state.authResponse.data?.accessToken;
-                                  if (token != null) {
-                                    context.read<ProfileBloc>().add(
-                                      UploadAvatarEvent(token, pickedFile.path),
-                                    );
-                                  }
+                                  context.read<ProfileBloc>().add(
+                                    UploadAvatarEvent(pickedFile.path),
+                                  );
                                 }
                               },
                               child: CircleAvatar(

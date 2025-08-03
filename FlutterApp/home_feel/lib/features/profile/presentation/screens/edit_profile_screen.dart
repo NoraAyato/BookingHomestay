@@ -156,7 +156,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     context.read<ProfileBloc>().add(
       UpdateProfileEvent(
-        token: accessToken,
         userName: _nicknameController.text.trim(),
         phoneNumber: phone,
         gender: _selectedGender!,

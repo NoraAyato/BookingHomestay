@@ -7,13 +7,13 @@ import 'package:home_feel/features/auth/presentation/screens/register_screen.dar
 import 'package:home_feel/features/common/bloc/loading_bloc.dart';
 import 'package:home_feel/features/home/bloc/home_event.dart';
 import 'package:home_feel/features/home/bloc/home_state.dart';
-import 'package:home_feel/features/home/bloc/location_event.dart';
+import 'package:home_feel/features/location/presentation/bloc/location_event.dart';
+import 'package:home_feel/features/location/presentation/bloc/location_bloc.dart';
 import 'package:home_feel/features/profile/presentation/screens/profile_tab.dart';
 import '../../bloc/home_bloc.dart';
-import '../../bloc/location_bloc.dart';
 import '../widgets/homestay_card.dart';
 import 'package:home_feel/features/bookings/presentation/screens/bookings_screen.dart';
-import 'package:home_feel/features/promotions/presentation/screens/promotions_screen.dart';
+import 'package:home_feel/features/promotion/presentation/screens/promotions_screen.dart';
 import 'package:home_feel/core/services/tab_notifier.dart';
 import 'package:get_it/get_it.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Gọi event khi context đã sẵn sàng
-    context.read<LocationBloc>().add(FetchLocationsEvent());
+    context.read<LocationBloc>().add(FetchAllLocationsEvent());
     context.read<HomeBloc>().add(FetchHomestaysEvent());
   }
 

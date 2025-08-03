@@ -7,23 +7,18 @@ class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<ApiResponse> uploadAvatar(String token, String filePath) async {
-    return await remoteDataSource.uploadAvatar(
-      filePath: filePath,
-      accessToken: token,
-    );
+  Future<ApiResponse> uploadAvatar(String filePath) async {
+    return await remoteDataSource.uploadAvatar(filePath: filePath);
   }
 
   @override
   Future<ApiResponse> updateProfile({
-    required String token,
     required String userName,
     required String phoneNumber,
     required bool gender,
     required DateTime birthday,
   }) {
     return remoteDataSource.updateProfile(
-      accessToken: token,
       userName: userName,
       phoneNumber: phoneNumber,
       gender: gender,

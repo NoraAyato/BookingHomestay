@@ -5,13 +5,17 @@ import 'package:home_feel/features/common/bloc/loading_bloc.dart';
 import 'package:home_feel/features/profile/domain/usecases/update_profile_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
-import '../../features/home/data/repositories/location_repository_impl.dart';
 import '../../features/home/domain/usecases/fetch_homestays_use_case.dart';
-import '../../features/home/domain/usecases/fetch_locations_use_case.dart';
 import '../../features/home/bloc/home_bloc.dart';
-import '../../features/home/bloc/location_bloc.dart';
 import '../services/api_service.dart';
 import 'package:home_feel/core/services/tab_notifier.dart';
+
+// Promotion dependencies
+import '../../features/promotion/data/datasources/promotion_remote_data_source.dart';
+import '../../features/promotion/data/repositories/promotion_repository_impl.dart';
+import '../../features/promotion/domain/usecases/get_admin_khuyen_mai_usecase.dart';
+import '../../features/promotion/domain/usecases/get_khuyen_mai_by_id_usecase.dart';
+import '../../features/promotion/presentation/bloc/promotion_bloc.dart';
 
 // Auth dependencies
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
@@ -34,6 +38,16 @@ import 'package:home_feel/features/profile/domain/usecases/upload_avatar_usecase
 import 'package:home_feel/features/profile/data/datasources/user_remote_data_source.dart';
 import 'package:home_feel/features/profile/data/repositories/user_repository_impl.dart';
 import 'package:home_feel/features/profile/domain/repositories/user_repository.dart';
+
+// Location dependencies
+import 'package:home_feel/features/location/data/datasources/location_remote_data_source.dart';
+import 'package:home_feel/features/location/data/repositories/location_repository_impl.dart';
+import 'package:home_feel/features/location/domain/usecases/fetch_locations_use_case.dart';
+import 'package:home_feel/features/location/domain/usecases/fetch_provinces_use_case.dart';
+import 'package:home_feel/features/location/domain/usecases/fetch_districts_by_province_use_case.dart';
+import 'package:home_feel/features/location/domain/usecases/fetch_wards_by_district_use_case.dart';
+import 'package:home_feel/features/location/domain/usecases/get_location_by_id_use_case.dart';
+import 'package:home_feel/features/location/presentation/bloc/location_bloc.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -112,12 +126,32 @@ Future<void> setupServiceLocator() async {
     () => FetchHomestaysUseCase(sl<HomeRepositoryImpl>()),
   );
 
-  // Đăng ký Location Repository và Use Case
-  sl.registerLazySingleton<LocationRepositoryImpl>(
-    () => LocationRepositoryImpl(sl<ApiService>()),
+  // Đăng ký Location dependencies
+  // Data source
+  sl.registerLazySingleton<LocationRemoteDataSource>(
+    () => LocationRemoteDataSourceImpl(sl<ApiService>()),
   );
+
+  // Repository implementation
+  sl.registerLazySingleton<LocationRepositoryImpl>(
+    () => LocationRepositoryImpl(sl<LocationRemoteDataSource>()),
+  );
+
+  // Use cases
   sl.registerLazySingleton<FetchLocationsUseCase>(
     () => FetchLocationsUseCase(sl<LocationRepositoryImpl>()),
+  );
+  sl.registerLazySingleton<FetchProvincesUseCase>(
+    () => FetchProvincesUseCase(sl<LocationRepositoryImpl>()),
+  );
+  sl.registerLazySingleton<FetchDistrictsByProvinceUseCase>(
+    () => FetchDistrictsByProvinceUseCase(sl<LocationRepositoryImpl>()),
+  );
+  sl.registerLazySingleton<FetchWardsByDistrictUseCase>(
+    () => FetchWardsByDistrictUseCase(sl<LocationRepositoryImpl>()),
+  );
+  sl.registerLazySingleton<GetLocationByIdUseCase>(
+    () => GetLocationByIdUseCase(sl<LocationRepositoryImpl>()),
   );
 
   // Đăng ký TabNotifier
@@ -126,7 +160,15 @@ Future<void> setupServiceLocator() async {
 
   // Đăng ký BLoC
   sl.registerLazySingleton(() => HomeBloc(sl<FetchHomestaysUseCase>()));
-  sl.registerLazySingleton(() => LocationBloc(sl<FetchLocationsUseCase>()));
+  sl.registerFactory<LocationBloc>(
+    () => LocationBloc(
+      fetchLocationsUseCase: sl<FetchLocationsUseCase>(),
+      fetchProvincesUseCase: sl<FetchProvincesUseCase>(),
+      fetchDistrictsByProvinceUseCase: sl<FetchDistrictsByProvinceUseCase>(),
+      fetchWardsByDistrictUseCase: sl<FetchWardsByDistrictUseCase>(),
+      getLocationByIdUseCase: sl<GetLocationByIdUseCase>(),
+    ),
+  );
 
   // Đăng ký Profile dependencies
   sl.registerLazySingleton<UserRemoteDataSource>(
@@ -143,5 +185,25 @@ Future<void> setupServiceLocator() async {
   );
   sl.registerLazySingleton<ProfileBloc>(
     () => ProfileBloc(sl<UploadAvatarUseCase>(), sl<UpdateProfileUseCase>()),
+  );
+
+  // Đăng ký Promotion dependencies
+  sl.registerLazySingleton<PromotionRemoteDataSource>(
+    () => PromotionRemoteDataSourceImpl(sl<ApiService>()),
+  );
+  sl.registerLazySingleton<PromotionRepositoryImpl>(
+    () => PromotionRepositoryImpl(sl<PromotionRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<GetAdminKhuyenMaiUseCase>(
+    () => GetAdminKhuyenMaiUseCase(sl<PromotionRepositoryImpl>()),
+  );
+  sl.registerLazySingleton<GetKhuyenMaiByIdUseCase>(
+    () => GetKhuyenMaiByIdUseCase(sl<PromotionRepositoryImpl>()),
+  );
+  sl.registerFactory<PromotionBloc>(
+    () => PromotionBloc(
+      getAdminKhuyenMaiUseCase: sl<GetAdminKhuyenMaiUseCase>(),
+      getKhuyenMaiByIdUseCase: sl<GetKhuyenMaiByIdUseCase>(),
+    ),
   );
 }
