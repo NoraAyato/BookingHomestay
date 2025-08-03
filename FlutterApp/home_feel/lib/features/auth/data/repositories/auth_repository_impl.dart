@@ -1,10 +1,11 @@
+import 'package:home_feel/core/models/api_response.dart';
 import 'package:home_feel/features/auth/data/models/user_info.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../models/auth_request.dart';
 import '../models/google_auth_request.dart';
-import '../models/auth_response.dart';
+import '../models/auth_data.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -12,9 +13,13 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<AuthResponse> login(String email, String password, {bool rememberMe = false}) async {
+  Future<ApiResponse<AuthData>> login(
+    String email,
+    String password, {
+    bool rememberMe = false,
+  }) async {
     final request = AuthRequest(
-      email: email, 
+      email: email,
       password: password,
       rememberMe: rememberMe,
     );
@@ -22,7 +27,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthResponse> register(String email, String password, String firstName, String lastName) async {
+  Future<ApiResponse<AuthData>> register(
+    String email,
+    String password,
+    String firstName,
+    String lastName,
+  ) async {
     final request = RegisterRequest(
       email: email,
       password: password,
@@ -33,7 +43,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthResponse> googleLogin(String idToken, String email, String name, String? picture) async {
+  Future<ApiResponse<AuthData>> googleLogin(
+    String idToken,
+    String email,
+    String name,
+    String? picture,
+  ) async {
     final request = GoogleAuthRequest(
       idToken: idToken,
       email: email,
@@ -44,13 +59,17 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthResponse> refreshToken(String refreshToken) async {
+  Future<ApiResponse<AuthData>> refreshToken(String refreshToken) async {
     final request = RefreshTokenRequest(refreshToken: refreshToken);
     return await remoteDataSource.refreshToken(request);
   }
 
   @override
-  Future<AuthResponse> changePassword(String currentPassword, String newPassword, String rePassword) async {
+  Future<ApiResponse<AuthData>> changePassword(
+    String currentPassword,
+    String newPassword,
+    String rePassword,
+  ) async {
     final request = ChangePasswordRequest(
       currentPassword: currentPassword,
       newPassword: newPassword,
@@ -60,20 +79,26 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthResponse> forgotPassword(String email) async {
+  Future<ApiResponse<AuthData>> forgotPassword(String email) async {
     final request = ForgotPasswordRequest(email: email);
     return await remoteDataSource.forgotPassword(request);
   }
 
   @override
-  Future<AuthResponse> verifyOtp(String email, String otp) async {
+  Future<ApiResponse<AuthData>> verifyOtp(String email, String otp) async {
     final request = VerifyOtpRequest(email: email, otp: otp);
     return await remoteDataSource.verifyOtp(request);
   }
 
   @override
-  Future<AuthResponse> resetPassword(String token, String newPassword) async {
-    final request = ResetPasswordRequest(token: token, newPassword: newPassword);
+  Future<ApiResponse<AuthData>> resetPassword(
+    String token,
+    String newPassword,
+  ) async {
+    final request = ResetPasswordRequest(
+      token: token,
+      newPassword: newPassword,
+    );
     return await remoteDataSource.resetPassword(request);
   }
 
@@ -86,4 +111,4 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserInfo> getCurrentUser(String accessToken) async {
     return await remoteDataSource.getCurrentUser(accessToken);
   }
-} 
+}

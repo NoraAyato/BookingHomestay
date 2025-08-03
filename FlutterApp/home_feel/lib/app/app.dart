@@ -15,10 +15,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => GetIt.I.get<HomeBloc>()),
-        BlocProvider(create: (context) => GetIt.I.get<LocationBloc>()),
+        // AuthBloc phải được khởi tạo trước để check auth status
         BlocProvider<AuthBloc>(
           create: (_) => GetIt.I<AuthBloc>()..add(CheckAuthStatusEvent()),
+        ),
+        // Các bloc khác khởi tạo sau khi đã có auth status
+        BlocProvider(
+          create: (context) => GetIt.I.get<HomeBloc>(),
+          lazy: true, // Chỉ tạo khi cần
+        ),
+        BlocProvider(
+          create: (context) => GetIt.I.get<LocationBloc>(),
+          lazy: true, // Chỉ tạo khi cần
         ),
       ],
       child: MaterialApp(

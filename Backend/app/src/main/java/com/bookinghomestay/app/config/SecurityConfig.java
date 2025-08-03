@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/homestays/**").permitAll()
                         .requestMatchers("/img/**").permitAll()
+                        .requestMatchers("/avatars/**").permitAll()
                         .requestMatchers("/api/search/**").permitAll()
                         .requestMatchers("/api/locations/**").permitAll()
                         .requestMatchers("/api/promotions/**").permitAll()

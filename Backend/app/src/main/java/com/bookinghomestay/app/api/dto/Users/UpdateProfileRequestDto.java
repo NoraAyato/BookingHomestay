@@ -1,6 +1,9 @@
 package com.bookinghomestay.app.api.dto.Users;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +15,9 @@ public class UpdateProfileRequestDto {
     private String userName;
     private String phoneNumber;
     private boolean gender;
-    private LocalDate birthday;
+    private String birthday;
+
+    public LocalDate getBirthdayAsDate() {
+        return LocalDateTime.parse(birthday, DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate();
+    }
 }

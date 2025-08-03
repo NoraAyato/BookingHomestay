@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_feel/core/utils/network_utils.dart';
 
 enum AppDialogType { success, error, warning, info, offline, loading }
 
@@ -119,4 +120,21 @@ Future<void> showAppDialog({
       barrierDismissible: barrierDismissible,
     ),
   );
+}
+
+Future<void> showOfflineDialog(BuildContext context) async {
+  while (true) {
+    await showAppDialog(
+      context: context,
+      title: 'Không có kết nối Internet',
+      message: 'Vui lòng kết nối Internet để tiếp tục sử dụng ứng dụng.',
+      type: AppDialogType.offline,
+      buttonText: 'Thử lại',
+      barrierDismissible: false,
+      onButtonPressed: () {}, // Giữ nguyên, để không đóng dialog
+    );
+
+    final retry = await checkInternetConnection();
+    if (retry) break;
+  }
 }

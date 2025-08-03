@@ -50,29 +50,42 @@ class AuthInterceptor extends Interceptor {
       _isRefreshing = true;
 
       try {
-        final response = await refreshTokenUseCase(refreshToken);
-        final newAccessToken = response.data?.accessToken;
-
-        if (newAccessToken != null && newAccessToken.isNotEmpty) {
-          await authService.saveAuthData(response.data!);
-
-          // Retry tất cả request đã đợi
-          for (final retry in _retryQueue) {
-            retry(newAccessToken);
-          }
-          _retryQueue.clear();
-
-          // Retry chính request hiện tại
-          err.requestOptions.headers['Authorization'] =
-              'Bearer $newAccessToken';
-          final retryResponse = await Dio().fetch(err.requestOptions);
-          return handler.resolve(retryResponse);
+        // Gọi refresh token với token hiện tại
+        final response = await refreshTokenUseCase.call(refreshToken);
+        if (!response.success || response.data == null) {
+          _isRefreshing = false;
+          await authService.clearAuthData();
+          return handler.reject(err);
         }
+
+        // Lưu token mới
+        final authData = response.data!;
+        await authService.saveAuthData(authData);
+
+        if (authData.accessToken.isEmpty) {
+          _isRefreshing = false;
+          await authService.clearAuthData();
+          return handler.reject(err);
+        }
+
+        // Retry tất cả request đang đợi
+        for (final retry in _retryQueue) {
+          retry(authData.accessToken);
+        }
+        _retryQueue.clear();
+
+        // Retry request hiện tại
+        err.requestOptions.headers['Authorization'] =
+            'Bearer ${authData.accessToken}';
+        final retryResponse = await Dio().fetch(err.requestOptions);
+
+        _isRefreshing = false;
+        return handler.resolve(retryResponse);
       } catch (e) {
+        _isRefreshing = false;
+        _retryQueue.clear();
         await authService.clearAuthData();
         return handler.reject(err);
-      } finally {
-        _isRefreshing = false;
       }
     }
 

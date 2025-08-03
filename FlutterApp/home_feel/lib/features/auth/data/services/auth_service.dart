@@ -23,6 +23,11 @@ class AuthService {
     await _prefs.setBool(_isLoggedInKey, true);
   }
 
+  Future<void> saveAccessToken(AuthData authData) async {
+    await _prefs.setString(_accessTokenKey, authData.accessToken);
+    await _prefs.setBool(_isLoggedInKey, true);
+  }
+
   // Save user info
   Future<void> saveUserInfo(UserInfo userInfo) async {
     final jsonString = jsonEncode(userInfo.toJson());

@@ -17,6 +17,10 @@ import 'package:home_feel/features/promotions/presentation/screens/promotions_sc
 import 'package:home_feel/core/services/tab_notifier.dart';
 import 'package:get_it/get_it.dart';
 import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
+import '../widgets/home_app_bar.dart';
+import '../widgets/search_bar.dart';
+import '../widgets/homestay_list.dart';
+import '../widgets/suggestion_list.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -169,156 +173,36 @@ class HomeScreenBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.orange[100],
-        toolbarHeight: 110.0,
-        flexibleSpace: Padding(
-          padding: const EdgeInsets.only(top: 25.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Khám phá khách sạn và ưu đãi tại đây',
-                      style: TextStyle(fontSize: 13),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.notifications,
-                        color: Colors.red,
-                        size: 23.0,
-                      ),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 1.0,
-                ),
-                child: TextField(
-                  readOnly: true,
-                  showCursor: false,
-                  decoration: InputDecoration(
-                    hintText: 'Tên khách sạn, huyện/quận',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Colors.orange,
-                      size: 16.0,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 3.0,
-                    ),
-                  ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Mở màn hình tìm kiếm')),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(110),
+        child: const HomeAppBar(),
       ),
-      body: BlocBuilder<HomeBloc, HomeState>(
-        builder: (context, state) {
-          if (state is HomeLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is HomeLoaded) {
-            return SafeArea(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'Danh sách homestay',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      SizedBox(
-                        height: 220,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          itemCount: state.homestays.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 12.0),
-                              child: SizedBox(
-                                width: 250,
-                                child: HomestayCard(
-                                  homestay: state.homestays[index],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'Gợi ý hôm nay',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      SizedBox(
-                        height: 220,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          itemCount: state.homestays.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 12.0),
-                              child: SizedBox(
-                                width: 250,
-                                child: HomestayCard(
-                                  homestay: state.homestays[index],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Danh sách homestay',
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
               ),
-            );
-          } else if (state is HomeError) {
-            return Center(child: Text('Lỗi:  {state.message}'));
-          }
-          return const Center(child: Text('Đang tải dữ liệu...'));
-        },
+            ),
+            const SizedBox(height: 8.0),
+            const HomestayList(),
+            const SizedBox(height: 24),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Gợi ý hôm nay',
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            const SuggestionList(),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
