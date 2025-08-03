@@ -21,14 +21,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        return path.startsWith("/api/auth") ||
-                path.startsWith("/api/Homestays") || // API public
-                path.startsWith("/img") || path.startsWith("/api/search/**") || 
-                path.startsWith("/api/locations/**") || 
-                path.startsWith("/api/promotions/**") ||
-                path.startsWith("/api/notification/public") ||
-                path.startsWith("/api/news");
+        String path = request.getRequestURI().toLowerCase();
+        return path.startsWith("/api/auth")
+                || path.startsWith("/api/homestays") // sửa lại chữ thường
+                || path.startsWith("/img")
+                || path.startsWith("/api/search")
+                || path.startsWith("/api/locations")
+                || path.startsWith("/api/promotions")
+                || path.startsWith("/api/notification/public")
+                || path.startsWith("/api/news")
+                || path.startsWith("/avatars");
     }
 
     @Override
@@ -45,16 +47,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.getUserId(token);
                 System.out.println("JWT Filter - UserId from token: " + userId);
-                
+
                 try {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
                     System.out.println("JWT Filter - UserDetails loaded: " + userDetails.getClass().getSimpleName());
-                    
+
                     if (userDetails instanceof CustomUserPrincipal) {
                         CustomUserPrincipal principal = (CustomUserPrincipal) userDetails;
-                        System.out.println("JWT Filter - CustomUserPrincipal: userId=" + principal.getUserId() + 
-                                        ", userName=" + principal.getUserName() + 
-                                        ", email=" + principal.getEmail());
+                        System.out.println("JWT Filter - CustomUserPrincipal: userId=" + principal.getUserId() +
+                                ", userName=" + principal.getUserName() +
+                                ", email=" + principal.getEmail());
                     }
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -69,13 +71,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     System.err.println("JWT Filter - Error loading user: " + e.getMessage());
                     e.printStackTrace();
                 }
+                filterChain.doFilter(request, response);
+                return;
             } else {
                 System.err.println("JWT Filter - Invalid token");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
+                return;
             }
         } else {
             System.out.println("JWT Filter - No Authorization header or not Bearer token");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"No Authorization header or not Bearer token\"}");
+            return;
         }
-
-        filterChain.doFilter(request, response);
     }
 }

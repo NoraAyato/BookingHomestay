@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:home_feel/features/auth/data/services/auth_service.dart';
 import 'package:home_feel/features/common/bloc/loading_bloc.dart';
+import 'package:home_feel/features/profile/domain/usecases/update_profile_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/data/repositories/location_repository_impl.dart';
@@ -26,6 +27,13 @@ import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
 import '../../features/auth/domain/usecases/reset_password_usecase.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
 import '../../features/auth/bloc/auth_bloc.dart';
+
+// Profile dependencies
+import 'package:home_feel/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:home_feel/features/profile/domain/usecases/upload_avatar_usecase.dart';
+import 'package:home_feel/features/profile/data/datasources/user_remote_data_source.dart';
+import 'package:home_feel/features/profile/data/repositories/user_repository_impl.dart';
+import 'package:home_feel/features/profile/domain/repositories/user_repository.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -115,7 +123,25 @@ Future<void> setupServiceLocator() async {
   // Đăng ký TabNotifier
   sl.registerLazySingleton<TabNotifier>(() => TabNotifier());
   sl.registerLazySingleton<LoadingBloc>(() => LoadingBloc());
+
   // Đăng ký BLoC
   sl.registerLazySingleton(() => HomeBloc(sl<FetchHomestaysUseCase>()));
   sl.registerLazySingleton(() => LocationBloc(sl<FetchLocationsUseCase>()));
+
+  // Đăng ký Profile dependencies
+  sl.registerLazySingleton<UserRemoteDataSource>(
+    () => UserRemoteDataSource(sl<ApiService>()),
+  );
+  sl.registerLazySingleton<UserRepository>(
+    () => UserRepositoryImpl(sl<UserRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<UploadAvatarUseCase>(
+    () => UploadAvatarUseCase(sl<UserRepository>()),
+  );
+  sl.registerLazySingleton<UpdateProfileUseCase>(
+    () => UpdateProfileUseCase(sl<UserRepository>()),
+  );
+  sl.registerLazySingleton<ProfileBloc>(
+    () => ProfileBloc(sl<UploadAvatarUseCase>(), sl<UpdateProfileUseCase>()),
+  );
 }

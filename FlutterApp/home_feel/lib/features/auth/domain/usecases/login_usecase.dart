@@ -1,12 +1,18 @@
+import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/features/auth/data/models/auth_data.dart';
+
 import '../repositories/auth_repository.dart';
-import '../../data/models/auth_response.dart';
 
 class LoginUseCase {
   final AuthRepository repository;
 
   LoginUseCase(this.repository);
 
-  Future<AuthResponse> call(String email, String password, {bool rememberMe = false}) async {
+  Future<ApiResponse<AuthData>> call(
+    String email,
+    String password, {
+    bool rememberMe = false,
+  }) async {
     return await repository.login(email, password, rememberMe: rememberMe);
   }
-} 
+}

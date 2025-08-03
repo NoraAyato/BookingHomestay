@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:home_feel/core/models/api_response.dart';
 import 'package:home_feel/features/auth/data/models/auth_data.dart';
-import 'package:home_feel/features/auth/data/models/auth_response.dart';
 import 'package:home_feel/features/auth/data/services/auth_service.dart';
 import 'package:home_feel/features/common/bloc/loading_bloc.dart';
 import '../domain/usecases/login_usecase.dart';
@@ -69,6 +69,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (event.rememberMe) {
         await authService.saveAuthData(response.data!);
         await authService.saveUserInfo(userInfo);
+      } else {
+        await authService.saveAccessToken(response.data!);
       }
 
       emit(AuthSuccess(response, userInfo));
@@ -230,7 +232,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final accessToken = await authService.getAccessToken();
     final refreshToken = await authService.getRefreshToken();
 
-    if (accessToken == null || refreshToken == null) {
+    if (accessToken == null) {
       emit(AuthInitial());
       return;
     }
@@ -241,33 +243,48 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // Cập nhật cache
       await authService.saveUserInfo(userInfo);
 
-      final response = AuthResponse(
+      final response = ApiResponse<AuthData>(
         success: true,
         message: 'Đăng nhập thành công',
         data: AuthData(
           accessToken: accessToken,
-          refreshToken: refreshToken,
+          refreshToken: refreshToken ?? '', // Cho phép null/empty refreshToken
           tokenType: 'Bearer',
           user: userInfo,
         ),
       );
       emit(AuthSuccess(response, userInfo));
     } catch (e) {
-      // Nếu API thất bại, dùng dữ liệu cache
       final cachedUser = authService.getUserInfoObject();
       if (cachedUser != null) {
-        final response = AuthResponse(
+        final response = ApiResponse<AuthData>(
           success: true,
           message: 'Đăng nhập từ bộ nhớ đệm',
           data: AuthData(
             accessToken: accessToken,
-            refreshToken: refreshToken,
+            refreshToken:
+                refreshToken ?? '', // Cho phép null/empty refreshToken
             tokenType: 'Bearer',
             user: cachedUser,
           ),
         );
         emit(AuthSuccess(response, cachedUser));
       } else {
+        // Nếu không có user cache và API lỗi, thử dùng accessToken hiện tại
+        if (accessToken.isNotEmpty) {
+          final response = ApiResponse<AuthData>(
+            success: true,
+            message: 'Đăng nhập với accessToken',
+            data: AuthData(
+              accessToken: accessToken,
+              refreshToken: '',
+              tokenType: 'Bearer',
+              user: null,
+            ),
+          );
+          emit(AuthSuccess(response, null));
+          return;
+        }
         emit(AuthInitial());
       }
     }

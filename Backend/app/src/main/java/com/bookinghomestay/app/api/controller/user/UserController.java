@@ -71,14 +71,13 @@ public class UserController {
     @PutMapping("/me/update-profile")
     public ResponseEntity<ApiResponse<Void>> updateProfile(@Valid @RequestBody UpdateProfileRequestDto dto) {
         String userId = SecurityUtils.getCurrentUserId();
-        UpdateUserProfileCommand command = new UpdateUserProfileCommand(
+
+        updateUserProfileCommandHandler.handle(new UpdateUserProfileCommand(
                 userId,
                 dto.getUserName(),
                 dto.getPhoneNumber(),
                 dto.isGender(),
-                dto.getBirthday());
-
-        updateUserProfileCommandHandler.handle(command);
+                dto.getBirthdayAsDate()));
         return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật thông tin người dùng thành công !", null));
     }
 

@@ -1,7 +1,7 @@
 /// AppImages: Centralized asset paths for images and icons.
 class AppImages {
   static const google = 'assets/icons/google.png';
-  static const logo = 'assets/images/logo.png';
+  static const logo = 'assets/icons/app_icon.png';
   static const defaultAvatar = 'assets/images/default_avatar.png';
   static const icBookingComplete = 'assets/icons/ic_booking_complete.png';
   static const icCancelBooking = 'assets/icons/ic_cancel_booking.png';

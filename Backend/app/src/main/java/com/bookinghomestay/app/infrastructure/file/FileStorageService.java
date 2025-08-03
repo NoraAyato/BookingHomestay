@@ -5,12 +5,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 
 @Service
 public class FileStorageService {
 
-    private static final String AVATAR_UPLOAD_DIR = "src/main/resources/static/img/uploads/avatars";
-    private static final String AVATAR_PUBLIC_PATH = "/img/users/";
+    private static final String AVATAR_UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/avatars/";
+    private static final String AVATAR_PUBLIC_PATH = "/avatars/";
 
     public String storeAvatar(MultipartFile file, String userId) {
         if (file == null || file.isEmpty()) {
@@ -18,26 +19,36 @@ public class FileStorageService {
         }
 
         try {
-            // Tạo thư mục nếu chưa tồn tại
             Path uploadPath = Paths.get(AVATAR_UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // Tạo tên file duy nhất
             String originalFileName = file.getOriginalFilename();
-            String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            String filename = userId + "_" + System.currentTimeMillis() + extension;
+            if (originalFileName == null || !originalFileName.contains(".")) {
+                throw new RuntimeException("Tên file không hợp lệ");
+            }
 
-            // Lưu file vào ổ đĩa
+            String extension = originalFileName.substring(originalFileName.lastIndexOf(".")).toLowerCase();
+            List<String> allowedExtensions = List.of(".jpg", ".jpeg", ".png", ".gif");
+            if (!allowedExtensions.contains(extension)) {
+                throw new RuntimeException("Định dạng ảnh không được hỗ trợ");
+            }
+            long maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.getSize() > maxSize) {
+                throw new RuntimeException("Ảnh vượt quá kích thước tối đa cho phép (2MB)");
+            }
+
+            String filename = userId + "_" + System.currentTimeMillis() + extension;
             Path filePath = uploadPath.resolve(filename);
             file.transferTo(filePath.toFile());
-
-            // Trả về đường dẫn tương đối
+            System.out.println("Avatar stored at: " + filePath.toString());
             return AVATAR_PUBLIC_PATH + filename;
 
         } catch (IOException e) {
+            System.out.println("Error storing avatar: " + e.getMessage());
             throw new RuntimeException("Không thể lưu ảnh đại diện", e);
         }
     }
+
 }
