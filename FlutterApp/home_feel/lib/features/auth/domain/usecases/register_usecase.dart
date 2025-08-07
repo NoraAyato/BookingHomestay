@@ -2,7 +2,7 @@ import 'package:home_feel/features/auth/data/models/auth_data.dart';
 
 import '../repositories/auth_repository.dart';
 
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 
 class RegisterUseCase {
   final AuthRepository repository;

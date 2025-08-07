@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 import 'package:home_feel/features/profile/domain/usecases/update_profile_usecase.dart';
 import '../../domain/usecases/upload_avatar_usecase.dart';
 import 'profile_event.dart';

@@ -1,4 +1,4 @@
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 import '../../data/models/auth_data.dart';
 import 'package:home_feel/features/auth/data/models/user_info.dart';
 

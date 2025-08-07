@@ -1,10 +1,48 @@
+import 'package:home_feel/features/home/data/models/room_images_model.dart';
 import 'package:equatable/equatable.dart';
+import 'package:home_feel/features/home/data/models/available_room_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_search_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_suggest_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
+
+class HomeRoomImagesLoading extends HomeState {
+  const HomeRoomImagesLoading();
+}
+
+class HomeRoomImagesLoaded extends HomeState {
+  final RoomImagesModel images;
+  const HomeRoomImagesLoaded({required this.images});
+  @override
+  List<Object?> get props => [images];
+}
+
+class HomeRoomImagesError extends HomeState {
+  final String message;
+  const HomeRoomImagesError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+class HomeAvailableRoomsLoading extends HomeState {
+  const HomeAvailableRoomsLoading();
+}
+
+class HomeAvailableRoomsLoaded extends HomeState {
+  final List<AvailableRoomModel> rooms;
+  const HomeAvailableRoomsLoaded({required this.rooms});
+  @override
+  List<Object?> get props => [rooms];
+}
+
+class HomeAvailableRoomsError extends HomeState {
+  final String message;
+  const HomeAvailableRoomsError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
 
 abstract class HomeState extends Equatable {
   const HomeState();

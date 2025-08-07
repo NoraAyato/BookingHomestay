@@ -1,4 +1,4 @@
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 import '../datasources/promotion_remote_data_source.dart';
 import '../models/promotion_model.dart';
 

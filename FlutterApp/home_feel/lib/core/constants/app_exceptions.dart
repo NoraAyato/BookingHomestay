@@ -8,5 +8,4 @@ class AppExceptions {
   static const forbidden = 'Bạn không có quyền thực hiện thao tác này.';
   static const notFound = 'Không tìm thấy dữ liệu.';
   static const serverError = 'Lỗi máy chủ. Vui lòng thử lại sau.';
-  // ... add more as needed
 }

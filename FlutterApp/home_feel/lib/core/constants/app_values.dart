@@ -5,5 +5,4 @@ class AppValues {
   static const buttonHeight = 48.0;
   static const iconSize = 36.0;
   static const snackBarDuration = Duration(milliseconds: 500);
-  // ... add more as needed
 }

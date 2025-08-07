@@ -1,3 +1,5 @@
+import 'package:home_feel/features/home/domain/usecases/get_room_images_use_case.dart';
+import 'package:home_feel/features/home/domain/usecases/get_available_rooms_use_case.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_tiennghi.dart';
 
 import 'package:get_it/get_it.dart';
@@ -5,7 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:home_feel/core/services/api_service.dart';
 import 'package:home_feel/core/services/tab_notifier.dart';
 import 'package:home_feel/features/auth/data/services/auth_service.dart';
-import 'package:home_feel/features/common/bloc/loading_bloc.dart';
+import 'package:home_feel/shared/bloc/loading/loading_bloc.dart';
 import 'package:home_feel/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:home_feel/features/home/data/repositories/home_repository_impl.dart';
 import 'package:home_feel/features/home/domain/repositories/home_repository.dart';
@@ -47,7 +49,7 @@ import '../../features/auth/domain/usecases/forgot_password_usecase.dart';
 import '../../features/auth/domain/usecases/verify_otp_usecase.dart';
 import '../../features/auth/domain/usecases/reset_password_usecase.dart';
 import '../../features/auth/domain/usecases/get_current_user_usecase.dart';
-import '../../features/auth/bloc/auth_bloc.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
 
 // Profile dependencies
 import 'package:home_feel/features/profile/presentation/bloc/profile_bloc.dart';
@@ -140,6 +142,14 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<FetchHomestaysUseCase>(
     () => FetchHomestaysUseCase(sl<HomeRepository>()),
   );
+  // Use case lấy ảnh phòng
+  sl.registerLazySingleton<GetRoomImagesUseCase>(
+    () => GetRoomImagesUseCase(sl<HomeRepository>()),
+  );
+  // Use case lấy phòng trống
+  sl.registerLazySingleton<GetAvailableRoomsUseCase>(
+    () => GetAvailableRoomsUseCase(sl<HomeRepository>()),
+  );
   // Use Cases cho search, suggest, detail
   sl.registerLazySingleton<SearchHomestayByKeyword>(
     () => SearchHomestayByKeyword(sl<HomeRepository>()),
@@ -169,6 +179,8 @@ Future<void> setupServiceLocator() async {
       sl<GetHomestayDetail>(),
       sl<GetHomestayImages>(),
       sl<GetHomestayTienNghi>(),
+      sl<GetAvailableRoomsUseCase>(),
+      sl<GetRoomImagesUseCase>(),
     ),
   );
 

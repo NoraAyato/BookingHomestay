@@ -1,18 +1,19 @@
+import 'package:home_feel/features/home/domain/usecases/get_room_images_use_case.dart';
+import 'package:home_feel/features/home/domain/usecases/get_available_rooms_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:home_feel/core/models/api_response.dart';
 import 'package:home_feel/features/home/domain/usecases/fetch_homestays_use_case.dart';
 import 'package:home_feel/features/home/domain/usecases/get_suggested_homestays.dart';
 import 'package:home_feel/features/home/domain/usecases/search_homestay_by_keyword.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_detail.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_images.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_tiennghi.dart';
-import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
-import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
 // import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  final GetRoomImagesUseCase getRoomImagesUseCase;
+  final GetAvailableRoomsUseCase getAvailableRoomsUseCase;
   final FetchHomestaysUseCase fetchHomestaysUseCase;
   final GetSuggestedHomestays getSuggestedHomestays;
   final SearchHomestayByKeyword searchHomestayByKeyword;
@@ -29,6 +30,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     this.getHomestayDetail,
     this.getHomestayImages,
     this.getHomestayTienNghi,
+    this.getAvailableRoomsUseCase,
+    this.getRoomImagesUseCase,
   ) : super(const HomeInitial()) {
     on<FetchHomestaysEvent>(_onFetchHomestays);
     on<UpdateLocationEvent>(_onUpdateLocation);
@@ -40,6 +43,46 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<GetHomestayDetailEvent>(_onGetHomestayDetail);
     on<GetHomestayImagesEvent>(_onGetHomestayImages);
     on<GetHomestayTienNghiEvent>(_onGetHomestayTienNghi);
+    on<GetAvailableRoomsEvent>(_onGetAvailableRooms);
+    on<GetRoomImagesEvent>(_onGetRoomImages);
+  }
+
+  Future<void> _onGetRoomImages(
+    GetRoomImagesEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(const HomeRoomImagesLoading());
+    try {
+      final result = await getRoomImagesUseCase(event.maPhong);
+      if (result.success && result.data != null) {
+        emit(HomeRoomImagesLoaded(images: result.data!));
+      } else {
+        emit(HomeRoomImagesError(result.message));
+      }
+    } catch (e) {
+      emit(HomeRoomImagesError(e.toString()));
+    }
+  }
+
+  Future<void> _onGetAvailableRooms(
+    GetAvailableRoomsEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(const HomeAvailableRoomsLoading());
+    try {
+      final result = await getAvailableRoomsUseCase(
+        homestayId: event.homestayId,
+        checkIn: event.checkIn,
+        checkOut: event.checkOut,
+      );
+      if (result.success && result.data != null) {
+        emit(HomeAvailableRoomsLoaded(rooms: result.data!));
+      } else {
+        emit(HomeAvailableRoomsError(result.message));
+      }
+    } catch (e) {
+      emit(HomeAvailableRoomsError(e.toString()));
+    }
   }
 
   void _onFetchHomestays(

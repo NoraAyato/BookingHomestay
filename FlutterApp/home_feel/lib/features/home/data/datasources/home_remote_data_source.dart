@@ -1,14 +1,18 @@
+import 'package:home_feel/features/home/data/models/available_room_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
 import 'package:home_feel/core/constants/api.dart';
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 import 'package:home_feel/core/services/api_service.dart';
 import 'package:home_feel/features/home/data/models/homestay_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_search_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_suggest_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
+import 'package:home_feel/features/home/data/models/room_images_model.dart';
 
 abstract class HomeRemoteDataSource {
+  /// Lấy ảnh phòng theo mã phòng
+  Future<ApiResponse<RoomImagesModel>> getRoomImages(String maPhong);
   Future<ApiResponse<HomestayTienNghiResponseModel>> getHomestayTienNghi(
     String id,
   );
@@ -21,9 +25,73 @@ abstract class HomeRemoteDataSource {
     String prefix,
   );
   Future<ApiResponse<HomestayDetailModel>> getHomestayDetail(String id);
+
+  /// Lấy danh sách phòng còn trống theo homestayId, checkIn, checkOut
+  Future<ApiResponse<List<AvailableRoomModel>>> fetchAvailableRooms({
+    required String homestayId,
+    required DateTime checkIn,
+    required DateTime checkOut,
+  });
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
+  @override
+  Future<ApiResponse<RoomImagesModel>> getRoomImages(String maPhong) async {
+    try {
+      final response = await _apiService.get(
+        '${ApiConstants.baseUrl}/api/homestays/rooms/$maPhong/images',
+      );
+      if (response.data is Map<String, dynamic>) {
+        final images = RoomImagesModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+        return ApiResponse(success: true, message: 'Success', data: images);
+      }
+      throw Exception('Invalid response format');
+    } catch (e) {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to get room images: $e',
+        data: null,
+      );
+    }
+  }
+
+  @override
+  Future<ApiResponse<List<AvailableRoomModel>>> fetchAvailableRooms({
+    required String homestayId,
+    required DateTime checkIn,
+    required DateTime checkOut,
+  }) async {
+    try {
+      final response = await _apiService.get(
+        '${ApiConstants.baseUrl}/api/homestays/$homestayId/available-rooms',
+        queryParameters: {
+          'ngayDen': checkIn.toIso8601String(),
+          'ngayDi': checkOut.toIso8601String(),
+        },
+      );
+      print('[fetchAvailableRooms] API response: \\n${response.data}');
+      if (response.data is List) {
+        final List<AvailableRoomModel> rooms = (response.data as List)
+            .map(
+              (json) =>
+                  AvailableRoomModel.fromJson(json as Map<String, dynamic>),
+            )
+            .toList();
+        print('[fetchAvailableRooms] Parsed rooms: \\n$rooms');
+        return ApiResponse(success: true, message: 'Success', data: rooms);
+      }
+      throw Exception('Invalid response format');
+    } catch (e) {
+      return ApiResponse(
+        success: false,
+        message: 'Failed to fetch available rooms: $e',
+        data: null,
+      );
+    }
+  }
+
   @override
   Future<ApiResponse<HomestayTienNghiResponseModel>> getHomestayTienNghi(
     String id,

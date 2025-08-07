@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.dto.Users;
+package com.bookinghomestay.app.api.dto.users;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

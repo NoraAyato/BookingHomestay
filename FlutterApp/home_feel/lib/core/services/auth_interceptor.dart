@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:home_feel/features/auth/data/services/auth_service.dart';
 import 'package:home_feel/features/auth/domain/usecases/refresh_token_usecase.dart';
-import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
-import 'package:home_feel/features/auth/bloc/auth_event.dart';
+import 'package:home_feel/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:home_feel/features/auth/presentation/bloc/auth_event.dart';
 import 'package:home_feel/core/exceptions/auth_exception.dart';
 
 class AuthInterceptor extends Interceptor {

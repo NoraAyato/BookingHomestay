@@ -1,4 +1,4 @@
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 
 abstract class UserRepository {
   Future<ApiResponse> uploadAvatar(String filePath);
