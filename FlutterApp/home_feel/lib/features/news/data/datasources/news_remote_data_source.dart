@@ -1,4 +1,4 @@
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 import 'package:home_feel/core/services/api_service.dart';
 import '../models/news_model.dart';
 import '../models/news_detail_model.dart';

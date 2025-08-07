@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 import '../../../../core/constants/api.dart';
 import '../../../../core/utils/network_utils.dart';
-import '../../../../core/widgets/app_dialog.dart';
+import '../../../../shared/presentation/widgets/app_dialog.dart';
 import '../models/auth_request.dart';
 import '../models/google_auth_request.dart';
 import '../models/auth_data.dart';

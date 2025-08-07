@@ -1,18 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/shared/bloc/loading/loading_state.dart';
 
-class LoadingState {
-  final bool isLoading;
-  final int loadingCount; // Đếm số request đang chạy
-
-  const LoadingState({required this.isLoading, required this.loadingCount});
-
-  LoadingState copyWith({bool? isLoading, int? loadingCount}) {
-    return LoadingState(
-      isLoading: isLoading ?? this.isLoading,
-      loadingCount: loadingCount ?? this.loadingCount,
-    );
-  }
-}
 
 class LoadingBloc extends Cubit<LoadingState> {
   LoadingBloc() : super(const LoadingState(isLoading: false, loadingCount: 0));

@@ -1,4 +1,4 @@
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 import '../repositories/user_repository.dart';
 
 class UploadAvatarUseCase {

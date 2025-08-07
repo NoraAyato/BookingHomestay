@@ -1,14 +1,35 @@
 import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 import 'package:home_feel/features/home/data/models/homestay_search_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_suggest_model.dart';
+import 'package:home_feel/features/home/data/models/room_images_model.dart';
 import 'package:home_feel/features/home/domain/repositories/home_repository.dart';
 import 'package:home_feel/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:home_feel/features/home/data/models/homestay_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 
+import 'package:home_feel/features/home/data/models/available_room_model.dart';
+
 class HomeRepositoryImpl implements HomeRepository {
+  @override
+  Future<ApiResponse<RoomImagesModel>> getRoomImages(String maPhong) {
+    return _remoteDataSource.getRoomImages(maPhong);
+  }
+
+  @override
+  Future<ApiResponse<List<AvailableRoomModel>>> fetchAvailableRooms({
+    required String homestayId,
+    required DateTime checkIn,
+    required DateTime checkOut,
+  }) {
+    return _remoteDataSource.fetchAvailableRooms(
+      homestayId: homestayId,
+      checkIn: checkIn,
+      checkOut: checkOut,
+    );
+  }
+
   @override
   Future<ApiResponse<HomestayTienNghiResponseModel>> getHomestayTienNghi(
     String id,

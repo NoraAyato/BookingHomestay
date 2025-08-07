@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:home_feel/core/widgets/app_dialog.dart';
-import 'package:home_feel/features/auth/bloc/auth_bloc.dart';
-import 'package:home_feel/features/auth/bloc/auth_event.dart';
-import 'package:home_feel/features/auth/bloc/auth_state.dart';
+import 'package:home_feel/shared/presentation/widgets/app_dialog.dart';
+import 'package:home_feel/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:home_feel/features/auth/presentation/bloc/auth_event.dart';
+import 'package:home_feel/features/auth/presentation/bloc/auth_state.dart';
 import 'package:home_feel/features/auth/data/models/user_info.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_event.dart';

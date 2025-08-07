@@ -1,10 +1,10 @@
 package com.bookinghomestay.app.api.controller.user;
 
 import com.bookinghomestay.app.api.dto.ApiResponse;
-import com.bookinghomestay.app.api.dto.Users.CreateUserRequestDto;
-import com.bookinghomestay.app.api.dto.Users.UpdateProfileRequestDto;
-import com.bookinghomestay.app.api.dto.Users.UserInfoDto;
-import com.bookinghomestay.app.api.dto.Users.UserResponseDto;
+import com.bookinghomestay.app.api.dto.users.CreateUserRequestDto;
+import com.bookinghomestay.app.api.dto.users.UpdateProfileRequestDto;
+import com.bookinghomestay.app.api.dto.users.UserInfoDto;
+import com.bookinghomestay.app.api.dto.users.UserResponseDto;
 import com.bookinghomestay.app.application.users.command.CreateUserCommand;
 import com.bookinghomestay.app.application.users.command.CreateUserCommandHandler;
 import com.bookinghomestay.app.application.users.command.UpdateUserProfileCommand;

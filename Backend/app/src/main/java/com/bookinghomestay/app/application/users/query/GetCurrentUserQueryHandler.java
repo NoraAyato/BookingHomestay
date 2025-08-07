@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.application.users.query;
 
-import com.bookinghomestay.app.api.dto.Users.UserInfoDto;
+import com.bookinghomestay.app.api.dto.users.UserInfoDto;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;

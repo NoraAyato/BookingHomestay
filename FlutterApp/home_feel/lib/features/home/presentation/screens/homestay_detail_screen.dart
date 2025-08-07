@@ -5,7 +5,8 @@ import 'package:home_feel/features/home/presentation/bloc/home_bloc.dart';
 import 'package:home_feel/features/home/presentation/bloc/home_event.dart';
 import 'package:home_feel/features/home/presentation/bloc/home_state.dart';
 import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
-import 'package:home_feel/core/widgets/app_dialog.dart';
+import 'package:home_feel/shared/presentation/widgets/app_dialog.dart';
+import 'package:home_feel/features/home/presentation/screens/available_rooms_screen.dart';
 
 class HomestayDetailScreen extends StatefulWidget {
   final String id;
@@ -614,7 +615,19 @@ class _HomestayDetailScreenState extends State<HomestayDetailScreen> {
                                 minimumSize: const Size(0, 36),
                               ),
                               onPressed: () {
-                                // TODO: handle booking
+                                // Lấy detail từ biến state truyền vào BlocBuilder
+                                final detail = state.detail;
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => AvailableRoomsScreen(
+                                      homestayId: widget.id,
+                                      checkIn: _checkIn,
+                                      checkOut: _checkOut,
+                                      checkInTime: detail.chinhSach.nhanPhong,
+                                      checkOutTime: detail.chinhSach.traPhong,
+                                    ),
+                                  ),
+                                );
                               },
                               child: const Text(
                                 'Chọn phòng',

@@ -1,5 +1,5 @@
 import 'package:home_feel/core/services/api_service.dart';
-import 'package:home_feel/core/models/api_response.dart';
+import 'package:home_feel/shared/models/api_response.dart';
 import '../models/promotion_model.dart';
 
 abstract class PromotionRemoteDataSource {

@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.dto.Users;
+package com.bookinghomestay.app.api.dto.users;
 
 import com.bookinghomestay.app.domain.model.User;
 
