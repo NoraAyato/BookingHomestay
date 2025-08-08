@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_feel/features/home/presentation/screens/homestay_detail_screen.dart';
+import 'package:home_feel/shared/widgets/error_display.dart';
 import '../bloc/home_bloc.dart';
+import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
 import 'homestay_card.dart';
 
@@ -46,7 +48,7 @@ class HomestayList extends StatelessWidget {
             ),
           );
         } else if (state is HomeError) {
-          return Center(child: Text('Lỗi: ${state.message}'));
+          return ErrorDisplay(errorMessage: state.message);
         }
         return const Center(child: Text('Đang tải dữ liệu...'));
       },

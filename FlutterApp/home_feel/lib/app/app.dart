@@ -5,6 +5,7 @@ import 'package:home_feel/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_event.dart';
 import 'package:home_feel/features/news/presentation/bloc/news_bloc.dart';
 import 'package:home_feel/features/news/presentation/bloc/news_event.dart';
+import 'package:home_feel/features/profile/presentation/bloc/profile_bloc.dart';
 
 import 'package:home_feel/features/home/presentation/bloc/home_bloc.dart';
 import 'package:home_feel/features/home/presentation/screens/home_screen.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-
+        // AuthBloc phải được khởi tạo trước để check auth status
         BlocProvider<AuthBloc>(
           create: (_) => GetIt.I<AuthBloc>()..add(CheckAuthStatusEvent()),
         ),
@@ -29,6 +30,11 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => GetIt.I.get<NewsBloc>()..add(GetAllNewsEvent()),
           lazy: false,
+        ),
+        // Thêm ProfileBloc vào global context
+        BlocProvider<ProfileBloc>(
+          create: (_) => GetIt.I<ProfileBloc>(),
+          lazy: true,
         ),
       ],
       child: MaterialApp(

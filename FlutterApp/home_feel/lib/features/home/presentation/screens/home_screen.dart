@@ -1,30 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:home_feel/shared/presentation/widgets/loading_overlay.dart';
-import 'package:home_feel/features/auth/presentation/bloc/auth_event.dart';
+
 import 'package:home_feel/features/auth/presentation/screens/login_screen.dart';
 import 'package:home_feel/features/auth/presentation/screens/register_screen.dart';
 import 'package:home_feel/shared/bloc/loading/loading_bloc.dart';
 import 'package:home_feel/shared/bloc/loading/loading_state.dart';
-import 'package:home_feel/features/home/presentation/bloc/home_bloc.dart';
-import 'package:home_feel/features/home/presentation/bloc/home_event.dart';
-import 'package:home_feel/features/home/presentation/bloc/home_state.dart';
+
 import 'package:home_feel/features/profile/presentation/screens/profile_tab.dart';
-import '../widgets/homestay_card.dart';
+import 'package:home_feel/shared/presentation/widgets/loading_overlay.dart';
+
 import 'package:home_feel/features/bookings/presentation/screens/bookings_screen.dart';
 import 'package:home_feel/features/promotion/presentation/screens/promotions_screen.dart';
 import 'package:home_feel/core/services/tab_notifier.dart';
 import 'package:get_it/get_it.dart';
-import 'package:home_feel/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:home_feel/features/news/presentation/bloc/news_bloc.dart';
-import 'package:home_feel/features/news/presentation/bloc/news_event.dart';
-import 'package:home_feel/features/news/presentation/bloc/news_state.dart';
-import 'package:home_feel/features/news/presentation/screens/news_detail_screen.dart';
-import 'package:home_feel/features/news/presentation/widgets/news_card.dart';
-import '../widgets/home_app_bar.dart';
-import '../widgets/search_bar.dart';
-import '../widgets/homestay_list.dart';
-import '../widgets/suggestion_list.dart';
+
+import '../widgets/home_screen_body.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -78,14 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     tabNotifier.removeListener(_onTabChanged);
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Gọi event khi context đã sẵn sàng
-
-    context.read<HomeBloc>().add(FetchHomestaysEvent());
   }
 
   @override
@@ -168,141 +150,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
         );
       },
-    );
-  }
-}
-
-class HomeScreenBody extends StatefulWidget {
-  const HomeScreenBody({super.key});
-
-  @override
-  State<HomeScreenBody> createState() => _HomeScreenBodyState();
-}
-
-class _HomeScreenBodyState extends State<HomeScreenBody>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadNews();
-  }
-
-  void _loadNews() {
-    if (mounted) {
-      context.read<NewsBloc>().add(GetAllNewsEvent());
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadNews();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(110),
-        child: const HomeAppBar(),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Danh sách homestay',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            const HomestayList(),
-            const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Gợi ý hôm nay',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            const SuggestionList(),
-            const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Lời khuyên cần biết',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            BlocBuilder<NewsBloc, NewsState>(
-              builder: (context, state) {
-                if (state is NewsLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (state is NewsLoaded) {
-                  if (state.news.isEmpty) {
-                    return const Center(child: Text('Không có tin tức nào'));
-                  }
-
-                  return SizedBox(
-                    height: 280,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: state.news.length,
-                      itemBuilder: (context, index) {
-                        return NewsCard(
-                          news: state.news[index],
-                          onTap: () {
-                            context.read<NewsBloc>().add(
-                              GetNewsDetailEvent(state.news[index].maTinTuc),
-                            );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BlocProvider.value(
-                                  value: context.read<NewsBloc>(),
-                                  child: const NewsDetailScreen(),
-                                ),
-                                maintainState: true,
-                              ),
-                            ).then((_) {
-                              if (mounted) {
-                                // Fetch lại data khi quay về
-                                Future.microtask(() {
-                                  context.read<NewsBloc>().add(
-                                    GetAllNewsEvent(),
-                                  );
-                                });
-                              }
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }
-
-                if (state is NewsError) {
-                  return Center(child: Text(state.message));
-                }
-
-                return const SizedBox.shrink();
-              },
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
     );
   }
 }

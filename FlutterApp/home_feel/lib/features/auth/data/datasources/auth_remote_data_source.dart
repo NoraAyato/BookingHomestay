@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:home_feel/shared/models/api_response.dart';
+import 'package:home_feel/core/network/dio_exception_mapper.dart';
 import '../../../../core/constants/api.dart';
-import '../../../../core/utils/network_utils.dart';
 import '../../../../shared/presentation/widgets/app_dialog.dart';
 import '../models/auth_request.dart';
 import '../models/google_auth_request.dart';
@@ -29,26 +29,44 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<ApiResponse<AuthData>> login(AuthRequest request) async {
-    final response = await dio.post(
-      '${ApiConstants.baseUrl}${ApiConstants.auth}${ApiConstants.login}',
-      data: request.toJson(),
-    );
-    return ApiResponse<AuthData>.fromJson(
-      response.data,
-      (data) => AuthData.fromJson(data),
-    );
+    try {
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}${ApiConstants.auth}${ApiConstants.login}',
+        data: request.toJson(),
+      );
+      return ApiResponse<AuthData>.fromJson(
+        response.data,
+        (data) => AuthData.fromJson(data),
+      );
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
+      return ApiResponse(
+        success: false,
+        message: appException.message,
+        data: null,
+      );
+    }
   }
 
   @override
   Future<ApiResponse<AuthData>> register(RegisterRequest request) async {
-    final response = await dio.post(
-      '${ApiConstants.baseUrl}${ApiConstants.auth}${ApiConstants.register}',
-      data: request.toJson(),
-    );
-    return ApiResponse<AuthData>.fromJson(
-      response.data,
-      (data) => AuthData.fromJson(data),
-    );
+    try {
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}${ApiConstants.auth}${ApiConstants.register}',
+        data: request.toJson(),
+      );
+      return ApiResponse<AuthData>.fromJson(
+        response.data,
+        (data) => AuthData.fromJson(data),
+      );
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
+      return ApiResponse(
+        success: false,
+        message: appException.message,
+        data: null,
+      );
+    }
   }
 
   @override

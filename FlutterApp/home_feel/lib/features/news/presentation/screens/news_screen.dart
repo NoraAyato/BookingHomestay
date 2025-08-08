@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:home_feel/shared/widgets/error_display.dart';
 import '../bloc/news_bloc.dart';
 import '../bloc/news_event.dart';
 import '../bloc/news_state.dart';
@@ -31,13 +32,15 @@ class _NewsScreenState extends State<NewsScreen> {
           }
 
           if (state is NewsError) {
-            return Center(child: Text(state.message));
+            return ErrorDisplay(errorMessage: state.message);
           }
 
           if (state is NewsLoaded) {
             return RefreshIndicator(
               onRefresh: () async {
-                context.read<NewsBloc>().add(GetAllNewsEvent());
+                context.read<NewsBloc>().add(
+                  const GetAllNewsEvent(refresh: true),
+                );
               },
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 8),

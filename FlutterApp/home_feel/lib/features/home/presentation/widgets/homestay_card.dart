@@ -27,7 +27,7 @@ class HomestayCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
                   fullImageUrl,
-                  height: 100, // 👈 giảm chút để vừa kích thước
+                  height: 100, 
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(

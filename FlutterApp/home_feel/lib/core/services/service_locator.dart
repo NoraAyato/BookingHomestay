@@ -197,7 +197,7 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<UpdateProfileUseCase>(
     () => UpdateProfileUseCase(sl<UserRepository>()),
   );
-  sl.registerLazySingleton<ProfileBloc>(
+  sl.registerFactory<ProfileBloc>(
     () => ProfileBloc(sl<UploadAvatarUseCase>(), sl<UpdateProfileUseCase>()),
   );
 

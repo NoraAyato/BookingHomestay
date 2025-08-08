@@ -1,27 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_feel/core/constants/api.dart';
-import 'package:home_feel/shared/presentation/widgets/app_dialog.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_state.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_event.dart';
-import 'package:home_feel/core/services/service_locator.dart';
 import 'package:home_feel/features/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:home_feel/shared/presentation/widgets/app_dialog.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_event.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_state.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final VoidCallback? onLogin;
   const ProfileScreen({super.key, this.onLogin});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Reset ProfileBloc state khi màn hình được mở
+    context.read<ProfileBloc>().add(ResetProfileStateEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<ProfileBloc>(),
-      child: _ProfileScreenContent(onLogin: onLogin),
-    );
+    // Sử dụng ProfileBloc từ global context thay vì tạo mới
+    return _ProfileScreenContent(onLogin: widget.onLogin);
   }
 }
 
@@ -35,7 +45,8 @@ class _ProfileScreenContent extends StatelessWidget {
       backgroundColor: Colors.white,
       body: BlocListener<ProfileBloc, ProfileState>(
         listener: (context, profileState) {
-          if (profileState is ProfileLoading) {
+          if (profileState is ProfileAvatarUploading) {
+            // Có thể thêm loading indicator ở đây
           } else if (profileState is ProfileAvatarUpdated) {
             context.read<AuthBloc>().add(CheckAuthStatusEvent());
             showAppDialog(
@@ -84,37 +95,79 @@ class _ProfileScreenContent extends StatelessWidget {
                   child: Row(
                     children: [
                       isLoggedIn
-                          ? GestureDetector(
-                              onTap: () async {
-                                final picker = ImagePicker();
-                                final pickedFile = await picker.pickImage(
-                                  source: ImageSource.gallery,
+                          ? BlocBuilder<ProfileBloc, ProfileState>(
+                              builder: (context, profileState) {
+                                final isUploading =
+                                    profileState is ProfileAvatarUploading;
+                                return GestureDetector(
+                                  onTap: isUploading
+                                      ? null
+                                      : () async {
+                                          final picker = ImagePicker();
+                                          final pickedFile = await picker
+                                              .pickImage(
+                                                source: ImageSource.gallery,
+                                              );
+                                          if (pickedFile != null) {
+                                            context.read<ProfileBloc>().add(
+                                              UploadAvatarEvent(
+                                                pickedFile.path,
+                                              ),
+                                            );
+                                          }
+                                        },
+                                  child: Stack(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 32,
+                                        backgroundColor: Colors.white,
+                                        backgroundImage:
+                                            (userInfo?.picture?.isNotEmpty ??
+                                                false)
+                                            ? NetworkImage(
+                                                userInfo!.picture!.startsWith(
+                                                      'http',
+                                                    )
+                                                    ? userInfo.picture!
+                                                    : '${ApiConstants.baseUrl}${userInfo.picture!}',
+                                              )
+                                            : null,
+                                        child:
+                                            !(userInfo?.picture?.isNotEmpty ??
+                                                false)
+                                            ? const Icon(
+                                                Icons.person,
+                                                size: 48,
+                                                color: Colors.grey,
+                                              )
+                                            : null,
+                                      ),
+                                      if (isUploading)
+                                        Positioned.fill(
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(
+                                                0.5,
+                                              ),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Center(
+                                              child: SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      color: Colors.white,
+                                                      strokeWidth: 2,
+                                                    ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 );
-                                if (pickedFile != null) {
-                                  context.read<ProfileBloc>().add(
-                                    UploadAvatarEvent(pickedFile.path),
-                                  );
-                                }
                               },
-                              child: CircleAvatar(
-                                radius: 32,
-                                backgroundColor: Colors.white,
-                                backgroundImage:
-                                    (userInfo?.picture?.isNotEmpty ?? false)
-                                    ? NetworkImage(
-                                        userInfo!.picture!.startsWith('http')
-                                            ? userInfo.picture!
-                                            : '${ApiConstants.baseUrl}${userInfo.picture!}',
-                                      )
-                                    : null,
-                                child: !(userInfo?.picture?.isNotEmpty ?? false)
-                                    ? const Icon(
-                                        Icons.person,
-                                        size: 48,
-                                        color: Colors.grey,
-                                      )
-                                    : null,
-                              ),
                             )
                           : CircleAvatar(
                               radius: 32,
@@ -166,10 +219,8 @@ class _ProfileScreenContent extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => BlocProvider(
-                                  create: (context) => sl<ProfileBloc>(),
-                                  child: EditProfileScreen(userInfo: userInfo!),
-                                ),
+                                builder: (context) =>
+                                    EditProfileScreen(userInfo: userInfo!),
                               ),
                             );
                           },

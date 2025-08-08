@@ -5,6 +5,7 @@ import 'package:home_feel/features/home/presentation/bloc/home_event.dart';
 import 'package:home_feel/features/home/presentation/bloc/home_state.dart';
 import 'package:home_feel/features/home/data/models/available_room_model.dart';
 import 'package:home_feel/features/home/data/models/room_images_model.dart';
+import 'package:home_feel/shared/widgets/error_display.dart';
 import 'package:intl/intl.dart';
 
 import 'dart:async';
@@ -173,7 +174,7 @@ class _AvailableRoomsScreenState extends State<AvailableRoomsScreen> {
               ),
             );
           } else if (state is HomeAvailableRoomsError) {
-            return Center(child: Text(state.message));
+            return ErrorDisplay(errorMessage: state.message);
           }
           return const SizedBox.shrink();
         },

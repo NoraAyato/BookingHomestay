@@ -1,5 +1,7 @@
 import 'package:home_feel/shared/models/api_response.dart';
 import 'package:home_feel/core/services/api_service.dart';
+import 'package:home_feel/core/network/dio_exception_mapper.dart';
+import 'package:dio/dio.dart';
 import '../models/news_model.dart';
 import '../models/news_detail_model.dart';
 
@@ -22,10 +24,11 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
         (data) =>
             (data as List).map((item) => NewsModel.fromJson(item)).toList(),
       );
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Lỗi khi lấy danh sách tin tức: $e',
+        message: appException.message,
         data: null,
       );
     }
@@ -39,10 +42,11 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
         response.data,
         (data) => NewsDetailModel.fromJson(data),
       );
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Lỗi khi lấy chi tiết tin tức: $e',
+        message: appException.message,
         data: null,
       );
     }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:home_feel/core/utils/network_utils.dart';
 
 enum AppDialogType { success, error, warning, info, offline, loading }
 
@@ -134,7 +133,7 @@ Future<void> showOfflineDialog(BuildContext context) async {
       onButtonPressed: () {}, // Giữ nguyên, để không đóng dialog
     );
 
-    final retry = await checkInternetConnection();
-    if (retry) break;
+    // final retry = await checkInternetConnection();
+    // if (retry) break;
   }
 }

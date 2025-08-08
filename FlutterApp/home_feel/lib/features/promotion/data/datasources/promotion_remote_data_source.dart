@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:home_feel/core/network/dio_exception_mapper.dart';
 import 'package:home_feel/core/services/api_service.dart';
 import 'package:home_feel/shared/models/api_response.dart';
 import '../models/promotion_model.dart';
@@ -22,10 +24,11 @@ class PromotionRemoteDataSourceImpl implements PromotionRemoteDataSource {
             .map((item) => PromotionModel.fromJson(item))
             .toList(),
       );
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Lỗi khi lấy danh sách khuyến mãi: $e',
+        message: appException.message,
         data: null,
       );
     }
@@ -39,10 +42,11 @@ class PromotionRemoteDataSourceImpl implements PromotionRemoteDataSource {
         response.data,
         (data) => PromotionModel.fromJson(data),
       );
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Lỗi khi lấy khuyến mãi: $e',
+        message: appException.message,
         data: null,
       );
     }

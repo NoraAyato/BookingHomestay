@@ -5,6 +5,7 @@ import 'package:home_feel/features/promotion/presentation/bloc/promotion_bloc.da
 import 'package:home_feel/features/promotion/presentation/bloc/promotion_event.dart';
 import 'package:home_feel/features/promotion/presentation/bloc/promotion_state.dart';
 import 'package:home_feel/features/promotion/presentation/widgets/promotion_item.dart';
+import 'package:home_feel/shared/widgets/error_display.dart';
 
 class PromotionListScreen extends StatefulWidget {
   final bool showAll;
@@ -19,8 +20,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          sl<PromotionBloc>()..add(GetAdminKhuyenMaiEvent()),
+      create: (context) => sl<PromotionBloc>()..add(GetAdminKhuyenMaiEvent()),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Chương trình khuyến mãi'),
@@ -79,7 +79,7 @@ class _PromotionListScreenState extends State<PromotionListScreen> {
                 ],
               );
             } else if (state is PromotionError) {
-              return Center(child: Text(state.message));
+              return ErrorDisplay(errorMessage: state.message);
             }
             return const SizedBox.shrink();
           },

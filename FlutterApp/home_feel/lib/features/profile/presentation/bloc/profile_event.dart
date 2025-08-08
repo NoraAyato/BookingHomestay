@@ -18,3 +18,5 @@ class UpdateProfileEvent extends ProfileEvent {
     required this.birthday,
   });
 }
+
+class ResetProfileStateEvent extends ProfileEvent {}
