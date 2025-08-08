@@ -7,6 +7,9 @@ import 'package:home_feel/features/home/presentation/bloc/home_state.dart';
 import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 import 'package:home_feel/shared/presentation/widgets/app_dialog.dart';
 import 'package:home_feel/features/home/presentation/screens/available_rooms_screen.dart';
+import 'package:home_feel/shared/presentation/widgets/loading_overlay.dart';
+import 'package:home_feel/shared/widgets/error_display.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class HomestayDetailScreen extends StatefulWidget {
   final String id;
@@ -26,6 +29,8 @@ class HomestayDetailScreen extends StatefulWidget {
 class _HomestayDetailScreenState extends State<HomestayDetailScreen> {
   late DateTime _checkIn;
   late DateTime _checkOut;
+  int _currentImageIndex = 0;
+  final PageController _pageController = PageController();
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -170,78 +175,86 @@ class _HomestayDetailScreenState extends State<HomestayDetailScreen> {
                           state.images.mainImage,
                           ...state.images.roomImages,
                         ];
-                        final displayImages = images.take(5).toList();
-                        return SizedBox(
-                          height: 180,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: displayImages.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(width: 16),
-                            itemBuilder: (context, index) {
-                              return GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => Dialog(
-                                      backgroundColor: Colors.transparent,
-                                      child: GestureDetector(
-                                        onTap: () =>
-                                            Navigator.of(context).pop(),
-                                        child: InteractiveViewer(
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            child: Image.network(
-                                              ApiConstants.baseUrl +
-                                                  displayImages[index],
-                                              fit: BoxFit.contain,
+
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: 250,
+                              child: PageView.builder(
+                                controller: _pageController,
+                                itemCount: images.length,
+                                onPageChanged: (index) {
+                                  setState(() {
+                                    _currentImageIndex = index;
+                                  });
+                                },
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => Dialog(
+                                          backgroundColor: Colors.transparent,
+                                          child: GestureDetector(
+                                            onTap: () =>
+                                                Navigator.of(context).pop(),
+                                            child: InteractiveViewer(
+                                              child: Image.network(
+                                                ApiConstants.baseUrl +
+                                                    images[index],
+                                                fit: BoxFit.contain,
+                                              ),
                                             ),
                                           ),
                                         ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.08,
+                                            ),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Image.network(
+                                        ApiConstants.baseUrl + images[index],
+                                        fit: BoxFit.cover,
+                                        loadingBuilder:
+                                            (context, child, progress) {
+                                              if (progress == null)
+                                                return child;
+                                              return const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            },
                                       ),
                                     ),
                                   );
                                 },
-                                child: Container(
-                                  width: 140,
-                                  height: 180,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.08),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Image.network(
-                                      ApiConstants.baseUrl +
-                                          displayImages[index],
-                                      fit: BoxFit.cover,
-                                      loadingBuilder:
-                                          (context, child, progress) {
-                                            if (progress == null) return child;
-                                            return const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          },
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            AnimatedSmoothIndicator(
+                              activeIndex: _currentImageIndex,
+                              count: images.length,
+                              effect: WormEffect(
+                                dotHeight: 8,
+                                dotWidth: 8,
+                                activeDotColor: Theme.of(context).primaryColor,
+                                dotColor: Colors.grey.shade300,
+                              ),
+                            ),
+                          ],
                         );
                       } else if (state is HomeImagesError) {
-                        return Center(
-                          child: Text('Lỗi tải hình ảnh: ${state.message}'),
-                        );
+                        return ErrorDisplay(errorMessage: state.message);
                       }
                       return const SizedBox.shrink();
                     },
@@ -360,9 +373,7 @@ class _HomestayDetailScreenState extends State<HomestayDetailScreen> {
                           ],
                         );
                       } else if (state is HomeDetailError) {
-                        return Center(
-                          child: Text('Lỗi tải chi tiết: ${state.message}'),
-                        );
+                        return ErrorDisplay(errorMessage: state.message);
                       }
                       return const SizedBox.shrink();
                     },
@@ -375,7 +386,7 @@ class _HomestayDetailScreenState extends State<HomestayDetailScreen> {
                       vertical: 8,
                     ),
                     child: Text(
-                      'Tiện ích khách sạn',
+                      'Tiện ích homestay',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -449,9 +460,7 @@ class _HomestayDetailScreenState extends State<HomestayDetailScreen> {
                           ),
                         );
                       } else if (state is HomeTienNghiError) {
-                        return Center(
-                          child: Text('Lỗi tải tiện nghi: ${state.message}'),
-                        );
+                        return ErrorDisplay(errorMessage: state.message);
                       }
                       return const SizedBox.shrink();
                     },

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:home_feel/core/network/dio_exception_mapper.dart';
 import 'package:home_feel/shared/models/api_response.dart';
 import 'package:home_feel/core/services/api_service.dart';
 import 'package:home_feel/core/exceptions/auth_exception.dart';
@@ -26,26 +27,15 @@ class UserRemoteDataSource {
         data: responseData['data'],
       );
     } on DioException catch (e) {
-      if (e.error is AuthException) {
-        final authError = e.error as AuthException;
-        return ApiResponse(
-          success: false,
-          message: authError.message,
-          data: {'shouldLogout': authError.shouldLogout},
-        );
-      }
+      print('UploadAvatar DioException: ${e.type} - ${e.message}');
 
-      final errorData = e.response?.data;
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: errorData?['message'] ?? 'Cập nhật ảnh đại diện thất bại',
-        data: errorData?['data'],
-      );
-    } catch (e) {
-      return ApiResponse(
-        success: false,
-        message: 'Có lỗi xảy ra khi cập nhật ảnh đại diện',
-        data: null,
+        message: appException.message,
+        data: appException is AuthException
+            ? {'shouldLogout': appException.shouldLogout}
+            : null,
       );
     }
   }
@@ -73,20 +63,15 @@ class UserRemoteDataSource {
         data: responseData['data'],
       );
     } on DioException catch (e) {
-      if (e.error is AuthException) {
-        final authError = e.error as AuthException;
-        return ApiResponse(
-          success: false,
-          message: authError.message,
-          data: {'shouldLogout': authError.shouldLogout},
-        );
-      }
+      print('UpdateProfile DioException: ${e.type} - ${e.message}');
 
-      final errorData = e.response?.data;
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: errorData?['message'] ?? 'Cập nhật thông tin thất bại',
-        data: errorData?['data'],
+        message: appException.message,
+        data: appException is AuthException
+            ? {'shouldLogout': appException.shouldLogout}
+            : null,
       );
     } catch (e) {
       return ApiResponse(

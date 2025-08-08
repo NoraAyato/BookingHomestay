@@ -4,7 +4,6 @@ import 'package:home_feel/shared/presentation/widgets/app_dialog.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_state.dart';
-import 'login_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String token;

@@ -6,6 +6,7 @@ import 'package:home_feel/features/promotion/data/models/promotion_model.dart';
 import 'package:home_feel/features/promotion/presentation/bloc/promotion_bloc.dart';
 import 'package:home_feel/features/promotion/presentation/bloc/promotion_event.dart';
 import 'package:home_feel/features/promotion/presentation/bloc/promotion_state.dart';
+import 'package:home_feel/shared/widgets/error_display.dart';
 import 'package:intl/intl.dart';
 
 class PromotionDetailScreen extends StatelessWidget {
@@ -35,7 +36,7 @@ class PromotionDetailScreen extends StatelessWidget {
             } else if (state is PromotionLoaded) {
               return _buildPromotionDetail(context, state.promotion);
             } else if (state is PromotionError) {
-              return Center(child: Text(state.message));
+              return ErrorDisplay(errorMessage: state.message);
             }
             return const SizedBox.shrink();
           },

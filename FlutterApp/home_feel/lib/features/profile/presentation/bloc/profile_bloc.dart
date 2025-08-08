@@ -13,13 +13,28 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     : super(ProfileInitial()) {
     on<UploadAvatarEvent>(_onUploadAvatar);
     on<UpdateProfileEvent>(_onUpdateProfile);
+    on<ResetProfileStateEvent>(_onResetState);
+  }
+
+  @override
+  void onEvent(ProfileEvent event) {
+    print('ProfileBloc Event: ${event.runtimeType}');
+    super.onEvent(event);
+  }
+
+  @override
+  void onTransition(Transition<ProfileEvent, ProfileState> transition) {
+    print(
+      'ProfileBloc Transition: ${transition.currentState.runtimeType} -> ${transition.nextState.runtimeType}',
+    );
+    super.onTransition(transition);
   }
 
   Future<void> _onUploadAvatar(
     UploadAvatarEvent event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(ProfileLoading());
+    emit(ProfileAvatarUploading());
     try {
       final ApiResponse response = await uploadAvatarUseCase(event.filePath);
 
@@ -49,7 +64,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     UpdateProfileEvent event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(ProfileLoading());
+    emit(ProfileUpdating());
     try {
       final ApiResponse response = await updateProfileUseCase.call(
         userName: event.userName,
@@ -71,5 +86,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ),
       );
     }
+  }
+
+  void _onResetState(ResetProfileStateEvent event, Emitter<ProfileState> emit) {
+    emit(ProfileInitial());
   }
 }

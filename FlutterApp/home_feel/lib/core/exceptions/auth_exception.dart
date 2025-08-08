@@ -1,6 +1,8 @@
-class AuthException implements Exception {
-  final String message;
+import 'app_exception.dart';
+
+class AuthException extends AppException {
   final bool shouldLogout;
 
-  AuthException({required this.message, this.shouldLogout = false});
+  AuthException({required String message, this.shouldLogout = false})
+    : super(message);
 }

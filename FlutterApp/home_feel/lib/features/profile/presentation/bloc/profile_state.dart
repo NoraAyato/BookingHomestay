@@ -29,3 +29,12 @@ class ProfileError extends ProfileState {
 
   const ProfileError({required this.message, this.errorDetails});
 }
+
+// Thêm state để track upload progress
+class ProfileAvatarUploading extends ProfileState {
+  const ProfileAvatarUploading();
+}
+
+class ProfileUpdating extends ProfileState {
+  const ProfileUpdating();
+}

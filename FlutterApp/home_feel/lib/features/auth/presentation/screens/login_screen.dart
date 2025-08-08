@@ -5,7 +5,7 @@ import 'package:home_feel/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_state.dart';
 import 'package:home_feel/features/profile/presentation/screens/profile_screen.dart';
-import 'register_screen.dart';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'forgot_password_screen.dart';
 

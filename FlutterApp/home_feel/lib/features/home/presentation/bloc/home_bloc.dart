@@ -90,7 +90,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     if (!event.refresh && state is HomeLoaded && !_hasFilterChanged(event)) {
-      return; // Avoid unnecessary API calls if filters haven't changed
+      return; // Tránh gọi API không cần thiết nếu bộ lọc không thay đổi
     }
 
     emit(const HomeLoading());
@@ -114,7 +114,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         emit(HomeError(result.message));
       }
     } catch (e) {
-      emit(HomeError(e.toString()));
+      if (e.toString().contains("SocketException")) {
+        emit(
+          const HomeError(
+            "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.",
+          ),
+        );
+      } else {
+        emit(HomeError(e.toString()));
+      }
     }
   }
 

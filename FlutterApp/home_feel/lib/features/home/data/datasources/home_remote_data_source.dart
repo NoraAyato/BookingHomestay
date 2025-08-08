@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:home_feel/core/network/dio_exception_mapper.dart';
 import 'package:home_feel/features/home/data/models/available_room_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
@@ -26,7 +28,6 @@ abstract class HomeRemoteDataSource {
   );
   Future<ApiResponse<HomestayDetailModel>> getHomestayDetail(String id);
 
-  /// Lấy danh sách phòng còn trống theo homestayId, checkIn, checkOut
   Future<ApiResponse<List<AvailableRoomModel>>> fetchAvailableRooms({
     required String homestayId,
     required DateTime checkIn,
@@ -35,6 +36,9 @@ abstract class HomeRemoteDataSource {
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
+  final ApiService _apiService;
+
+  HomeRemoteDataSourceImpl(this._apiService);
   @override
   Future<ApiResponse<RoomImagesModel>> getRoomImages(String maPhong) async {
     try {
@@ -48,10 +52,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         return ApiResponse(success: true, message: 'Success', data: images);
       }
       throw Exception('Invalid response format');
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Failed to get room images: $e',
+        message: appException.message,
         data: null,
       );
     }
@@ -71,7 +76,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           'ngayDi': checkOut.toIso8601String(),
         },
       );
-      print('[fetchAvailableRooms] API response: \\n${response.data}');
+      print('[fetchAvailableRooms] API response: \n${response.data}');
       if (response.data is List) {
         final List<AvailableRoomModel> rooms = (response.data as List)
             .map(
@@ -79,14 +84,15 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
                   AvailableRoomModel.fromJson(json as Map<String, dynamic>),
             )
             .toList();
-        print('[fetchAvailableRooms] Parsed rooms: \\n$rooms');
+        print('[fetchAvailableRooms] Parsed rooms: \n$rooms');
         return ApiResponse(success: true, message: 'Success', data: rooms);
       }
       throw Exception('Invalid response format');
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Failed to fetch available rooms: $e',
+        message: appException.message,
         data: null,
       );
     }
@@ -107,10 +113,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         return ApiResponse(success: true, message: 'Success', data: tiennghi);
       }
       throw Exception('Invalid response format');
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Failed to get homestay tiennghi: $e',
+        message: appException.message,
         data: null,
       );
     }
@@ -131,10 +138,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         return ApiResponse(success: true, message: 'Success', data: images);
       }
       throw Exception('Invalid response format');
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Failed to get homestay images: $e',
+        message: appException.message,
         data: null,
       );
     }
@@ -153,18 +161,15 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         return ApiResponse(success: true, message: 'Success', data: detail);
       }
       throw Exception('Invalid response format');
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Failed to get homestay detail: $e',
+        message: appException.message,
         data: null,
       );
     }
   }
-
-  final ApiService _apiService;
-
-  HomeRemoteDataSourceImpl(this._apiService);
 
   @override
   Future<ApiResponse<List<HomestayModel>>> fetchHomestays() async {
@@ -182,10 +187,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Failed to fetch homestays: $e',
+        message: appException.message,
         data: null,
       );
     }
@@ -217,10 +223,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Failed to search homestays: $e',
+        message: appException.message,
         data: null,
       );
     }
@@ -252,10 +259,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       }
 
       throw Exception('Invalid response format');
-    } catch (e) {
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,
-        message: 'Failed to get suggestions: $e',
+        message: appException.message,
         data: null,
       );
     }

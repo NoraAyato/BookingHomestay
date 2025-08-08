@@ -9,6 +9,7 @@ import 'package:home_feel/features/auth/data/models/user_info.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_event.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_state.dart';
+import 'package:home_feel/shared/presentation/widgets/loading_overlay.dart';
 import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -30,6 +31,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     _initControllers();
+    // Reset ProfileBloc state khi màn hình edit được mở
+    context.read<ProfileBloc>().add(ResetProfileStateEvent());
   }
 
   void _initControllers() {
@@ -309,8 +312,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     title: const Text('Nam', style: TextStyle(fontSize: 15)),
                     value: true,
                     groupValue: _selectedGender,
-                    onChanged: (value) =>
-                        setState(() => _selectedGender = value),
+                    onChanged: (value) {
+                      setState(() => _selectedGender = value);
+                      _onChanged();
+                    },
                     activeColor: const Color(0xFFFF6D00),
                     contentPadding: EdgeInsets.zero,
                     dense: true,
@@ -321,8 +326,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     title: const Text('Nữ', style: TextStyle(fontSize: 15)),
                     value: false,
                     groupValue: _selectedGender,
-                    onChanged: (value) =>
-                        setState(() => _selectedGender = value),
+                    onChanged: (value) {
+                      setState(() => _selectedGender = value);
+                      _onChanged();
+                    },
                     activeColor: const Color(0xFFFF6D00),
                     contentPadding: EdgeInsets.zero,
                     dense: true,
@@ -360,7 +367,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               buttonText: 'Đóng',
               onButtonPressed: () {
                 context.read<AuthBloc>().add(CheckAuthStatusEvent());
-                Navigator.of(context).pop(); //
+                Navigator.of(context).pop();
                 Future.delayed(const Duration(milliseconds: 200), () {
                   Navigator.of(context).pop();
                 });
@@ -375,7 +382,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               buttonText: 'Đóng',
               onButtonPressed: () {
                 context.read<AuthBloc>().add(CheckAuthStatusEvent());
-                Navigator.of(context, rootNavigator: true).pop(); // Đóng dialog
+                Navigator.of(context, rootNavigator: true).pop();
               },
             );
           }
@@ -422,29 +429,45 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _isChanged ? _updateProfile : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF6D00),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                BlocBuilder<ProfileBloc, ProfileState>(
+                  builder: (context, state) {
+                    final isLoading = state is ProfileUpdating;
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: (_isChanged && !isLoading)
+                            ? _updateProfile
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF6D00),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'CẬP NHẬT',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
                       ),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text(
-                      'CẬP NHẬT',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ],
             ),

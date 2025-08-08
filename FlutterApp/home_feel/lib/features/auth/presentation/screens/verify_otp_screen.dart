@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:home_feel/shared/presentation/widgets/app_dialog.dart';
+
 import 'package:home_feel/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_event.dart';
 import 'package:home_feel/features/auth/presentation/bloc/auth_state.dart';
+import 'package:home_feel/shared/presentation/widgets/app_dialog.dart';
+
 import 'reset_password_screen.dart';
 import 'dart:async';
 
