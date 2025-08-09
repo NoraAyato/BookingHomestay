@@ -23,7 +23,7 @@ public class Phong {
     private String tenPhong;
 
     @Column(name = "trang_thai", length = 50, columnDefinition = "nvarchar(50)", nullable = false)
-    private String trangThai = "Hoạt động";
+    private String trangThai = "Active";
 
     @Column(name = "don_gia", nullable = false)
     private BigDecimal donGia;

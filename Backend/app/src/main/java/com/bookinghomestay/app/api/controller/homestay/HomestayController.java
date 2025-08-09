@@ -16,6 +16,8 @@ import com.bookinghomestay.app.application.danhgia.query.GetHomestayReviewsQuery
 import com.bookinghomestay.app.application.homestay.query.GetAllHomestayQueryHandler;
 import com.bookinghomestay.app.application.homestay.query.GetHomestayDetailQuery;
 import com.bookinghomestay.app.application.homestay.query.GetHomestayDetailQueryHandler;
+import com.bookinghomestay.app.application.homestay.query.GetHomestayDichVuQuery;
+import com.bookinghomestay.app.application.homestay.query.GetHomestayDichVuQueryHandler;
 import com.bookinghomestay.app.application.homestay.query.GetHomestayImagesQuery;
 import com.bookinghomestay.app.application.homestay.query.GetHomestayImagesQueryHandler;
 import com.bookinghomestay.app.application.homestay.query.GetHomestayTienNghiQuery;
@@ -25,6 +27,7 @@ import com.bookinghomestay.app.application.homestay.query.GetRoomImagesQueryHand
 import com.bookinghomestay.app.application.homestay.query.GetTopHomestayQueryHandler;
 
 import lombok.RequiredArgsConstructor;
+import com.bookinghomestay.app.application.homestay.query.GetRoomDetailQueryHandler;
 
 @RestController
 @RequestMapping("/api/homestays")
@@ -39,6 +42,8 @@ public class HomestayController {
     private final GetHomestayReviewsQueryHandler getHomestayReviewsQueryHandler;
     private final GetRoomAvailabilityQueryHandler getRoomAvailabilityQueryHandler;
     private final GetRoomImagesQueryHandler getRoomImagesQueryHandler;
+    private final GetRoomDetailQueryHandler getRoomDetailQueryHandler;
+    private final GetHomestayDichVuQueryHandler getHomestayDichVuQueryHandler;
 
     @GetMapping
     public List<HomestayResponseDto> getAll() {
@@ -92,4 +97,17 @@ public class HomestayController {
         RoomImagesDto dto = getRoomImagesQueryHandler.handle(maPhong);
         return ResponseEntity.ok(dto);
     }
+
+    @GetMapping("/rooms/{maPhong}/detail")
+    public ResponseEntity<RoomDetailResponseDTO> getRoomDetail(@PathVariable String maPhong) {
+        RoomDetailResponseDTO dto = getRoomDetailQueryHandler.handle(maPhong);
+        return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/{homestayId}/dichvu")
+    public ResponseEntity<HomestayDichVuResponseDto> getDichVuByHomestay(@PathVariable String homestayId) {
+        var dto = getHomestayDichVuQueryHandler.handle(new GetHomestayDichVuQuery(homestayId));
+        return ResponseEntity.ok(dto);
+    }
+
 }

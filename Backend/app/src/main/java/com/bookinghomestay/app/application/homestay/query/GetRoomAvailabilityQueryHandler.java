@@ -5,6 +5,8 @@ import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 
 import com.bookinghomestay.app.domain.model.Phong;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
+import com.bookinghomestay.app.domain.service.PendingRoomService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,15 +20,30 @@ import java.util.stream.Collectors;
 public class GetRoomAvailabilityQueryHandler {
 
     private final IHomestayRepository homestayRepository;
+    private final PendingRoomService pendingRoomService; // service check Redis
 
     @Transactional(readOnly = true)
     public List<RoomAvailabilityDto> handle(String homestayId, LocalDateTime ngayDen, LocalDateTime ngayDi) {
         List<Phong> rooms = homestayRepository.findAvailableRoomsByHomestayId(homestayId, ngayDen, ngayDi);
+
         if (rooms.isEmpty()) {
-            throw new ResourceNotFoundException("Không tìm thấy phòng nào cho homestay với ID: " + homestayId);
+            throw new ResourceNotFoundException("Hiện không có phòng khả dụng !");
         }
-        return rooms.stream()
-                .map(phong -> new RoomAvailabilityDto(phong.getMaPhong(), phong.getTenPhong(), phong.getDonGia()))
+
+        List<RoomAvailabilityDto> availableRooms = rooms.stream()
+                .filter(phong -> pendingRoomService.isRoomAvailable(
+                        phong.getMaPhong(),
+                        ngayDen.toLocalDate(),
+                        ngayDi.toLocalDate()))
+                .map(phong -> new RoomAvailabilityDto(
+                        phong.getMaPhong(),
+                        phong.getTenPhong(),
+                        phong.getDonGia()))
                 .collect(Collectors.toList());
+
+        if (availableRooms.isEmpty()) {
+            throw new ResourceNotFoundException("Tất cả phòng hiện đang được đặt !");
+        }
+        return availableRooms;
     }
 }

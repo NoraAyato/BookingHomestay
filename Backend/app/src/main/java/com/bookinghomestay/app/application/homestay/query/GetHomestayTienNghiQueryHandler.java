@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,18 +21,21 @@ public class GetHomestayTienNghiQueryHandler {
         Homestay homestay = homestayRepository.findById(query.getHomestayId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy homestay"));
 
-        List<HomestayTienNghiResponseDto.TienNghiDto> tienNghiDtos = new ArrayList<>();
-
-        for (Phong phong : homestay.getPhongs()) {
-            for (ChiTietPhong chiTiet : phong.getChiTietPhongs()) {
-                TienNghi tienNghi = chiTiet.getTienNghi();
-                tienNghiDtos.add(new HomestayTienNghiResponseDto.TienNghiDto(
-                        tienNghi.getMaTienNghi(),
-                        tienNghi.getTenTienNghi(),
-                        tienNghi.getMoTa(),
-                        chiTiet.getSoLuong()));
-            }
-        }
+        List<HomestayTienNghiResponseDto.TienNghiDto> tienNghiDtos = homestay.getPhongs().stream()
+                .flatMap(phong -> phong.getChiTietPhongs().stream())
+                .collect(Collectors.toMap(
+                        chiTiet -> chiTiet.getTienNghi().getMaTienNghi(), 
+                        chiTiet -> new HomestayTienNghiResponseDto.TienNghiDto(
+                                chiTiet.getTienNghi().getMaTienNghi(),
+                                chiTiet.getTienNghi().getTenTienNghi(),
+                                chiTiet.getTienNghi().getMoTa(),
+                                chiTiet.getSoLuong()),
+                        (existing, replacement) -> {
+                            existing.setSoLuong(existing.getSoLuong() + replacement.getSoLuong());
+                            return existing;
+                        }))
+                .values().stream()
+                .collect(Collectors.toList());
 
         return new HomestayTienNghiResponseDto(homestay.getIdHomestay(), tienNghiDtos);
     }

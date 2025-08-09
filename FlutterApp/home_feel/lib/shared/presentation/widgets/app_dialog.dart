@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_feel/core/utils/network_monitor.dart';
 
 enum AppDialogType { success, error, warning, info, offline, loading }
 
@@ -122,6 +123,7 @@ Future<void> showAppDialog({
 }
 
 Future<void> showOfflineDialog(BuildContext context) async {
+  final networkMonitor = NetworkMonitor();
   while (true) {
     await showAppDialog(
       context: context,
@@ -133,7 +135,7 @@ Future<void> showOfflineDialog(BuildContext context) async {
       onButtonPressed: () {}, // Giữ nguyên, để không đóng dialog
     );
 
-    // final retry = await checkInternetConnection();
-    // if (retry) break;
+    final retry = await networkMonitor.checkInternetConnection();
+    if (retry) break;
   }
 }

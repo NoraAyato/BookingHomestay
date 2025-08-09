@@ -1,15 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:home_feel/core/exceptions/app_exception.dart';
 import 'package:home_feel/core/exceptions/network_exception.dart';
-import 'package:home_feel/core/exceptions/auth_exception.dart';
 
 class DioExceptionMapper {
   static AppException map(DioException dioException) {
-    // Kiểm tra nếu lỗi có chứa AuthException
-    if (dioException.error is AuthException) {
-      return dioException.error as AuthException;
-    }
-
     switch (dioException.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
@@ -25,7 +19,7 @@ class DioExceptionMapper {
 
         if (statusCode == 401) {
           return AuthException(
-            message: errorData?['message'] ?? 'Xác thực không thành công.',
+            errorData?['message'] ?? 'Xác thực không thành công.',
             shouldLogout: true,
           );
         }

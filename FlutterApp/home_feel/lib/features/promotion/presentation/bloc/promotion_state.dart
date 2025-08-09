@@ -28,6 +28,15 @@ class PromotionLoaded extends PromotionState {
   List<Object?> get props => [promotion];
 }
 
+class MyPromotionsLoaded extends PromotionState {
+  final List<PromotionModel> promotions;
+
+  MyPromotionsLoaded(this.promotions);
+
+  @override
+  List<Object?> get props => [promotions];
+}
+
 class PromotionError extends PromotionState {
   final String message;
 

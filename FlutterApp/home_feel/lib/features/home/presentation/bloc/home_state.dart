@@ -7,6 +7,7 @@ import 'package:home_feel/features/home/data/models/homestay_suggest_model.dart'
 import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
+import 'package:home_feel/features/home/data/models/room_detail_model.dart';
 
 class HomeRoomImagesLoading extends HomeState {
   const HomeRoomImagesLoading();
@@ -161,6 +162,24 @@ class HomeTienNghiLoaded extends HomeState {
 class HomeTienNghiError extends HomeState {
   final String message;
   const HomeTienNghiError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+class HomeRoomDetailLoading extends HomeState {
+  const HomeRoomDetailLoading();
+}
+
+class HomeRoomDetailLoaded extends HomeState {
+  final RoomDetailModel roomDetail;
+  const HomeRoomDetailLoaded({required this.roomDetail});
+  @override
+  List<Object?> get props => [roomDetail];
+}
+
+class HomeRoomDetailError extends HomeState {
+  final String message;
+  const HomeRoomDetailError(this.message);
   @override
   List<Object?> get props => [message];
 }

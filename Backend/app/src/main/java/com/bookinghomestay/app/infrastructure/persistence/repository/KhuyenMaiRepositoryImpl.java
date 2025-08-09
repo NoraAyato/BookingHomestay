@@ -52,4 +52,9 @@ public class KhuyenMaiRepositoryImpl implements IKhuyenMaiRepository {
         throw new UnsupportedOperationException("Unimplemented method 'getKhuyenMaiByUserId'");
     }
 
+    @Override
+    public List<KhuyenMai> getAllPromotionsForRoom(String maPhong) {
+        return jpaKhuyenMaiRepository.getAllPromotionsForRoom(maPhong);
+    }
+
 }

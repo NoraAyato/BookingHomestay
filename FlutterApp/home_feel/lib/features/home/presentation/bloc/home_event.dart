@@ -2,6 +2,13 @@ import 'package:equatable/equatable.dart';
 import 'package:home_feel/features/home/data/models/available_room_model.dart';
 import 'package:home_feel/features/home/data/models/room_images_model.dart';
 
+abstract class HomeEvent extends Equatable {
+  const HomeEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
 class GetRoomImagesEvent extends HomeEvent {
   final String maPhong;
   const GetRoomImagesEvent(this.maPhong);
@@ -9,11 +16,11 @@ class GetRoomImagesEvent extends HomeEvent {
   List<Object?> get props => [maPhong];
 }
 
-abstract class HomeEvent extends Equatable {
-  const HomeEvent();
-
+class GetRoomDetailEvent extends HomeEvent {
+  final String maPhong;
+  const GetRoomDetailEvent(this.maPhong);
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [maPhong];
 }
 
 class FetchHomestaysEvent extends HomeEvent {

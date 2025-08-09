@@ -15,3 +15,18 @@ class GetKhuyenMaiByIdEvent extends PromotionEvent {
   @override
   List<Object> get props => [kmId];
 }
+
+class GetMyPromotionEvent extends PromotionEvent {
+  final String maPhong;
+  final DateTime ngayDen;
+  final DateTime ngayDi;
+
+  GetMyPromotionEvent({
+    required this.maPhong,
+    required this.ngayDen,
+    required this.ngayDi,
+  });
+
+  @override
+  List<Object> get props => [maPhong, ngayDen, ngayDi];
+}

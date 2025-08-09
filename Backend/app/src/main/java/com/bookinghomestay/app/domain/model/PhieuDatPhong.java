@@ -3,7 +3,9 @@ package com.bookinghomestay.app.domain.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,7 +27,7 @@ public class PhieuDatPhong {
     private String trangThai;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User nguoiDung;
 
     @OneToMany(mappedBy = "phieuDatPhong", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -36,4 +38,20 @@ public class PhieuDatPhong {
 
     @OneToMany(mappedBy = "phieuDatPhong", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhieuHuyPhong> phieuHuyPhongs;
+
+    public PhieuDatPhong(User user, Phong phong, LocalDate ngayDen, LocalDate ngayDi, String trangThai) {
+        this.maPDPhong = java.util.UUID.randomUUID().toString();
+        this.nguoiDung = user;
+        this.trangThai = trangThai;
+        this.ngayLap = LocalDateTime.now();
+        this.chiTietDatPhongs = new ArrayList<>();
+
+        ChiTietDatPhong chiTiet = new ChiTietDatPhong();
+        chiTiet.setNgayDen(ngayDen.atStartOfDay());
+        chiTiet.setNgayDi(ngayDi.atStartOfDay());
+        chiTiet.setMaPhong(phong.getMaPhong());
+        chiTiet.setMaPDPhong(this.maPDPhong);
+        this.chiTietDatPhongs.add(chiTiet);
+    }
+
 }

@@ -7,12 +7,12 @@ import 'package:home_feel/shared/bloc/loading/loading_bloc.dart';
 import 'package:home_feel/shared/bloc/loading/loading_state.dart';
 
 import 'package:home_feel/features/profile/presentation/screens/profile_tab.dart';
-import 'package:home_feel/shared/presentation/widgets/loading_overlay.dart';
 
 import 'package:home_feel/features/bookings/presentation/screens/bookings_screen.dart';
 import 'package:home_feel/features/promotion/presentation/screens/promotions_screen.dart';
 import 'package:home_feel/core/services/tab_notifier.dart';
 import 'package:get_it/get_it.dart';
+import 'package:home_feel/shared/presentation/widgets/loading_overlay.dart';
 
 import '../widgets/home_screen_body.dart';
 

@@ -1,6 +1,7 @@
 import 'package:home_feel/features/home/domain/usecases/get_room_images_use_case.dart';
 import 'package:home_feel/features/home/domain/usecases/get_available_rooms_use_case.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_tiennghi.dart';
+import 'package:home_feel/features/home/domain/usecases/get_room_detail_use_case.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
@@ -34,6 +35,7 @@ import '../../features/promotion/data/datasources/promotion_remote_data_source.d
 import '../../features/promotion/data/repositories/promotion_repository_impl.dart';
 import '../../features/promotion/domain/usecases/get_admin_khuyen_mai_usecase.dart';
 import '../../features/promotion/domain/usecases/get_khuyen_mai_by_id_usecase.dart';
+import '../../features/promotion/domain/usecases/get_my_promotion_usecase.dart';
 import '../../features/promotion/presentation/bloc/promotion_bloc.dart';
 
 // Auth dependencies
@@ -57,6 +59,14 @@ import 'package:home_feel/features/profile/domain/usecases/upload_avatar_usecase
 import 'package:home_feel/features/profile/data/datasources/user_remote_data_source.dart';
 import 'package:home_feel/features/profile/data/repositories/user_repository_impl.dart';
 import 'package:home_feel/features/profile/domain/repositories/user_repository.dart';
+
+// Bookings dependencies
+import '../../features/bookings/data/datasources/booking_remote_data_source.dart';
+import '../../features/bookings/domain/usecases/create_booking_usecase.dart';
+import '../../features/bookings/domain/usecases/confirm_booking_usecase.dart';
+import '../../features/bookings/domain/usecases/get_booking_detail_usecase.dart';
+import '../../features/bookings/domain/usecases/booking_payment_usecase.dart';
+import '../../features/bookings/presentation/bloc/booking_bloc.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -166,6 +176,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<GetHomestayTienNghi>(
     () => GetHomestayTienNghi(sl<HomeRepository>()),
   );
+  sl.registerLazySingleton<GetRoomDetailUseCase>(
+    () => GetRoomDetailUseCase(sl<HomeRepository>()),
+  );
   // Đăng ký TabNotifier
   sl.registerLazySingleton<TabNotifier>(() => TabNotifier());
   sl.registerLazySingleton<LoadingBloc>(() => LoadingBloc());
@@ -181,6 +194,7 @@ Future<void> setupServiceLocator() async {
       sl<GetHomestayTienNghi>(),
       sl<GetAvailableRoomsUseCase>(),
       sl<GetRoomImagesUseCase>(),
+      sl<GetRoomDetailUseCase>(),
     ),
   );
 
@@ -231,10 +245,39 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<GetKhuyenMaiByIdUseCase>(
     () => GetKhuyenMaiByIdUseCase(sl<PromotionRepositoryImpl>()),
   );
+  sl.registerLazySingleton<GetMyPromotionUseCase>(
+    () => GetMyPromotionUseCase(sl<PromotionRemoteDataSource>()),
+  );
   sl.registerFactory<PromotionBloc>(
     () => PromotionBloc(
       getAdminKhuyenMaiUseCase: sl<GetAdminKhuyenMaiUseCase>(),
       getKhuyenMaiByIdUseCase: sl<GetKhuyenMaiByIdUseCase>(),
+      getMyPromotionUseCase: sl<GetMyPromotionUseCase>(),
+    ),
+  );
+
+  // Đăng ký Bookings dependencies
+  sl.registerLazySingleton<BookingRemoteDataSource>(
+    () => BookingRemoteDataSourceImpl(sl<ApiService>()),
+  );
+  sl.registerLazySingleton<CreateBookingUseCase>(
+    () => CreateBookingUseCase(sl<BookingRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<ConfirmBookingUseCase>(
+    () => ConfirmBookingUseCase(sl<BookingRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<GetBookingDetailUseCase>(
+    () => GetBookingDetailUseCase(sl<BookingRemoteDataSource>()),
+  );
+  sl.registerLazySingleton<BookingPaymentUseCase>(
+    () => BookingPaymentUseCase(sl<BookingRemoteDataSource>()),
+  );
+  sl.registerFactory<BookingBloc>(
+    () => BookingBloc(
+      createBookingUseCase: sl<CreateBookingUseCase>(),
+      confirmBookingUseCase: sl<ConfirmBookingUseCase>(),
+      getBookingDetailUseCase: sl<GetBookingDetailUseCase>(),
+      bookingPaymentUseCase: sl<BookingPaymentUseCase>(),
     ),
   );
 }

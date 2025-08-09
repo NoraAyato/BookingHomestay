@@ -23,11 +23,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI().toLowerCase();
         return path.startsWith("/api/auth")
-                || path.startsWith("/api/homestays") // sửa lại chữ thường
+                || path.startsWith("/api/homestays")
                 || path.startsWith("/img")
                 || path.startsWith("/api/search")
                 || path.startsWith("/api/locations")
-                || path.startsWith("/api/promotions")
+                || (path.startsWith("/api/promotions") && !path.equals("/api/promotions/my-promotion"))
                 || path.startsWith("/api/notification/public")
                 || path.startsWith("/api/news")
                 || path.startsWith("/avatars");

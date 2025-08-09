@@ -4,6 +4,7 @@ import 'package:home_feel/core/network/dio_exception_mapper.dart';
 import 'package:dio/dio.dart';
 import '../models/news_model.dart';
 import '../models/news_detail_model.dart';
+import 'package:home_feel/core/constants/api.dart';
 
 abstract class NewsRemoteDataSource {
   Future<ApiResponse<List<NewsModel>>> getAllNews();
@@ -18,7 +19,9 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
   @override
   Future<ApiResponse<List<NewsModel>>> getAllNews() async {
     try {
-      final response = await _apiService.get('/api/news');
+      final response = await _apiService.get(
+        '${ApiConstants.baseUrl}/api/news',
+      );
       return ApiResponse<List<NewsModel>>.fromJson(
         response.data,
         (data) =>
@@ -37,7 +40,9 @@ class NewsRemoteDataSourceImpl implements NewsRemoteDataSource {
   @override
   Future<ApiResponse<NewsDetailModel>> getNewsDetail(String maTinTuc) async {
     try {
-      final response = await _apiService.get('/api/news/$maTinTuc');
+      final response = await _apiService.get(
+        '${ApiConstants.baseUrl}/api/news/$maTinTuc',
+      );
       return ApiResponse<NewsDetailModel>.fromJson(
         response.data,
         (data) => NewsDetailModel.fromJson(data),

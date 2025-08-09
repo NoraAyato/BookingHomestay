@@ -8,6 +8,7 @@ import 'package:home_feel/features/home/domain/repositories/home_repository.dart
 import 'package:home_feel/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:home_feel/features/home/data/models/homestay_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
+import 'package:home_feel/features/home/data/models/room_detail_model.dart';
 
 import 'package:home_feel/features/home/data/models/available_room_model.dart';
 
@@ -71,5 +72,10 @@ class HomeRepositoryImpl implements HomeRepository {
     return _remoteDataSource
         .getSuggestedHomestays(prefix)
         .then((response) => response.data ?? []);
+  }
+
+  @override
+  Future<ApiResponse<RoomDetailModel>> getRoomDetail(String maPhong) {
+    return _remoteDataSource.getRoomDetail(maPhong);
   }
 }

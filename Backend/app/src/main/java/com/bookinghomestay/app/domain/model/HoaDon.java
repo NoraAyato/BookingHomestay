@@ -37,4 +37,8 @@ public class HoaDon {
 
     @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ThanhToan> thanhToans;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ma_km", foreignKey = @ForeignKey(name = "fk_hoadon_khuyenmai"))
+    private KhuyenMai khuyenMai;
 }
