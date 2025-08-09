@@ -63,5 +63,7 @@ public class KhuyenMai {
 
     @OneToMany(mappedBy = "khuyenMai", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KhuyenMaiPhong> khuyenMaiPhongs;
-
+    // 1 khuyến mãi có nhiều hóa đơn
+    @OneToMany(mappedBy = "khuyenMai", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<HoaDon> hoaDons;
 }

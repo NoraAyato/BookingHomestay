@@ -9,7 +9,6 @@ import 'package:home_feel/features/auth/data/models/user_info.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_event.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_state.dart';
-import 'package:home_feel/shared/presentation/widgets/loading_overlay.dart';
 import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -312,10 +311,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     title: const Text('Nam', style: TextStyle(fontSize: 15)),
                     value: true,
                     groupValue: _selectedGender,
-                    onChanged: (value) {
-                      setState(() => _selectedGender = value);
-                      _onChanged();
-                    },
+                    onChanged: (value) =>
+                        setState(() => _selectedGender = value),
                     activeColor: const Color(0xFFFF6D00),
                     contentPadding: EdgeInsets.zero,
                     dense: true,
@@ -326,10 +323,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     title: const Text('Nữ', style: TextStyle(fontSize: 15)),
                     value: false,
                     groupValue: _selectedGender,
-                    onChanged: (value) {
-                      setState(() => _selectedGender = value);
-                      _onChanged();
-                    },
+                    onChanged: (value) =>
+                        setState(() => _selectedGender = value),
                     activeColor: const Color(0xFFFF6D00),
                     contentPadding: EdgeInsets.zero,
                     dense: true,

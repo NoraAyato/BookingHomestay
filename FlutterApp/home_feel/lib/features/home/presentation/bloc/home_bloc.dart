@@ -7,6 +7,7 @@ import 'package:home_feel/features/home/domain/usecases/search_homestay_by_keywo
 import 'package:home_feel/features/home/domain/usecases/get_homestay_detail.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_images.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_tiennghi.dart';
+import 'package:home_feel/features/home/domain/usecases/get_room_detail_use_case.dart';
 // import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 import 'home_event.dart';
 import 'home_state.dart';
@@ -20,6 +21,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetHomestayDetail getHomestayDetail;
   final GetHomestayImages getHomestayImages;
   final GetHomestayTienNghi getHomestayTienNghi;
+  final GetRoomDetailUseCase getRoomDetailUseCase;
   String? _currentLocation;
   String? _currentFilterType;
 
@@ -32,6 +34,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     this.getHomestayTienNghi,
     this.getAvailableRoomsUseCase,
     this.getRoomImagesUseCase,
+    this.getRoomDetailUseCase,
   ) : super(const HomeInitial()) {
     on<FetchHomestaysEvent>(_onFetchHomestays);
     on<UpdateLocationEvent>(_onUpdateLocation);
@@ -45,6 +48,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<GetHomestayTienNghiEvent>(_onGetHomestayTienNghi);
     on<GetAvailableRoomsEvent>(_onGetAvailableRooms);
     on<GetRoomImagesEvent>(_onGetRoomImages);
+    on<GetRoomDetailEvent>(_onGetRoomDetail);
   }
 
   Future<void> _onGetRoomImages(
@@ -90,7 +94,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     if (!event.refresh && state is HomeLoaded && !_hasFilterChanged(event)) {
-      return; // Tránh gọi API không cần thiết nếu bộ lọc không thay đổi
+      return;
     }
 
     emit(const HomeLoading());
@@ -251,5 +255,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   bool _hasFilterChanged(FetchHomestaysEvent event) {
     return event.location != _currentLocation ||
         event.filterType != _currentFilterType;
+  }
+
+  Future<void> _onGetRoomDetail(
+    GetRoomDetailEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(const HomeRoomDetailLoading());
+    try {
+      final result = await getRoomDetailUseCase(event.maPhong);
+      if (result.success && result.data != null) {
+        emit(HomeRoomDetailLoaded(roomDetail: result.data!));
+      } else {
+        emit(HomeRoomDetailError(result.message));
+      }
+    } catch (e) {
+      emit(HomeRoomDetailError(e.toString()));
+    }
   }
 }

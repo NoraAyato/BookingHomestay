@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
+import com.bookinghomestay.app.api.dto.homestay.RoomDetailResponseDTO;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.model.Phong;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
@@ -43,5 +44,10 @@ public class HomestayRepositoryImpl implements IHomestayRepository {
     @Override
     public Optional<Phong> findPhongById(String maPhong) {
         return jpaPhongRepository.findById(maPhong);
+    }
+
+    @Override
+    public Optional<RoomDetailResponseDTO> findPhongDetailById(String maPhong) {
+        return jpaPhongRepository.findRoomDetailsByMaPhong(maPhong);
     }
 }

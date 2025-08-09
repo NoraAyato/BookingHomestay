@@ -9,4 +9,13 @@ import java.util.List;
 public interface JpaKhuyenMaiRepository extends JpaRepository<KhuyenMai, String> {
     @Query("SELECT k FROM KhuyenMai k WHERE k.apDungChoTatCaPhong = true AND k.ngayKetThuc > CURRENT_TIMESTAMP")
     List<KhuyenMai> getAdminPromotions();
+
+    @Query("""
+            SELECT DISTINCT km FROM KhuyenMai km
+            LEFT JOIN km.khuyenMaiPhongs kmp
+            WHERE km.apDungChoTatCaPhong = true
+               OR kmp.phong.maPhong = :maPhong
+            """)
+    List<KhuyenMai> getAllPromotionsForRoom(String maPhong);
+
 }

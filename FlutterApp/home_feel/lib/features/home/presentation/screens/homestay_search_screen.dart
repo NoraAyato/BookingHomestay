@@ -187,13 +187,45 @@ class _HomestaySearchScreenState extends State<HomestaySearchScreen> {
                                       height: 36,
                                       child: InkWell(
                                         onTap: () async {
+                                          final now = DateTime.now();
+                                          final currentYear = now.year;
+                                          final lastDayOfYear = DateTime(
+                                            currentYear,
+                                            12,
+                                            31,
+                                          );
+
+                                          // Lấy ngày tối đa (30 ngày kể từ ngày hiện tại hoặc đến cuối năm)
+                                          final maxDateFromNow = now.add(
+                                            const Duration(days: 30),
+                                          );
+                                          final lastDate =
+                                              maxDateFromNow.isBefore(
+                                                lastDayOfYear,
+                                              )
+                                              ? maxDateFromNow
+                                              : lastDayOfYear;
+
                                           final date = await showDatePicker(
                                             context: context,
-                                            initialDate: DateTime.now(),
-                                            firstDate: DateTime.now(),
-                                            lastDate: DateTime.now().add(
-                                              const Duration(days: 365),
-                                            ),
+                                            initialDate: now,
+                                            firstDate: now,
+                                            lastDate: lastDate,
+                                            builder: (context, child) {
+                                              return Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                      colorScheme:
+                                                          ColorScheme.light(
+                                                            primary:
+                                                                Colors.orange,
+                                                            onPrimary:
+                                                                Colors.white,
+                                                          ),
+                                                    ),
+                                                child: child!,
+                                              );
+                                            },
                                           );
                                           if (date != null) {
                                             setState(() {
@@ -256,6 +288,54 @@ class _HomestaySearchScreenState extends State<HomestaySearchScreen> {
                                             );
                                             return;
                                           }
+                                          final now = DateTime.now();
+                                          final currentYear = now.year;
+                                          final lastDayOfYear = DateTime(
+                                            currentYear,
+                                            12,
+                                            31,
+                                          );
+
+                                          // Tính số ngày từ ngày hiện tại đến ngày check-in
+                                          final daysSinceNow = _checkInDate!
+                                              .difference(now)
+                                              .inDays;
+
+                                          // Số ngày tối đa có thể đặt từ ngày hiện tại là 30
+                                          // Nên số ngày tối đa từ ngày check-in sẽ là (30 - daysSinceNow)
+                                          final maxDaysFromCheckIn =
+                                              30 - daysSinceNow;
+
+                                          // Nếu maxDaysFromCheckIn <= 0, không cho phép đặt thêm
+                                          if (maxDaysFromCheckIn <= 0) {
+                                            // ignore: use_build_context_synchronously
+                                            await showAppDialog(
+                                              context: context,
+                                              title: 'Thông báo',
+                                              message:
+                                                  'Không thể đặt phòng quá 30 ngày từ ngày hiện tại',
+                                              type: AppDialogType.warning,
+                                              buttonText: 'Đóng',
+                                            );
+                                            return;
+                                          }
+
+                                          // Tính ngày tối đa có thể đặt từ ngày check-in
+                                          final maxDateFromCheckIn =
+                                              _checkInDate!.add(
+                                                Duration(
+                                                  days: maxDaysFromCheckIn,
+                                                ),
+                                              );
+
+                                          // Đảm bảo không vượt quá cuối năm
+                                          final lastDate =
+                                              maxDateFromCheckIn.isBefore(
+                                                lastDayOfYear,
+                                              )
+                                              ? maxDateFromCheckIn
+                                              : lastDayOfYear;
+
                                           final date = await showDatePicker(
                                             context: context,
                                             initialDate: _checkInDate!.add(
@@ -264,9 +344,22 @@ class _HomestaySearchScreenState extends State<HomestaySearchScreen> {
                                             firstDate: _checkInDate!.add(
                                               const Duration(days: 1),
                                             ),
-                                            lastDate: _checkInDate!.add(
-                                              const Duration(days: 30),
-                                            ),
+                                            lastDate: lastDate,
+                                            builder: (context, child) {
+                                              return Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                      colorScheme:
+                                                          ColorScheme.light(
+                                                            primary:
+                                                                Colors.orange,
+                                                            onPrimary:
+                                                                Colors.white,
+                                                          ),
+                                                    ),
+                                                child: child!,
+                                              );
+                                            },
                                           );
                                           if (date != null) {
                                             setState(() {
@@ -321,7 +414,7 @@ class _HomestaySearchScreenState extends State<HomestaySearchScreen> {
                     ),
                   ),
                 ),
-                // Phần danh sách gợi ý và kết quả cho phép cuộn
+                // Phần kết quả tìm kiếm
                 Expanded(
                   child: ListView(
                     padding: EdgeInsets.zero,

@@ -27,5 +27,4 @@ public class GetKhuyenMaiQueryHandler {
             throw new RuntimeException("Lỗi khi lấy khuyến mãi: " + e.getMessage(), e);
         }
     }
-
 }

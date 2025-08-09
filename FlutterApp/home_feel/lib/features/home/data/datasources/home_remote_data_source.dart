@@ -11,6 +11,7 @@ import 'package:home_feel/features/home/data/models/homestay_search_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_suggest_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 import 'package:home_feel/features/home/data/models/room_images_model.dart';
+import 'package:home_feel/features/home/data/models/room_detail_model.dart';
 
 abstract class HomeRemoteDataSource {
   /// Lấy ảnh phòng theo mã phòng
@@ -33,6 +34,9 @@ abstract class HomeRemoteDataSource {
     required DateTime checkIn,
     required DateTime checkOut,
   });
+
+  /// Lấy chi tiết phòng theo mã phòng
+  Future<ApiResponse<RoomDetailModel>> getRoomDetail(String maPhong);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -256,6 +260,32 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           message: 'Success',
           data: suggestions,
         );
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
+      return ApiResponse(
+        success: false,
+        message: appException.message,
+        data: null,
+      );
+    }
+  }
+
+  @override
+  Future<ApiResponse<RoomDetailModel>> getRoomDetail(String maPhong) async {
+    try {
+      final response = await _apiService.get(
+        '${ApiConstants.baseUrl}/api/homestays/rooms/$maPhong/detail',
+      );
+
+      if (response.data != null) {
+        final RoomDetailModel roomDetail = RoomDetailModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+
+        return ApiResponse(success: true, message: 'Success', data: roomDetail);
       }
 
       throw Exception('Invalid response format');
