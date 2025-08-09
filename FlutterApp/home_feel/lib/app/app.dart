@@ -6,6 +6,7 @@ import 'package:home_feel/features/auth/presentation/bloc/auth_event.dart';
 import 'package:home_feel/features/news/presentation/bloc/news_bloc.dart';
 import 'package:home_feel/features/news/presentation/bloc/news_event.dart';
 import 'package:home_feel/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:home_feel/features/bookings/presentation/bloc/booking_bloc.dart';
 
 import 'package:home_feel/features/home/presentation/bloc/home_bloc.dart';
 import 'package:home_feel/features/home/presentation/screens/home_screen.dart';
@@ -34,6 +35,11 @@ class MyApp extends StatelessWidget {
         // Thêm ProfileBloc vào global context
         BlocProvider<ProfileBloc>(
           create: (_) => GetIt.I<ProfileBloc>(),
+          lazy: true,
+        ),
+        // Thêm BookingBloc vào global context
+        BlocProvider<BookingBloc>(
+          create: (_) => GetIt.I<BookingBloc>(),
           lazy: true,
         ),
       ],

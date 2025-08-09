@@ -11,7 +11,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtY
 Content-Type: application/json
 
 ### Test: Lấy tất cả ảnh của homestay
-GET http://localhost:8080/api/homestays/490c49f8-239e-4a49-bec3-09b2ba7ff3d4/dichvu
+GET http://localhost:8080//api/Booking/490c49f8-239e-4a49-bec3-09b2ba7ff3d4/dichvu
 Accept: application/json
 ### Get current user info
 GET http://localhost:8080/api/users/me
@@ -162,15 +162,9 @@ Content-Type: application/json
 
 
 ### Tạo booking mới
-POST http://localhost:8080/api/Booking
+GET http://localhost:8080/api/Booking/0f89a58d-cf6a-4e66-af7c-29efaf33bc83/detail
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQ3NTgzMjQsImV4cCI6MTc1NDc2MTkyNH0.NOwB-Lf-AVcrPSgMR8FZMzOQthTrHhyAlzS08vN0-TU
-
-{
-    "maPhong": "7f46de5f165f4000bb86",
-    "ngayDen": "2025-08-12T14:00:00",
-    "ngayDi": "2025-08-15T12:00:00"
-}
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQ3NjU4ODUsImV4cCI6MTc1NDc2OTQ4NX0.CUjPGH0x0LqG8xYcOn-QkNLiXq3eXoXVLj9ZSGgaGns
 
 
 ### Lấy danh sách khuyến mãi của tôi (my-promotion)

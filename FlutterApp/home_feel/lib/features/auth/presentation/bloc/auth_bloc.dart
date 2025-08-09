@@ -51,6 +51,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<ResetPasswordEvent>(_onResetPassword);
     on<LogoutEvent>(_onLogout);
     on<CheckAuthStatusEvent>(_onCheckAuthStatus);
+    on<RequireLoginEvent>(_onRequireLogin);
   }
 
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
@@ -302,5 +303,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     }
     return AuthFailure('Lỗi: ${e.toString()}');
+  }
+
+  Future<void> _onRequireLogin(
+    RequireLoginEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    await authService.clearAuthData();
+    emit(AuthRequiresLogin());
   }
 }

@@ -6,7 +6,7 @@ class LoginEvent extends AuthEvent {
   final bool rememberMe;
 
   LoginEvent({
-    required this.email, 
+    required this.email,
     required this.password,
     this.rememberMe = false,
   });
@@ -68,22 +68,18 @@ class VerifyOtpEvent extends AuthEvent {
   final String email;
   final String otp;
 
-  VerifyOtpEvent({
-    required this.email,
-    required this.otp,
-  });
+  VerifyOtpEvent({required this.email, required this.otp});
 }
 
 class ResetPasswordEvent extends AuthEvent {
   final String token;
   final String newPassword;
 
-  ResetPasswordEvent({
-    required this.token,
-    required this.newPassword,
-  });
+  ResetPasswordEvent({required this.token, required this.newPassword});
 }
 
 class LogoutEvent extends AuthEvent {}
 
-class CheckAuthStatusEvent extends AuthEvent {} 
+class CheckAuthStatusEvent extends AuthEvent {}
+
+class RequireLoginEvent extends AuthEvent {}

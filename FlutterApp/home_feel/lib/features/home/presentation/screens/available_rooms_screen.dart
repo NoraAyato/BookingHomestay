@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_feel/core/constants/api.dart';
+import 'package:home_feel/core/services/auth/login_service.dart';
 import 'package:home_feel/features/home/presentation/bloc/home_bloc.dart';
 import 'package:home_feel/features/home/presentation/bloc/home_event.dart';
 import 'package:home_feel/features/home/presentation/bloc/home_state.dart';
@@ -8,6 +9,12 @@ import 'package:home_feel/features/home/data/models/available_room_model.dart';
 import 'package:home_feel/features/home/data/models/room_images_model.dart';
 import 'package:home_feel/features/home/presentation/screens/room_detail_screen.dart';
 import 'package:home_feel/shared/widgets/error_display.dart';
+import 'package:home_feel/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:home_feel/features/auth/presentation/bloc/auth_state.dart';
+import 'package:home_feel/features/bookings/presentation/bloc/booking_bloc.dart';
+import 'package:home_feel/features/bookings/presentation/bloc/booking_event.dart';
+import 'package:home_feel/features/bookings/presentation/bloc/booking_state.dart';
+import 'package:home_feel/features/bookings/presentation/screens/booking_create_screen.dart';
 import 'package:intl/intl.dart';
 
 import 'dart:async';
@@ -36,6 +43,11 @@ class _AvailableRoomsScreenState extends State<AvailableRoomsScreen> {
   bool _isLoadingRooms = true;
   List<AvailableRoomModel> _rooms = [];
   String? _error;
+
+  // Quản lý trạng thái đặt phòng
+  bool _isCreatingBooking = false;
+  String? _bookingError;
+  String? _createdBookingId;
 
   @override
   void initState() {
@@ -103,14 +115,37 @@ class _AvailableRoomsScreenState extends State<AvailableRoomsScreen> {
     bloc.add(GetRoomImagesEvent(maPhong));
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    final difference = widget.checkOut.difference(widget.checkIn).inDays + 1;
-    final daysText = difference == 1
-        ? '01 ngày'
-        : difference < 10
-        ? '0$difference ngày'
-        : '$difference ngày';
+  void _handleBooking(AvailableRoomModel room) {
+    // Kiểm tra đăng nhập
+    final authState = context.read<AuthBloc>().state;
+    if (authState is! AuthSuccess) {
+      // Hiển thị thông báo yêu cầu đăng nhập
+      _showLoginDialog();
+      return;
+    }
 
+    // Người dùng đã đăng nhập, tiến hành đặt phòng
+    final bookingBloc = context.read<BookingBloc>();
+    bookingBloc.add(
+      CreateBookingEvent(
+        maPhong: room.maPhong,
+        ngayDen: widget.checkIn,
+        ngayDi: widget.checkOut,
+      ),
+    );
+  }
+
+  void _showLoginDialog() {
+    // Sử dụng LoginService thay vì hiển thị dialog tự tạo
+    LoginService.showLoginDialog(context);
+  }
+
+  void _showLoginOverlay() {
+    // Sử dụng LoginService để hiển thị màn hình đăng nhập
+    LoginService.showLoginOverlay(context);
+  }
+
+  PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
@@ -229,7 +264,9 @@ class _AvailableRoomsScreenState extends State<AvailableRoomsScreen> {
 
                 // Nút đặt phòng
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _isCreatingBooking
+                      ? null
+                      : () => _handleBooking(room),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepOrange,
                     foregroundColor: Colors.white,
@@ -241,10 +278,24 @@ class _AvailableRoomsScreenState extends State<AvailableRoomsScreen> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text(
-                    'Đặt phòng',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
+                  child: _isCreatingBooking
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : const Text(
+                          'Đặt phòng',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -436,21 +487,57 @@ class _AvailableRoomsScreenState extends State<AvailableRoomsScreen> {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: _buildAppBar(),
-      body: _isLoadingRooms
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? ErrorDisplay(errorMessage: _error!)
-          : _rooms.isEmpty
-          ? const Center(child: Text('Không có phòng khả dụng.'))
-          : ListView.builder(
-              itemCount: _rooms.length + 1, // +1 for date info card
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return _buildDateInfoCard();
-                }
-                return _buildRoomItem(_rooms[index - 1]);
-              },
-            ),
+      body: BlocListener<BookingBloc, BookingState>(
+        listener: (context, state) {
+          if (state is BookingLoading) {
+            setState(() {
+              _isCreatingBooking = true;
+              _bookingError = null;
+            });
+          } else if (state is BookingSuccess) {
+            setState(() {
+              _isCreatingBooking = false;
+              _createdBookingId = state.bookingId;
+            });
+
+            // Chuyển đến màn hình xác nhận đặt phòng
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    BookingCreateScreen(maPDP: state.bookingId),
+              ),
+            );
+          } else if (state is BookingError) {
+            setState(() {
+              _isCreatingBooking = false;
+              _bookingError = state.message;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Lỗi: ${state.message}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        child: _isLoadingRooms
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? ErrorDisplay(errorMessage: _error!)
+            : _rooms.isEmpty
+            ? const Center(child: Text('Không có phòng khả dụng.'))
+            : ListView.builder(
+                itemCount: _rooms.length + 1, // +1 for date info card
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return _buildDateInfoCard();
+                  }
+                  return _buildRoomItem(_rooms[index - 1]);
+                },
+              ),
+      ),
     );
   }
 }
