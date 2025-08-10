@@ -17,16 +17,16 @@ class GetKhuyenMaiByIdEvent extends PromotionEvent {
 }
 
 class GetMyPromotionEvent extends PromotionEvent {
-  final String maPhong;
+  final String maPDPhong;
   final DateTime ngayDen;
   final DateTime ngayDi;
 
   GetMyPromotionEvent({
-    required this.maPhong,
+    required this.maPDPhong,
     required this.ngayDen,
     required this.ngayDi,
   });
 
   @override
-  List<Object> get props => [maPhong, ngayDen, ngayDi];
+  List<Object> get props => [maPDPhong, ngayDen, ngayDi];
 }

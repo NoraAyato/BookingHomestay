@@ -6,7 +6,16 @@ import 'package:home_feel/features/bookings/presentation/bloc/booking_bloc.dart'
 import 'package:home_feel/features/bookings/presentation/bloc/booking_event.dart';
 import 'package:home_feel/features/bookings/presentation/bloc/booking_state.dart';
 import 'package:home_feel/features/bookings/presentation/screens/payment_methods_screen.dart';
+import 'package:home_feel/features/bookings/presentation/screens/booking_payment_screen.dart';
 import 'package:home_feel/core/constants/api.dart';
+import 'package:home_feel/features/home/presentation/bloc/home_bloc.dart';
+import 'package:home_feel/features/home/presentation/bloc/home_event.dart';
+import 'package:home_feel/features/home/presentation/bloc/home_state.dart';
+import 'package:home_feel/features/home/data/models/homestay_dichvu_response_model.dart';
+import 'package:home_feel/core/services/service_locator.dart';
+import 'package:home_feel/features/promotion/data/models/promotion_model.dart';
+import 'package:home_feel/features/promotion/presentation/bloc/promotion_bloc.dart';
+import 'package:home_feel/features/promotion/presentation/screens/available_promotions_screen.dart';
 
 class BookingCreateScreen extends StatefulWidget {
   final String maPDP;
@@ -21,8 +30,19 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
   bool _isLoading = true;
   BookingDetailResponseDto? _bookingDetail;
   String? _error;
-  String _selectedPaymentMethod =
-      ''; // Biến để lưu phương thức thanh toán đã chọn
+  String _selectedPaymentMethod = '';
+  HomestayDichVuResponseModel? _dichVuModel;
+  bool _isLoadingDichVu = false;
+  String? _dichVuError;
+  List<String> _selectedDichVuIds = [];
+  double _tongTienDichVu = 0;
+  int _soNgayLuuTru = 0;
+
+  // Thông tin khuyến mãi đã chọn
+  String? _selectedPromotionId;
+  String _promotionName = '';
+  double _promotionDiscount = 0;
+  String _promotionType = '';
 
   @override
   void initState() {
@@ -33,6 +53,71 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
   void _loadBookingDetail() {
     final bloc = context.read<BookingBloc>();
     bloc.add(GetBookingDetailEvent(bookingId: widget.maPDP));
+  }
+
+  Future<void> _loadHomestayServices(String homestayId) async {
+    setState(() {
+      _isLoadingDichVu = true;
+      _dichVuError = null;
+    });
+
+    try {
+      // Gọi HomeBloc để load dịch vụ homestay
+      final homeBloc = BlocProvider.of<HomeBloc>(context, listen: false);
+      homeBloc.add(GetHomestayDichVuEvent(homestayId));
+
+      // Đăng ký listener cho HomeBloc
+      homeBloc.stream.listen((state) {
+        if (state is HomeDichVuLoaded) {
+          setState(() {
+            _dichVuModel = state.dichvu;
+            _isLoadingDichVu = false;
+            _calculateDichVuPrice();
+          });
+        } else if (state is HomeDichVuError) {
+          setState(() {
+            _dichVuError = state.message;
+            _isLoadingDichVu = false;
+          });
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _dichVuError = e.toString();
+        _isLoadingDichVu = false;
+      });
+    }
+  }
+
+  // Phương thức để tính toán giá dịch vụ
+  void _calculateDichVuPrice() {
+    if (_dichVuModel == null || _selectedDichVuIds.isEmpty) {
+      _tongTienDichVu = 0;
+      return;
+    }
+
+    double totalPrice = 0;
+    for (final dichVu in _dichVuModel!.dichVus) {
+      if (_selectedDichVuIds.contains(dichVu.maDV)) {
+        totalPrice += dichVu.donGia;
+      }
+    }
+
+    setState(() {
+      _tongTienDichVu = totalPrice * _soNgayLuuTru;
+    });
+  }
+
+  // Phương thức để chọn/bỏ chọn dịch vụ
+  void _toggleDichVuSelection(String maDichVu) {
+    setState(() {
+      if (_selectedDichVuIds.contains(maDichVu)) {
+        _selectedDichVuIds.remove(maDichVu);
+      } else {
+        _selectedDichVuIds.add(maDichVu);
+      }
+      _calculateDichVuPrice();
+    });
   }
 
   void _showPaymentMethodsOverlay() {
@@ -56,6 +141,60 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
           );
         },
         transitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
+  }
+
+  void _onConfirmBooking() {
+    if (_bookingDetail == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Hiển thị dialog xác nhận
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Xác nhận đặt phòng'),
+        content: const Text('Bạn có chắc chắn muốn đặt phòng này không?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                _isLoading = false;
+              });
+            },
+            child: Text('Hủy', style: TextStyle(color: Colors.grey.shade700)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _processBookingConfirmation();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange),
+            child: const Text('Xác nhận'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _processBookingConfirmation() {
+    if (_bookingDetail == null) return;
+
+    final bloc = context.read<BookingBloc>();
+
+    // Gọi event xác nhận đặt phòng
+    bloc.add(
+      ConfirmBookingEvent(
+        maPDPhong: _bookingDetail!.maPDPhong,
+        serviceIds: _selectedDichVuIds,
+        promotionId:
+            _selectedPromotionId ??
+            "", // Truyền chuỗi rỗng nếu không có khuyến mãi
       ),
     );
   }
@@ -84,12 +223,54 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
             setState(() {
               _bookingDetail = state.detail;
               _isLoading = false;
+
+              if (_bookingDetail != null) {
+                final DateTime ngayDen = DateFormat(
+                  'yyyy-MM-dd',
+                ).parse(_bookingDetail!.ngayNhanPhong);
+                final DateTime ngayDi = DateFormat(
+                  'yyyy-MM-dd',
+                ).parse(_bookingDetail!.ngayTraPhong);
+                _soNgayLuuTru = ngayDi.difference(ngayDen).inDays;
+                if (_soNgayLuuTru < 1) _soNgayLuuTru = 1;
+
+                // Load dịch vụ homestay
+                final String homestayId = _bookingDetail!.maHomestay;
+                if (homestayId.isNotEmpty) {
+                  _loadHomestayServices(homestayId);
+                }
+              }
             });
           } else if (state is BookingError) {
             setState(() {
               _error = state.message;
               _isLoading = false;
             });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          } else if (state is ConfirmBookingSuccess) {
+            // Chuyển hướng đến màn hình thanh toán khi xác nhận thành công
+            setState(() {
+              _isLoading = false;
+            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookingPaymentScreen(
+                  maPDPhong: state.maPDPhong,
+                  maHD: state.maHD,
+                  totalAmount: state.totalAmount,
+                  status: state.status,
+                  phuongThuc: _selectedPaymentMethod.isNotEmpty
+                      ? _selectedPaymentMethod
+                      : 'Chưa chọn phương thức thanh toán',
+                ),
+              ),
+            );
           }
         },
         child: _buildBody(),
@@ -163,6 +344,8 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
         children: [
           _buildInfoCard(),
           _buildGuestInfoSection(),
+          _buildPromotionSection(),
+          _buildServicesSection(),
           _buildPriceDetails(),
           const SizedBox(height: 16),
         ],
@@ -408,9 +591,23 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
   Widget _buildPriceDetails() {
     if (_bookingDetail == null) return const SizedBox();
 
-    // Giá cuối cùng
-    final finalPrice = _bookingDetail!.tongTienPhong;
+    // Giá phòng gốc
+    final roomPrice = _bookingDetail!.tongTienPhong;
 
+    // Tính chiết khấu khuyến mãi
+    double discountAmount = 0;
+    if (_selectedPromotionId != null) {
+      if (_promotionType == 'percentage') {
+        // Nếu là phần trăm, tính số tiền giảm dựa vào phần trăm
+        discountAmount = (roomPrice * _promotionDiscount / 100);
+      } else {
+        // Nếu là số tiền cố định, nhân với 1000
+        discountAmount = _promotionDiscount * 1000;
+      }
+    }
+
+    // Giá phòng sau khi giảm
+    final finalPrice = roomPrice - discountAmount;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -450,11 +647,23 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _buildPriceRow('Tiền phòng', finalPrice),
+                    _buildPriceRow('Tiền phòng', roomPrice),
+                    if (_selectedPromotionId != null) ...[
+                      const SizedBox(height: 8),
+                      _buildPriceRow(
+                        'Khuyến mãi (áp dụng cho tiền phòng)',
+                        -discountAmount,
+                        isDiscount: true,
+                      ),
+                    ],
+                    if (_tongTienDichVu > 0) ...[
+                      const SizedBox(height: 8),
+                      _buildPriceRow('Tiền dịch vụ', _tongTienDichVu),
+                    ],
                     const SizedBox(height: 16),
                     _buildPriceRow(
                       'Tổng thanh toán',
-                      finalPrice,
+                      finalPrice + _tongTienDichVu,
                       isTotal: true,
                     ),
                   ],
@@ -536,57 +745,16 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
             ],
           ),
         ),
-
-        // Add services section if available
-        if (_bookingDetail!.dichVuSuDung.isNotEmpty)
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Dịch vụ đã chọn',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 12),
-                ...List.generate(
-                  _bookingDetail!.dichVuSuDung.length,
-                  (index) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.check_circle,
-                          size: 16,
-                          color: Colors.green.shade600,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(_bookingDetail!.dichVuSuDung[index]),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
       ],
     );
   }
 
-  Widget _buildPriceRow(String label, double amount, {bool isTotal = false}) {
+  Widget _buildPriceRow(
+    String label,
+    double amount, {
+    bool isTotal = false,
+    bool isDiscount = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -595,6 +763,7 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
           style: TextStyle(
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
             fontSize: isTotal ? 16 : 14,
+            color: isDiscount ? Colors.orange.shade700 : null,
           ),
         ),
         Text(
@@ -605,6 +774,7 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
           style: TextStyle(
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
             fontSize: isTotal ? 16 : 14,
+            color: isDiscount ? Colors.orange.shade700 : null,
           ),
         ),
       ],
@@ -643,18 +813,6 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade800,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    // Xử lý sự kiện chỉnh sửa thông tin người dùng
-                  },
-                  child: Text(
-                    'Sửa',
-                    style: TextStyle(
-                      color: Colors.orange.shade700,
-                      fontWeight: FontWeight.w500,
-                    ),
                   ),
                 ),
               ],
@@ -715,6 +873,378 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPromotionSection() {
+    return GestureDetector(
+      onTap: () async {
+        if (_bookingDetail == null) return;
+
+        // Mở màn hình chọn ưu đãi
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlocProvider(
+              create: (context) => sl<PromotionBloc>(),
+              child: AvailablePromotionsScreen(
+                maPDPhong: _bookingDetail!.maPDPhong,
+                ngayDen: DateFormat(
+                  'yyyy-MM-dd',
+                ).parse(_bookingDetail!.ngayNhanPhong),
+                ngayDi: DateFormat(
+                  'yyyy-MM-dd',
+                ).parse(_bookingDetail!.ngayTraPhong),
+              ),
+            ),
+          ),
+        );
+
+        // Xử lý kết quả khi người dùng chọn ưu đãi
+        if (result != null && result is PromotionModel) {
+          setState(() {
+            _selectedPromotionId = result.maKM;
+            _promotionName = result.noiDung;
+            _promotionDiscount = result.chietKhau;
+            _promotionType = result.loaiChietKhau;
+          });
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header - Ưu đãi
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.discount_outlined,
+                        color: Colors.orange,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Ưu đãi',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+                      if (_selectedPromotionId != null) ...[
+                        const SizedBox(width: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: Text(
+                            _promotionType == 'percentage'
+                                ? 'Giảm ${_promotionDiscount.toInt()}%'
+                                : 'Giảm ${NumberFormat.currency(locale: 'vi_VN', symbol: 'đ').format(_promotionDiscount * 1000).replaceAll('.', ',')}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.orange.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  Icon(Icons.arrow_forward_ios, size: 16, color: Colors.orange),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildServicesSection() {
+    if (_bookingDetail == null) return const SizedBox();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header - Dịch vụ bổ sung
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Dịch vụ bổ sung',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade800,
+              ),
+            ),
+          ),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F0)),
+
+          if (_isLoadingDichVu)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+                ),
+              ),
+            )
+          else if (_dichVuError != null)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: Text(
+                  'Không thể tải dịch vụ: $_dichVuError',
+                  style: TextStyle(color: Colors.red.shade700),
+                ),
+              ),
+            )
+          else if (_dichVuModel == null || _dichVuModel!.dichVus.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: Text(
+                  'Không có dịch vụ bổ sung',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Chọn dịch vụ bạn muốn thêm (vuốt để xem thêm):',
+                    style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 106,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _dichVuModel!.dichVus.length,
+                      itemBuilder: (context, index) {
+                        final dichVu = _dichVuModel!.dichVus[index];
+                        final isSelected = _selectedDichVuIds.contains(
+                          dichVu.maDV,
+                        );
+
+                        return GestureDetector(
+                          onTap: () => _toggleDichVuSelection(dichVu.maDV),
+                          child: Container(
+                            width:
+                                320, // Tăng chiều rộng (chiều dài) từ 240px lên 320px
+                            margin: const EdgeInsets.only(right: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isSelected
+                                    ? Colors.green.shade500
+                                    : Colors.grey.shade300,
+                                width: isSelected ? 2 : 1,
+                              ),
+                              color: isSelected
+                                  ? Colors.green.shade50
+                                  : Colors.white,
+                            ),
+                            child: Row(
+                              children: [
+                                // Hình ảnh dịch vụ
+                                ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(8),
+                                    bottomLeft: Radius.circular(8),
+                                  ),
+                                  child: Container(
+                                    width:
+                                        110, // Tăng từ 80px lên 110px để cân đối với chiều dài thẻ mới
+                                    height: double.infinity,
+                                    color: Colors.grey.shade200,
+                                    child: dichVu.hinhAnh.isNotEmpty
+                                        ? Image.network(
+                                            ApiConstants.baseUrl +
+                                                dichVu.hinhAnh,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                                  return Icon(
+                                                    Icons.image_not_supported,
+                                                    color: Colors.grey.shade400,
+                                                    size: 36,
+                                                  );
+                                                },
+                                          )
+                                        : Icon(
+                                            Icons.room_service_outlined,
+                                            color: Colors.grey.shade400,
+                                            size: 36,
+                                          ),
+                                  ),
+                                ),
+
+                                // Thông tin dịch vụ
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .start, // Thay đổi từ spaceBetween sang start
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment
+                                              .start, // Thêm crossAxisAlignment
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                dichVu.tenDV,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 16,
+                                                  color: isSelected
+                                                      ? Colors.green.shade700
+                                                      : Colors.black87,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            if (isSelected)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 4,
+                                                ),
+                                                child: Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.green.shade600,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 8,
+                                        ), // Thêm khoảng cách cố định phù hợp
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${NumberFormat.currency(locale: 'vi_VN', symbol: 'đ').format(dichVu.donGia).replaceAll('.', ',')} / ngày',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: isSelected
+                                                    ? Colors.green.shade700
+                                                    : Colors.grey.shade700,
+                                              ),
+                                            ),
+                                            if (_soNgayLuuTru > 1)
+                                              Text(
+                                                'Tổng: ${NumberFormat.currency(locale: 'vi_VN', symbol: 'đ').format(dichVu.donGia * _soNgayLuuTru).replaceAll('.', ',')}',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: isSelected
+                                                      ? Colors.green.shade700
+                                                      : Colors.grey.shade700,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (_selectedDichVuIds.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Tổng tiền dịch vụ (${_selectedDichVuIds.length} dịch vụ):',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                          Text(
+                            NumberFormat.currency(
+                              locale: 'vi_VN',
+                              symbol: 'đ',
+                            ).format(_tongTienDichVu).replaceAll('.', ','),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -804,12 +1334,24 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
                       ),
                       Text(
                         NumberFormat.currency(locale: 'vi_VN', symbol: 'đ')
-                            .format(_bookingDetail!.tongTienPhong)
+                            .format(
+                              // Tính tổng tiền bao gồm tiền phòng sau khi trừ khuyến mãi và tiền dịch vụ
+                              (_bookingDetail!.tongTienPhong -
+                                      (_selectedPromotionId != null
+                                          ? (_promotionType == 'percentage'
+                                                ? (_bookingDetail!
+                                                          .tongTienPhong *
+                                                      _promotionDiscount /
+                                                      100)
+                                                : _promotionDiscount * 1000)
+                                          : 0)) +
+                                  _tongTienDichVu,
+                            )
                             .replaceAll('.', ','),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepOrange,
+                          color: Color.fromARGB(255, 255, 119, 34),
                         ),
                       ),
                     ],
@@ -820,13 +1362,8 @@ class _BookingCreateScreenState extends State<BookingCreateScreen> {
                   child: ElevatedButton(
                     onPressed: !_selectedPaymentMethod.isEmpty
                         ? () {
-                            // TODO: Implement booking confirmation
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Đặt phòng thành công!'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
+                            // Gọi hàm xác nhận đặt phòng
+                            _onConfirmBooking();
                           }
                         : () {
                             // Hiển thị lỗi khi chưa chọn phương thức thanh toán

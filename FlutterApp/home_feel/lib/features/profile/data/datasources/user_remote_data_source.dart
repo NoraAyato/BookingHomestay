@@ -27,8 +27,6 @@ class UserRemoteDataSource {
         data: responseData['data'],
       );
     } on DioException catch (e) {
-      print('UploadAvatar DioException: ${e.type} - ${e.message}');
-
       final appException = DioExceptionMapper.map(e);
       return ApiResponse(
         success: false,

@@ -1,5 +1,6 @@
 import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
+import 'package:home_feel/features/home/data/models/homestay_dichvu_response_model.dart';
 import 'package:home_feel/shared/models/api_response.dart';
 import 'package:home_feel/features/home/data/models/homestay_search_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_suggest_model.dart';
@@ -13,6 +14,10 @@ import 'package:home_feel/features/home/data/models/room_detail_model.dart';
 import 'package:home_feel/features/home/data/models/available_room_model.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
+  final HomeRemoteDataSource _remoteDataSource;
+
+  HomeRepositoryImpl(this._remoteDataSource);
+
   @override
   Future<ApiResponse<RoomImagesModel>> getRoomImages(String maPhong) {
     return _remoteDataSource.getRoomImages(maPhong);
@@ -39,6 +44,13 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
+  Future<ApiResponse<HomestayDichVuResponseModel>> getHomestayDichVu(
+    String id,
+  ) {
+    return _remoteDataSource.getHomestayDichVu(id);
+  }
+
+  @override
   Future<ApiResponse<HomestayImageResponseModel>> getHomestayImages(String id) {
     return _remoteDataSource.getHomestayImages(id);
   }
@@ -47,10 +59,6 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<ApiResponse<HomestayDetailModel>> getHomestayDetail(String id) {
     return _remoteDataSource.getHomestayDetail(id);
   }
-
-  final HomeRemoteDataSource _remoteDataSource;
-
-  HomeRepositoryImpl(this._remoteDataSource);
 
   @override
   Future<ApiResponse<List<HomestayModel>>> fetchHomestays({

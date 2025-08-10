@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/usecases/get_all_news_use_case.dart';
-import '../../domain/usecases/get_news_detail_use_case.dart';
+import '../../domain/repositories/usecases/get_all_news_use_case.dart';
+import '../../domain/repositories/usecases/get_news_detail_use_case.dart';
 import 'news_event.dart';
 import 'news_state.dart';
 

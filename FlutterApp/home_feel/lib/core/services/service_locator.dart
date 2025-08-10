@@ -1,6 +1,7 @@
 import 'package:home_feel/features/home/domain/usecases/get_room_images_use_case.dart';
 import 'package:home_feel/features/home/domain/usecases/get_available_rooms_use_case.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_tiennghi.dart';
+import 'package:home_feel/features/home/domain/usecases/get_homestay_dichvu.dart';
 import 'package:home_feel/features/home/domain/usecases/get_room_detail_use_case.dart';
 
 import 'package:get_it/get_it.dart';
@@ -25,8 +26,8 @@ import 'package:home_feel/features/profile/domain/usecases/update_profile_usecas
 import 'package:home_feel/features/news/data/datasources/news_remote_data_source.dart';
 import 'package:home_feel/features/news/data/repositories/news_repository_impl.dart';
 import 'package:home_feel/features/news/domain/repositories/news_repository.dart';
-import 'package:home_feel/features/news/domain/usecases/get_all_news_use_case.dart';
-import 'package:home_feel/features/news/domain/usecases/get_news_detail_use_case.dart';
+import 'package:home_feel/features/news/domain/repositories/usecases/get_all_news_use_case.dart';
+import 'package:home_feel/features/news/domain/repositories/usecases/get_news_detail_use_case.dart';
 import 'package:home_feel/features/news/presentation/bloc/news_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -62,10 +63,14 @@ import 'package:home_feel/features/profile/domain/repositories/user_repository.d
 
 // Bookings dependencies
 import '../../features/bookings/data/datasources/booking_remote_data_source.dart';
+import '../../features/bookings/data/repositories/booking_repository_impl.dart';
+import '../../features/bookings/domain/repositories/booking_repository.dart';
 import '../../features/bookings/domain/usecases/create_booking_usecase.dart';
 import '../../features/bookings/domain/usecases/confirm_booking_usecase.dart';
 import '../../features/bookings/domain/usecases/get_booking_detail_usecase.dart';
 import '../../features/bookings/domain/usecases/booking_payment_usecase.dart';
+import '../../features/bookings/domain/usecases/get_my_bookings_usecase.dart';
+import '../../features/bookings/domain/usecases/cancel_booking_usecase.dart';
 import '../../features/bookings/presentation/bloc/booking_bloc.dart';
 
 final GetIt sl = GetIt.instance;
@@ -176,6 +181,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<GetHomestayTienNghi>(
     () => GetHomestayTienNghi(sl<HomeRepository>()),
   );
+  sl.registerLazySingleton<GetHomestayDichVu>(
+    () => GetHomestayDichVu(sl<HomeRepository>()),
+  );
   sl.registerLazySingleton<GetRoomDetailUseCase>(
     () => GetRoomDetailUseCase(sl<HomeRepository>()),
   );
@@ -192,6 +200,7 @@ Future<void> setupServiceLocator() async {
       sl<GetHomestayDetail>(),
       sl<GetHomestayImages>(),
       sl<GetHomestayTienNghi>(),
+      sl<GetHomestayDichVu>(),
       sl<GetAvailableRoomsUseCase>(),
       sl<GetRoomImagesUseCase>(),
       sl<GetRoomDetailUseCase>(),
@@ -260,24 +269,43 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<BookingRemoteDataSource>(
     () => BookingRemoteDataSourceImpl(sl<ApiService>()),
   );
+
+  sl.registerLazySingleton<BookingRepository>(
+    () => BookingRepositoryImpl(sl<BookingRemoteDataSource>()),
+  );
+
   sl.registerLazySingleton<CreateBookingUseCase>(
-    () => CreateBookingUseCase(sl<BookingRemoteDataSource>()),
+    () => CreateBookingUseCase(sl<BookingRepository>()),
   );
+
   sl.registerLazySingleton<ConfirmBookingUseCase>(
-    () => ConfirmBookingUseCase(sl<BookingRemoteDataSource>()),
+    () => ConfirmBookingUseCase(sl<BookingRepository>()),
   );
+
   sl.registerLazySingleton<GetBookingDetailUseCase>(
-    () => GetBookingDetailUseCase(sl<BookingRemoteDataSource>()),
+    () => GetBookingDetailUseCase(sl<BookingRepository>()),
   );
+
   sl.registerLazySingleton<BookingPaymentUseCase>(
-    () => BookingPaymentUseCase(sl<BookingRemoteDataSource>()),
+    () => BookingPaymentUseCase(sl<BookingRepository>()),
   );
+
+  sl.registerLazySingleton<GetMyBookingsUseCase>(
+    () => GetMyBookingsUseCase(sl<BookingRepository>()),
+  );
+
+  sl.registerLazySingleton<CancelBookingUseCase>(
+    () => CancelBookingUseCase(sl<BookingRepository>()),
+  );
+
   sl.registerFactory<BookingBloc>(
     () => BookingBloc(
       createBookingUseCase: sl<CreateBookingUseCase>(),
       confirmBookingUseCase: sl<ConfirmBookingUseCase>(),
       getBookingDetailUseCase: sl<GetBookingDetailUseCase>(),
       bookingPaymentUseCase: sl<BookingPaymentUseCase>(),
+      getMyBookingsUseCase: sl<GetMyBookingsUseCase>(),
+      cancelBookingUseCase: sl<CancelBookingUseCase>(),
     ),
   );
 }

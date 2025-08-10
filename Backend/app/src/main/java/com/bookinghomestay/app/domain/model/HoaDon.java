@@ -32,7 +32,7 @@ public class HoaDon {
     private String trangThai;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_pdphong", unique = true, insertable = false, updatable = false)
+    @JoinColumn(name = "ma_pdphong", unique = true)
     private PhieuDatPhong phieudatphong;
 
     @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true)

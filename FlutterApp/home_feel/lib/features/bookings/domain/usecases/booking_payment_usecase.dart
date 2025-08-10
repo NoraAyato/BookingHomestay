@@ -1,21 +1,19 @@
-import '../../data/datasources/booking_remote_data_source.dart';
+import '../repositories/booking_repository.dart';
 
 class BookingPaymentUseCase {
-  final BookingRemoteDataSource remoteDataSource;
+  final BookingRepository repository;
 
-  BookingPaymentUseCase(this.remoteDataSource);
+  BookingPaymentUseCase(this.repository);
 
   Future<bool> call({
     required String maPDPhong,
-    required String maHD,
-    required double totalAmount,
-    required String status,
+    required double soTien,
+    required String phuongThuc,
   }) async {
-    final response = await remoteDataSource.bookingPayment(
+    final response = await repository.bookingPayment(
       maPDPhong: maPDPhong,
-      maHD: maHD,
-      totalAmount: totalAmount,
-      status: status,
+      soTien: soTien,
+      phuongThuc: phuongThuc,
     );
     return response.success;
   }

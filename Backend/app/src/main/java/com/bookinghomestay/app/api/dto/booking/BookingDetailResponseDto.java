@@ -7,6 +7,7 @@ import java.util.List;
 @Data
 public class BookingDetailResponseDto {
     private String maPDPhong;
+    private String maHomestay;
     private String tenHomestay;
     private String diaChiHomestay;
     private String tenLoaiPhong;

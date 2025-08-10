@@ -33,6 +33,6 @@ public class ThanhToan {
     private String noiDung;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_hd", insertable = false, updatable = false)
+    @JoinColumn(name = "ma_hd")
     private HoaDon hoaDon;
 }

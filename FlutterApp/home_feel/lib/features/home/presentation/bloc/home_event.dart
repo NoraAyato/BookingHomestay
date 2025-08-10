@@ -101,6 +101,13 @@ class GetHomestayTienNghiEvent extends HomeEvent {
   List<Object?> get props => [id];
 }
 
+class GetHomestayDichVuEvent extends HomeEvent {
+  final String id;
+  const GetHomestayDichVuEvent(this.id);
+  @override
+  List<Object?> get props => [id];
+}
+
 class GetAvailableRoomsEvent extends HomeEvent {
   final String homestayId;
   final DateTime checkIn;

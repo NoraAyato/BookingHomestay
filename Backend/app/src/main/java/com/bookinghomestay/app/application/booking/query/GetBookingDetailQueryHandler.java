@@ -31,7 +31,6 @@ public class GetBookingDetailQueryHandler {
                 chiTiet.getNgayDen().toLocalDate(),
                 chiTiet.getNgayDi().toLocalDate());
 
-        
         BigDecimal tongTien;
         if (booking.getHoadon() != null) {
             tongTien = booking.getHoadon().getTongTien();
@@ -41,6 +40,7 @@ public class GetBookingDetailQueryHandler {
         }
         BookingDetailResponseDto dto = new BookingDetailResponseDto();
         dto.setMaPDPhong(booking.getMaPDPhong());
+        dto.setMaHomestay(homestay.getIdHomestay());
         dto.setTenHomestay(homestay.getTenHomestay());
         dto.setDiaChiHomestay(homestay.getDiaChi());
         dto.setTenLoaiPhong(phong.getLoaiPhong().getTenLoai());

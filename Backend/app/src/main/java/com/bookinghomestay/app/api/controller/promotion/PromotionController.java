@@ -77,7 +77,7 @@ public class PromotionController {
 
             List<PromotionResponeDto> promotions = getMyPromotionQueryHandler.handle(
                     new GetMyPromotionQuery(
-                            request.getMaPhong(),
+                            request.getMaPDPhong(),
                             request.getNgayDen(),
                             request.getNgayDi(),
                             userId));

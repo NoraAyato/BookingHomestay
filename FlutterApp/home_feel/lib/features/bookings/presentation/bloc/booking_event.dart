@@ -46,17 +46,39 @@ class GetBookingDetailEvent extends BookingEvent {
 
 class BookingPaymentEvent extends BookingEvent {
   final String maPDPhong;
-  final String maHD;
-  final double totalAmount;
-  final String status;
+  final double soTien;
+  final String phuongThuc;
 
   BookingPaymentEvent({
     required this.maPDPhong,
-    required this.maHD,
-    required this.totalAmount,
-    required this.status,
+    required this.soTien,
+    required this.phuongThuc,
   });
 
   @override
-  List<Object?> get props => [maPDPhong, maHD, totalAmount, status];
+  List<Object?> get props => [maPDPhong, soTien, phuongThuc];
+}
+
+class GetMyBookingsEvent extends BookingEvent {
+  GetMyBookingsEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class CancelBookingEvent extends BookingEvent {
+  final String maPDPhong;
+  final String lyDoHuy;
+  final String tenNganHang;
+  final String soTaiKhoan;
+
+  CancelBookingEvent({
+    required this.maPDPhong,
+    required this.lyDoHuy,
+    required this.tenNganHang,
+    required this.soTaiKhoan,
+  });
+
+  @override
+  List<Object?> get props => [maPDPhong, lyDoHuy, tenNganHang, soTaiKhoan];
 }

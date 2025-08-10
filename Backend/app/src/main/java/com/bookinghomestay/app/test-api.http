@@ -10,8 +10,40 @@ GET http://localhost:8080/api/notification/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQxMjQ5MjYsImV4cCI6MTc1NDEyODUyNn0.Jh4MNvgT48u7kyLN9wfnocIDbgBV4TtQRkIxIurS3fQ
 Content-Type: application/json
 
+### Lấy danh sách booking của người dùng hiện tại
+GET http://localhost:8080/api/Booking/my-bookings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQxMjQ5MjYsImV4cCI6MTc1NDEyODUyNn0.Jh4MNvgT48u7kyLN9wfnocIDbgBV4TtQRkIxIurS3fQ
+Content-Type: application/json
+
+### Lấy chi tiết booking
+GET http://localhost:8080/api/Booking/b29f6c3a-5d25-4e9f-8c5a-7b2e9d8f12a4/detail
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQxMjQ5MjYsImV4cCI6MTc1NDEyODUyNn0.Jh4MNvgT48u7kyLN9wfnocIDbgBV4TtQRkIxIurS3fQ
+Content-Type: application/json
+
+### Hủy đặt phòng
+POST http://localhost:8080/api/Booking/cancel
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQ4MjQ0OTIsImV4cCI6MTc1NDgyODA5Mn0.k8611Uw5_l0kcnp9chxtq0TxP0Mnjj-hO9hazsmSENM
+Content-Type: application/json
+
+{
+  "maPDPhong": "8036f306-2baf-4d09-a551-0991e0ec4043",
+  "lyDoHuy": "Thay đổi kế hoạch du lịch",
+  "tenNganHang": "VietcomBank",
+  "soTaiKhoan": "9876543210"
+}
+
+### Hủy đặt phòng (không có thông tin hoàn tiền)
+POST http://localhost:8080/api/Booking/cancel
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQxMjQ5MjYsImV4cCI6MTc1NDEyODUyNn0.Jh4MNvgT48u7kyLN9wfnocIDbgBV4TtQRkIxIurS3fQ
+Content-Type: application/json
+
+{
+  "maPDPhong": "b29f6c3a-5d25-4e9f-8c5a-7b2e9d8f12a4",
+  "lyDoHuy": "Tìm được chỗ ở tốt hơn"
+}
+
 ### Test: Lấy tất cả ảnh của homestay
-GET http://localhost:8080//api/Booking/490c49f8-239e-4a49-bec3-09b2ba7ff3d4/dichvu
+GET http://localhost:8080/api/homestays/490c49f8-239e-4a49-bec3-09b2ba7ff3d4/dichvu
 Accept: application/json
 ### Get current user info
 GET http://localhost:8080/api/users/me
@@ -162,9 +194,9 @@ Content-Type: application/json
 
 
 ### Tạo booking mới
-GET http://localhost:8080/api/Booking/0f89a58d-cf6a-4e66-af7c-29efaf33bc83/detail
+GET http://localhost:8080/api/Booking/my-bookings
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQ3NjU4ODUsImV4cCI6MTc1NDc2OTQ4NX0.CUjPGH0x0LqG8xYcOn-QkNLiXq3eXoXVLj9ZSGgaGns
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQ4MDk3MzMsImV4cCI6MTc1NDgxMzMzM30.rDWIXofCN6FSBaU8YWK76Oz6Wvt8lNU6NjWzvRodtXo
 
 
 ### Lấy danh sách khuyến mãi của tôi (my-promotion)

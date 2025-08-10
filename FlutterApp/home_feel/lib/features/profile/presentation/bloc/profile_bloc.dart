@@ -18,7 +18,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   @override
   void onEvent(ProfileEvent event) {
-    print('ProfileBloc Event: ${event.runtimeType}');
     super.onEvent(event);
   }
 

@@ -8,7 +8,7 @@ abstract class PromotionRemoteDataSource {
   Future<ApiResponse<List<PromotionModel>>> getAdminKhuyenMai();
   Future<ApiResponse<PromotionModel>> getKhuyenMaiById(String kmId);
   Future<ApiResponse<List<PromotionModel>>> getMyPromotion({
-    required String maPhong,
+    required String maPDPhong,
     required DateTime ngayDen,
     required DateTime ngayDi,
   });
@@ -41,7 +41,7 @@ class PromotionRemoteDataSourceImpl implements PromotionRemoteDataSource {
 
   @override
   Future<ApiResponse<List<PromotionModel>>> getMyPromotion({
-    required String maPhong,
+    required String maPDPhong,
     required DateTime ngayDen,
     required DateTime ngayDi,
   }) async {
@@ -49,7 +49,7 @@ class PromotionRemoteDataSourceImpl implements PromotionRemoteDataSource {
       final response = await _apiService.post(
         '/api/promotions/my-promotion',
         data: {
-          'maPhong': maPhong,
+          'maPDPhong': maPDPhong,
           'ngayDen': ngayDen.toIso8601String(),
           'ngayDi': ngayDi.toIso8601String(),
         },

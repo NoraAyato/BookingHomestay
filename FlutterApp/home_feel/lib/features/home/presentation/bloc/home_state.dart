@@ -7,6 +7,7 @@ import 'package:home_feel/features/home/data/models/homestay_suggest_model.dart'
 import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
+import 'package:home_feel/features/home/data/models/homestay_dichvu_response_model.dart';
 import 'package:home_feel/features/home/data/models/room_detail_model.dart';
 
 class HomeRoomImagesLoading extends HomeState {
@@ -162,6 +163,24 @@ class HomeTienNghiLoaded extends HomeState {
 class HomeTienNghiError extends HomeState {
   final String message;
   const HomeTienNghiError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+class HomeDichVuLoading extends HomeState {
+  const HomeDichVuLoading();
+}
+
+class HomeDichVuLoaded extends HomeState {
+  final HomestayDichVuResponseModel dichvu;
+  const HomeDichVuLoaded({required this.dichvu});
+  @override
+  List<Object?> get props => [dichvu];
+}
+
+class HomeDichVuError extends HomeState {
+  final String message;
+  const HomeDichVuError(this.message);
   @override
   List<Object?> get props => [message];
 }
