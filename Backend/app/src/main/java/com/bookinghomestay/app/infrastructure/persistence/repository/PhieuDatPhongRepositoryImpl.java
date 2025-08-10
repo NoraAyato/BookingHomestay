@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
+import com.bookinghomestay.app.domain.model.PhieuHuyPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PhieuDatPhongRepositoryImpl implements IBookingRepository {
     private final JpaPhieuDatPhong jpaPhieuDatPhong;
+    private final JpaPhieuHuyPhongRepository jpaPhieuHuyPhongRepository;
 
     @Override
     public PhieuDatPhong create(PhieuDatPhong booking) {
@@ -49,5 +51,20 @@ public class PhieuDatPhongRepositoryImpl implements IBookingRepository {
     @Override
     public int countByUserIdAndTrangThai(String userId, String trangThai) {
         return jpaPhieuDatPhong.countByNguoiDung_UserIdAndTrangThai(userId, trangThai);
+    }
+
+    @Override
+    public List<PhieuDatPhong> findByUserId(String userId) {
+        return jpaPhieuDatPhong.findByNguoiDung_UserId(userId);
+    }
+
+    @Override
+    public Optional<PhieuHuyPhong> findCancelledBookingById(String bookingId) {
+        return jpaPhieuHuyPhongRepository.findById(bookingId);
+    }
+
+    @Override
+    public PhieuHuyPhong saveCancelledBooking(PhieuHuyPhong cancelledBooking) {
+        return jpaPhieuHuyPhongRepository.save(cancelledBooking);
     }
 }

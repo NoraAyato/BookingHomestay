@@ -1,5 +1,6 @@
 class BookingDetailResponseDto {
   final String maPDPhong;
+  final String maHomestay;
   final String tenHomestay;
   final String diaChiHomestay;
   final String tenLoaiPhong;
@@ -17,6 +18,7 @@ class BookingDetailResponseDto {
 
   BookingDetailResponseDto({
     required this.maPDPhong,
+    required this.maHomestay,
     required this.tenHomestay,
     required this.diaChiHomestay,
     required this.tenLoaiPhong,
@@ -36,6 +38,7 @@ class BookingDetailResponseDto {
   factory BookingDetailResponseDto.fromJson(Map<String, dynamic> json) {
     return BookingDetailResponseDto(
       maPDPhong: json['maPDPhong'] as String,
+      maHomestay: json['maHomestay'] as String,
       tenHomestay: json['tenHomestay'] as String,
       diaChiHomestay: json['diaChiHomestay'] as String,
       tenLoaiPhong: json['tenLoaiPhong'] as String,

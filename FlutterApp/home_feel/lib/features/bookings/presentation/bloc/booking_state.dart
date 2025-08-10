@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/booking_detail_response_dto.dart';
+import '../../data/models/booking_list_response_dto.dart';
 
 abstract class BookingState extends Equatable {
   @override
@@ -59,6 +60,24 @@ class BookingPaymentSuccess extends BookingState {
   final String message;
 
   BookingPaymentSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class MyBookingsLoaded extends BookingState {
+  final List<BookingListResponseDto> bookings;
+
+  MyBookingsLoaded(this.bookings);
+
+  @override
+  List<Object?> get props => [bookings];
+}
+
+class BookingCancelSuccess extends BookingState {
+  final String message;
+
+  BookingCancelSuccess(this.message);
 
   @override
   List<Object?> get props => [message];

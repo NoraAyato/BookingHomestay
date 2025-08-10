@@ -5,6 +5,7 @@ import 'package:home_feel/features/home/data/models/homestay_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_search_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_suggest_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
+import 'package:home_feel/features/home/data/models/homestay_dichvu_response_model.dart';
 import 'package:home_feel/features/home/data/models/room_detail_model.dart';
 
 import 'package:home_feel/features/home/data/models/available_room_model.dart';
@@ -18,6 +19,7 @@ abstract class HomeRepository {
     String id,
   );
   Future<ApiResponse<HomestayImageResponseModel>> getHomestayImages(String id);
+  Future<ApiResponse<HomestayDichVuResponseModel>> getHomestayDichVu(String id);
   Future<ApiResponse<List<HomestayModel>>> fetchHomestays({
     String? location,
     String? filterType,

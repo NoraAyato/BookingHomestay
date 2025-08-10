@@ -30,13 +30,13 @@ public class ChiTietDichVu {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
-            @JoinColumn(name = "ma_pdphong", referencedColumnName = "ma_pdphong"),
-            @JoinColumn(name = "ma_phong", referencedColumnName = "ma_phong")
+            @JoinColumn(name = "ma_pdphong", referencedColumnName = "ma_pdphong", insertable = false, updatable = false),
+            @JoinColumn(name = "ma_phong", referencedColumnName = "ma_phong", insertable = false, updatable = false)
     })
     private ChiTietDatPhong chiTietDatPhong;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_dv", referencedColumnName = "ma_dv")
+    @JoinColumn(name = "ma_dv", referencedColumnName = "ma_dv", insertable = false, updatable = false)
     private DichVu dichVu;
 
     @Column(name = "so_luong")

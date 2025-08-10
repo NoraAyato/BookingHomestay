@@ -61,7 +61,7 @@ class PromotionBloc extends Bloc<PromotionEvent, PromotionState> {
     emit(PromotionLoading());
     try {
       final promotions = await getMyPromotionUseCase(
-        maPhong: event.maPhong,
+        maPDPhong: event.maPDPhong,
         ngayDen: event.ngayDen,
         ngayDi: event.ngayDi,
       );

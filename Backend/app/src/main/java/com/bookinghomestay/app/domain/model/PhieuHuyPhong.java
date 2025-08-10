@@ -36,6 +36,6 @@ public class PhieuHuyPhong {
     private String trangThai;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_pdphong", insertable = false, updatable = false)
+    @JoinColumn(name = "ma_pdphong")
     private PhieuDatPhong phieuDatPhong;
 }

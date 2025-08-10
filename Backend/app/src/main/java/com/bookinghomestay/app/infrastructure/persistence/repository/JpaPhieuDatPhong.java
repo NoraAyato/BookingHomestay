@@ -31,4 +31,6 @@ public interface JpaPhieuDatPhong extends JpaRepository<PhieuDatPhong, String> {
   List<PhieuDatPhong> findPendingExpired(@Param("cutoff") LocalDateTime cutoff);
 
   int countByNguoiDung_UserIdAndTrangThai(String userId, String trangThai);
+
+  List<PhieuDatPhong> findByNguoiDung_UserId(String userId);
 }

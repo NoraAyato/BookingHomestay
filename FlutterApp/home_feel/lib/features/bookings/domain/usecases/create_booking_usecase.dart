@@ -1,16 +1,16 @@
-import '../../data/datasources/booking_remote_data_source.dart';
+import '../repositories/booking_repository.dart';
 
 class CreateBookingUseCase {
-  final BookingRemoteDataSource remoteDataSource;
+  final BookingRepository repository;
 
-  CreateBookingUseCase(this.remoteDataSource);
+  CreateBookingUseCase(this.repository);
 
   Future<String?> call({
     required String maPhong,
     required DateTime ngayDen,
     required DateTime ngayDi,
   }) async {
-    final response = await remoteDataSource.createBooking(
+    final response = await repository.createBooking(
       maPhong: maPhong,
       ngayDen: ngayDen,
       ngayDi: ngayDi,

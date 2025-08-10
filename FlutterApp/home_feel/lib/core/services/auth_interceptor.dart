@@ -177,7 +177,7 @@ class AuthInterceptor extends Interceptor {
 
   Future<void> _logout() async {
     await authService.clearAuthData();
-    GetIt.I<AuthBloc>().add(LogoutEvent());
+    GetIt.I<AuthBloc>().add(RequireLoginEvent());
   }
 
   DioException _createAuthException(

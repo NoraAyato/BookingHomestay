@@ -1,15 +1,13 @@
-import '../../data/datasources/booking_remote_data_source.dart';
+import '../repositories/booking_repository.dart';
 import '../../data/models/booking_detail_response_dto.dart';
 
 class GetBookingDetailUseCase {
-  final BookingRemoteDataSource remoteDataSource;
+  final BookingRepository repository;
 
-  GetBookingDetailUseCase(this.remoteDataSource);
+  GetBookingDetailUseCase(this.repository);
 
   Future<BookingDetailResponseDto?> call({required String bookingId}) async {
-    final response = await remoteDataSource.getBookingDetail(
-      bookingId: bookingId,
-    );
+    final response = await repository.getBookingDetail(bookingId: bookingId);
     if (response.success && response.data != null) {
       return response.data;
     }

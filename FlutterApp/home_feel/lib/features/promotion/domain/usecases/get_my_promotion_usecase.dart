@@ -7,12 +7,12 @@ class GetMyPromotionUseCase {
   GetMyPromotionUseCase(this.remoteDataSource);
 
   Future<List<PromotionModel>?> call({
-    required String maPhong,
+    required String maPDPhong,
     required DateTime ngayDen,
     required DateTime ngayDi,
   }) async {
     final response = await remoteDataSource.getMyPromotion(
-      maPhong: maPhong,
+      maPDPhong: maPDPhong,
       ngayDen: ngayDen,
       ngayDi: ngayDi,
     );

@@ -7,6 +7,7 @@ import 'package:home_feel/features/home/domain/usecases/search_homestay_by_keywo
 import 'package:home_feel/features/home/domain/usecases/get_homestay_detail.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_images.dart';
 import 'package:home_feel/features/home/domain/usecases/get_homestay_tiennghi.dart';
+import 'package:home_feel/features/home/domain/usecases/get_homestay_dichvu.dart';
 import 'package:home_feel/features/home/domain/usecases/get_room_detail_use_case.dart';
 // import 'package:home_feel/features/home/data/models/homestay_detail_model.dart';
 import 'home_event.dart';
@@ -21,6 +22,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetHomestayDetail getHomestayDetail;
   final GetHomestayImages getHomestayImages;
   final GetHomestayTienNghi getHomestayTienNghi;
+  final GetHomestayDichVu getHomestayDichVu;
   final GetRoomDetailUseCase getRoomDetailUseCase;
   String? _currentLocation;
   String? _currentFilterType;
@@ -32,6 +34,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     this.getHomestayDetail,
     this.getHomestayImages,
     this.getHomestayTienNghi,
+    this.getHomestayDichVu,
     this.getAvailableRoomsUseCase,
     this.getRoomImagesUseCase,
     this.getRoomDetailUseCase,
@@ -46,6 +49,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<GetHomestayDetailEvent>(_onGetHomestayDetail);
     on<GetHomestayImagesEvent>(_onGetHomestayImages);
     on<GetHomestayTienNghiEvent>(_onGetHomestayTienNghi);
+    on<GetHomestayDichVuEvent>(_onGetHomestayDichVu);
     on<GetAvailableRoomsEvent>(_onGetAvailableRooms);
     on<GetRoomImagesEvent>(_onGetRoomImages);
     on<GetRoomDetailEvent>(_onGetRoomDetail);
@@ -249,6 +253,23 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }
     } catch (e) {
       emit(HomeTienNghiError(e.toString()));
+    }
+  }
+
+  Future<void> _onGetHomestayDichVu(
+    GetHomestayDichVuEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(const HomeDichVuLoading());
+    try {
+      final result = await getHomestayDichVu(event.id);
+      if (result.success && result.data != null) {
+        emit(HomeDichVuLoaded(dichvu: result.data!));
+      } else {
+        emit(HomeDichVuError(result.message));
+      }
+    } catch (e) {
+      emit(HomeDichVuError(e.toString()));
     }
   }
 

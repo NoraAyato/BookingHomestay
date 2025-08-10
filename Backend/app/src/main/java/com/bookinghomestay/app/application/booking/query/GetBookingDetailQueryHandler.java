@@ -27,9 +27,20 @@ public class GetBookingDetailQueryHandler {
                 .findFirst()
                 .map(h -> h.getUrlAnh())
                 .orElse(null);
+        long soNgay = java.time.temporal.ChronoUnit.DAYS.between(
+                chiTiet.getNgayDen().toLocalDate(),
+                chiTiet.getNgayDi().toLocalDate());
 
+        BigDecimal tongTien;
+        if (booking.getHoadon() != null) {
+            tongTien = booking.getHoadon().getTongTien();
+        } else {
+            BigDecimal giaPhong = chiTiet.getPhong().getDonGia();
+            tongTien = giaPhong.multiply(BigDecimal.valueOf(soNgay));
+        }
         BookingDetailResponseDto dto = new BookingDetailResponseDto();
         dto.setMaPDPhong(booking.getMaPDPhong());
+        dto.setMaHomestay(homestay.getIdHomestay());
         dto.setTenHomestay(homestay.getTenHomestay());
         dto.setDiaChiHomestay(homestay.getDiaChi());
         dto.setTenLoaiPhong(phong.getLoaiPhong().getTenLoai());
@@ -37,7 +48,7 @@ public class GetBookingDetailQueryHandler {
         dto.setHinhAnhPhong(hinhAnhChinh);
         dto.setUserName(user.getUserName());
         dto.setSoDienThoai(user.getPhoneNumber());
-        dto.setTongTienPhong(booking.getHoadon() != null ? booking.getHoadon().getTongTien() : BigDecimal.ZERO);
+        dto.setTongTienPhong(tongTien);
         dto.setChinhSachHuyPhong(homestay.getChinhSachs().get(0).getHuyPhong());
         dto.setChinhSachNhanPhong(homestay.getChinhSachs().get(0).getNhanPhong());
         dto.setChinhSachTraPhong(homestay.getChinhSachs().get(0).getTraPhong());

@@ -3,6 +3,7 @@ package com.bookinghomestay.app.application.promotion.query;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,18 @@ public class GetMyPromotionQueryHandler {
 
     public List<PromotionResponeDto> handle(GetMyPromotionQuery query) {
         boolean isNewCustomer = isNewCustomer(query.getUserId());
+        var booking = bookingRepository.findById(query.getMaPDPhong());
+        AtomicReference<String> maPhongRef = new AtomicReference<>("");
+        booking.ifPresent(b -> {
+            if (b.getChiTietDatPhongs().get(0).getMaPhong() != null) {
+                maPhongRef.set(b.getChiTietDatPhongs().get(0).getMaPhong());
+            } else {
+                throw new IllegalArgumentException("Booking does not contain a valid room ID.");
+            }
+        });
+        String maPhong = maPhongRef.get();
 
-        List<KhuyenMai> allPromos = khuyenMaiRepository.getAllPromotionsForRoom(query.getMaPhong());
+        List<KhuyenMai> allPromos = khuyenMaiRepository.getAllPromotionsForRoom(maPhong);
         if (allPromos.isEmpty()) {
             allPromos = khuyenMaiRepository.getAdminKm();
         }

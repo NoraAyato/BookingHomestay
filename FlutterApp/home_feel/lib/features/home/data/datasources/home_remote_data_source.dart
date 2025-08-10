@@ -3,6 +3,7 @@ import 'package:home_feel/core/network/dio_exception_mapper.dart';
 import 'package:home_feel/features/home/data/models/available_room_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_tiennghi_response_model.dart';
 import 'package:home_feel/features/home/data/models/homestay_image_response_model.dart';
+import 'package:home_feel/features/home/data/models/homestay_dichvu_response_model.dart';
 import 'package:home_feel/core/constants/api.dart';
 import 'package:home_feel/shared/models/api_response.dart';
 import 'package:home_feel/core/services/api_service.dart';
@@ -14,12 +15,12 @@ import 'package:home_feel/features/home/data/models/room_images_model.dart';
 import 'package:home_feel/features/home/data/models/room_detail_model.dart';
 
 abstract class HomeRemoteDataSource {
-  /// Lấy ảnh phòng theo mã phòng
   Future<ApiResponse<RoomImagesModel>> getRoomImages(String maPhong);
   Future<ApiResponse<HomestayTienNghiResponseModel>> getHomestayTienNghi(
     String id,
   );
   Future<ApiResponse<HomestayImageResponseModel>> getHomestayImages(String id);
+  Future<ApiResponse<HomestayDichVuResponseModel>> getHomestayDichVu(String id);
   Future<ApiResponse<List<HomestayModel>>> fetchHomestays();
   Future<ApiResponse<List<HomestaySearchModel>>> searchHomestayByKeyword(
     String keyword,
@@ -35,7 +36,6 @@ abstract class HomeRemoteDataSource {
     required DateTime checkOut,
   });
 
-  /// Lấy chi tiết phòng theo mã phòng
   Future<ApiResponse<RoomDetailModel>> getRoomDetail(String maPhong);
 }
 
@@ -286,6 +286,39 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         );
 
         return ApiResponse(success: true, message: 'Success', data: roomDetail);
+      }
+
+      throw Exception('Invalid response format');
+    } on DioException catch (e) {
+      final appException = DioExceptionMapper.map(e);
+      return ApiResponse(
+        success: false,
+        message: appException.message,
+        data: null,
+      );
+    }
+  }
+
+  @override
+  Future<ApiResponse<HomestayDichVuResponseModel>> getHomestayDichVu(
+    String id,
+  ) async {
+    try {
+      final response = await _apiService.get(
+        '${ApiConstants.baseUrl}/api/homestays/$id/dichvu',
+      );
+
+      if (response.data != null) {
+        final HomestayDichVuResponseModel dichvuResponse =
+            HomestayDichVuResponseModel.fromJson(
+              response.data as Map<String, dynamic>,
+            );
+
+        return ApiResponse(
+          success: true,
+          message: 'Success',
+          data: dichvuResponse,
+        );
       }
 
       throw Exception('Invalid response format');

@@ -22,3 +22,5 @@ class AuthFailure extends AuthState {
 }
 
 class AuthLoggedOut extends AuthState {}
+
+class AuthRequiresLogin extends AuthState {}
