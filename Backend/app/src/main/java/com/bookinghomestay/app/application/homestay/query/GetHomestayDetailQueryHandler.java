@@ -2,14 +2,14 @@
 package com.bookinghomestay.app.application.homestay.query;
 
 import com.bookinghomestay.app.api.dto.homestay.HomestayDetailResponseDto;
-import com.bookinghomestay.app.domain.model.ChinhSach;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IDanhGiaRepository;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
+import com.bookinghomestay.app.domain.service.HomestayDomainService;
+import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
-import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
 
@@ -19,36 +19,25 @@ public class GetHomestayDetailQueryHandler {
 
         private final IHomestayRepository homestayRepository;
         private final IDanhGiaRepository danhGiaRepository;
+        private final HomestayDomainService homestayDomainService;
 
         @Transactional
         public HomestayDetailResponseDto handle(GetHomestayDetailQuery query) {
+                // Lấy thông tin homestay
                 Homestay homestay = homestayRepository.findById(query.getHomestayId())
                                 .orElseThrow(() -> new RuntimeException("Không tìm thấy homestay"));
 
-                ChinhSach chinhSach = homestay.getChinhSachs().stream().findFirst()
-                                .orElseThrow(() -> new RuntimeException("Không có chính sách cho homestay"));
+                // Kiểm tra tính hợp lệ của homestay
+                if (!homestayDomainService.validateHomestay(homestay)) {
+                        throw new RuntimeException("Homestay không hợp lệ");
+                }
 
+                // Lấy thông tin đánh giá
                 int tongDanhGia = danhGiaRepository.countByHomestayId(query.getHomestayId());
                 Double diemTB = danhGiaRepository.averageHaiLongByHomestayId(query.getHomestayId());
                 double diemTrungBinh = diemTB != null ? diemTB : 0.0;
-                
-                return HomestayDetailResponseDto.builder()
-                                .id(homestay.getIdHomestay())
-                                .tenHomestay(homestay.getTenHomestay())
-                                .diaChi(homestay.getDiaChi())
-                                .gioiThieu(homestay.getGioiThieu())
-                                .tongDanhGia(tongDanhGia)
-                                .diemHaiLongTrungBinh(diemTrungBinh)
-                                .giaTien(homestay.getPricePerNight())
-                                .hang(homestay.getHang() != null ? homestay.getHang() : BigDecimal.ZERO)
-                                .chinhSach(
-                                                HomestayDetailResponseDto.ChinhSachDto.builder()
-                                                                .nhanPhong(chinhSach.getNhanPhong())
-                                                                .traPhong(chinhSach.getTraPhong())
-                                                                .huyPhong(chinhSach.getHuyPhong())
-                                                                .buaAn(chinhSach.getBuaAn())
-                                                                .build())
-                                .build();
-        }
 
+                // Chuyển đổi sang DTO
+                return HomestayMapper.toHomestayDetailResponseDto(homestay, tongDanhGia, diemTrungBinh);
+        }
 }

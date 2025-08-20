@@ -14,6 +14,7 @@ import com.bookinghomestay.app.domain.model.HoaDon;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.ThanhToan;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
+import com.bookinghomestay.app.domain.service.BookingDomainService;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class BookingPaymentCommandHandler {
 
     private final IBookingRepository bookingRepository;
     private final PendingRoomService pendingRoomService;
+    private final BookingDomainService bookingDomainService;
 
     @Transactional
     public void handle(BookingPaymentCommand command) {
@@ -38,11 +40,9 @@ public class BookingPaymentCommandHandler {
             }
 
             PhieuDatPhong booking = bookingOpt.get();
-            HoaDon hoaDon = booking.getHoadon();
 
-            if (hoaDon == null) {
-                throw new RuntimeException("Invoice not found for booking");
-            }
+            // Kiểm tra tính hợp lệ của thanh toán
+            bookingDomainService.validatePayment(booking, command.getSoTien());
 
             var ctdp = booking.getChiTietDatPhongs().get(0);
             String roomId = ctdp.getMaPhong();
@@ -54,36 +54,32 @@ public class BookingPaymentCommandHandler {
             if (!isHeldByCurrentUser) {
                 throw new RuntimeException("Room is not held by you or hold expired. Cannot proceed payment.");
             }
-            log.info("Payment processed successfully for booking {}", command.getSoTien());
-            BigDecimal amountPaid = command.getSoTien();
-            BigDecimal invoiceAmount = hoaDon.getTongTien();
 
-            if (amountPaid.compareTo(invoiceAmount) != 0) {
-                throw new RuntimeException("Payment amount does not match invoice total");
-            }
-
+            // Tạo thanh toán
             ThanhToan thanhToan = new ThanhToan();
             thanhToan.setMaTT(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
-
             thanhToan.setNgayTT(LocalDateTime.now());
             thanhToan.setPhuongThuc(command.getPhuongThuc());
-            thanhToan.setSoTien(amountPaid);
+            thanhToan.setSoTien(command.getSoTien());
             thanhToan.setTrangThai("Success");
             thanhToan.setNoiDung("Payment for booking " + booking.getMaPDPhong());
-            thanhToan.setHoaDon(hoaDon);
-            List<ThanhToan> thanhToans = hoaDon.getThanhToans();
+            thanhToan.setHoaDon(booking.getHoadon());
+
+            List<ThanhToan> thanhToans = booking.getHoadon().getThanhToans();
             if (thanhToans == null) {
                 thanhToans = new ArrayList<>();
-                hoaDon.setThanhToans(thanhToans);
+                booking.getHoadon().setThanhToans(thanhToans);
             }
             thanhToans.add(thanhToan);
 
-            hoaDon.setTrangThai("Paid");
+            // Cập nhật trạng thái hóa đơn và booking
+            booking.getHoadon().setTrangThai("Paid");
             booking.setTrangThai("Booked");
 
-            // Sau khi thanh toán thành công thì giải phóng hold phòng
+            // Giải phóng phòng đã giữ
             pendingRoomService.releaseRoom(roomId, ngayDen, ngayDi);
 
+            // Lưu booking
             bookingRepository.save(booking);
 
             log.info("Payment processed successfully for booking {}", booking.getMaPDPhong());

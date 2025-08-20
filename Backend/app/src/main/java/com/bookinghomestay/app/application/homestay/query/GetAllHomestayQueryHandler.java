@@ -4,6 +4,8 @@ import com.bookinghomestay.app.api.dto.homestay.HomestayResponseDto;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
+import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +25,8 @@ public class GetAllHomestayQueryHandler {
             throw new ResourceNotFoundException("Không tìm thấy homestay nào.");
         }
 
-        return homestays.stream().map(h -> new HomestayResponseDto(
-                h.getIdHomestay(),
-                h.getTenHomestay(),
-                h.getHinhAnh(),
-                h.getPricePerNight(),
-                h.getDiaChi(),
-                h.getHang())).collect(Collectors.toList());
+        return homestays.stream()
+                .map(HomestayMapper::toHomestayResponseDto)
+                .collect(Collectors.toList());
     }
 }

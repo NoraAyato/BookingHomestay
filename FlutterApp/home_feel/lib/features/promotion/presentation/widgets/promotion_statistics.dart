@@ -31,15 +31,15 @@ class PromotionStatistics extends StatelessWidget {
               SizedBox(width: 12),
               Expanded(
                 child: PromotionStatisticsItem(
-                  value: '',
-                  label: 'Joy Xu',
+                  value: '0',
+                  label: 'HF Xu',
                   icon: Icons.credit_card_outlined,
                 ),
               ),
               SizedBox(width: 12),
               Expanded(
                 child: PromotionStatisticsItem(
-                  value: '',
+                  value: '0',
                   label: 'Tem',
                   icon: Icons.local_offer_outlined,
                 ),

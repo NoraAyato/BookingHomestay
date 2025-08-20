@@ -2,7 +2,6 @@ package com.bookinghomestay.app.api.controller.promotion;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,11 +14,9 @@ import com.bookinghomestay.app.api.dto.ApiResponse;
 import com.bookinghomestay.app.api.dto.promotion.GetMyPromotionRequestDto;
 import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
 import com.bookinghomestay.app.application.promotion.query.GetAdminKhuyenMaiQueryHandle;
-
 import com.bookinghomestay.app.application.promotion.query.GetKhuyenMaiQueryHandler;
 import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQuery;
 import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQueryHandler;
-
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -34,66 +31,39 @@ public class PromotionController {
     private final GetMyPromotionQueryHandler getMyPromotionQueryHandler;
 
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<PromotionResponeDto>>> getAdminKhuyenMai() {
-        try {
-            List<PromotionResponeDto> khuyenMais = getAdminKhuyenMaiQueryHandle.handle();
-            ApiResponse<List<PromotionResponeDto>> response = new ApiResponse<>(
-                    true,
-                    "Lấy danh sách khuyến mãi admin thành công",
-                    khuyenMais);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            ApiResponse<List<PromotionResponeDto>> response = new ApiResponse<>(
-                    false,
-                    "Lỗi khi lấy danh sách khuyến mãi: " + e.getMessage(),
-                    null);
-            return ResponseEntity.status(500).body(response);
-        }
+    public ResponseEntity<ApiResponse<List<PromotionResponeDto>>> getAllPromotions() {
+        List<PromotionResponeDto> promotions = getAdminKhuyenMaiQueryHandle.handle();
+        return ResponseEntity.ok(new ApiResponse<>(
+                true,
+                "Lấy danh sách khuyến mãi thành công",
+                promotions));
     }
 
-    @GetMapping("/{kmId}")
-    public ResponseEntity<ApiResponse<PromotionResponeDto>> getKhuyenMaiById(@PathVariable String kmId) {
-        try {
-            PromotionResponeDto khuyenMai = getKhuyenMaiQueryHandler.handle(kmId);
-            ApiResponse<PromotionResponeDto> response = new ApiResponse<>(
-                    true,
-                    "Lấy khuyến mãi thành công",
-                    khuyenMai);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            ApiResponse<PromotionResponeDto> response = new ApiResponse<>(
-                    false,
-                    "Lỗi khi lấy khuyến mãi: " + e.getMessage(),
-                    null);
-            return ResponseEntity.status(404).body(response);
-        }
+    @GetMapping("/{promotionId}")
+    public ResponseEntity<ApiResponse<PromotionResponeDto>> getPromotionById(@PathVariable String promotionId) {
+        PromotionResponeDto promotion = getKhuyenMaiQueryHandler.handle(promotionId);
+        return ResponseEntity.ok(new ApiResponse<>(
+                true,
+                "Lấy khuyến mãi thành công",
+                promotion));
     }
 
-    @PostMapping("/my-promotion")
-    public ResponseEntity<ApiResponse<List<PromotionResponeDto>>> getMyPromotion(
+    @PostMapping("/my-promotions")
+    public ResponseEntity<ApiResponse<List<PromotionResponeDto>>> getUserPromotions(
             @RequestBody GetMyPromotionRequestDto request) {
-        try {
-            String userId = SecurityUtils.getCurrentUserId();
+        String userId = SecurityUtils.getCurrentUserId();
 
-            List<PromotionResponeDto> promotions = getMyPromotionQueryHandler.handle(
-                    new GetMyPromotionQuery(
-                            request.getMaPDPhong(),
-                            request.getNgayDen(),
-                            request.getNgayDi(),
-                            userId));
+        GetMyPromotionQuery query = new GetMyPromotionQuery(
+                request.getMaPDPhong(),
+                request.getNgayDen(),
+                request.getNgayDi(),
+                userId);
 
-            ApiResponse<List<PromotionResponeDto>> response = new ApiResponse<>(
-                    true,
-                    "Lấy danh sách khuyến mãi của tôi thành công",
-                    promotions);
+        List<PromotionResponeDto> promotions = getMyPromotionQueryHandler.handle(query);
 
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            ApiResponse<List<PromotionResponeDto>> response = new ApiResponse<>(
-                    false,
-                    "Lỗi khi lấy danh sách khuyến mãi của tôi: " + e.getMessage(),
-                    null);
-            return ResponseEntity.status(500).body(response);
-        }
+        return ResponseEntity.ok(new ApiResponse<>(
+                true,
+                "Lấy danh sách khuyến mãi của bạn thành công",
+                promotions));
     }
 }

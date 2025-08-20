@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.bookinghomestay.app.api.dto.ApiResponse;
 import com.bookinghomestay.app.api.dto.homestay.*;
 import com.bookinghomestay.app.application.danhgia.query.GetHomestayReviewsQuery;
 import com.bookinghomestay.app.application.danhgia.query.GetHomestayReviewsQueryHandler;
@@ -46,68 +47,73 @@ public class HomestayController {
     private final GetHomestayDichVuQueryHandler getHomestayDichVuQueryHandler;
 
     @GetMapping
-    public List<HomestayResponseDto> getAll() {
-        return getAllHandler.handle();
+    public ResponseEntity<ApiResponse<List<HomestayResponseDto>>> getAll() {
+        List<HomestayResponseDto> homestays = getAllHandler.handle();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách homestay thành công", homestays));
     }
 
     @GetMapping("/top")
-    public List<HomestayResponseDto> getTopRated() {
-        return getTopHandler.handle();
+    public ResponseEntity<ApiResponse<List<HomestayResponseDto>>> getTopRated() {
+        List<HomestayResponseDto> topHomestays = getTopHandler.handle();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách top homestay thành công", topHomestays));
     }
 
     @GetMapping("/{id}")
-    public HomestayDetailResponseDto getDetail(@PathVariable String id) {
-        return getHomestayDetailQueryHandler.handle(new GetHomestayDetailQuery(id));
+    public ResponseEntity<ApiResponse<HomestayDetailResponseDto>> getDetail(@PathVariable String id) {
+        HomestayDetailResponseDto detail = getHomestayDetailQueryHandler.handle(new GetHomestayDetailQuery(id));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy chi tiết homestay thành công", detail));
     }
 
     @GetMapping("/{id}/images")
-    public ResponseEntity<HomestayImageResponseDto> getHomestayImages(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<HomestayImageResponseDto>> getHomestayImages(@PathVariable String id) {
         HomestayImageResponseDto dto = getHomestayImagesQueryHandler.handle(new GetHomestayImagesQuery(id));
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy hình ảnh homestay thành công", dto));
     }
 
     @GetMapping("/{homestayId}/tiennghi")
-    public ResponseEntity<HomestayTienNghiResponseDto> getTienNghiByHomestay(@PathVariable String homestayId) {
-        var dto = getHomestayTienNghiQueryHandler.handle(new GetHomestayTienNghiQuery(homestayId));
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<ApiResponse<HomestayTienNghiResponseDto>> getTienNghiByHomestay(
+            @PathVariable String homestayId) {
+        HomestayTienNghiResponseDto dto = getHomestayTienNghiQueryHandler
+                .handle(new GetHomestayTienNghiQuery(homestayId));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy tiện nghi homestay thành công", dto));
     }
 
     @GetMapping("/{id}/reviews")
-    public ResponseEntity<List<HomestayReviewResponseDto>> getReviews(
+    public ResponseEntity<ApiResponse<List<HomestayReviewResponseDto>>> getReviews(
             @PathVariable String id,
             @RequestParam(required = false) String haiLongRange,
             @RequestParam(required = false) String reviewerType, // "me" or "others"
             @RequestParam(required = false) String currentUserId) {
-        var query = new GetHomestayReviewsQuery(id, haiLongRange, reviewerType, currentUserId);
-        var reviews = getHomestayReviewsQueryHandler.handle(query);
-        return ResponseEntity.ok(reviews);
+        GetHomestayReviewsQuery query = new GetHomestayReviewsQuery(id, haiLongRange, reviewerType, currentUserId);
+        List<HomestayReviewResponseDto> reviews = getHomestayReviewsQueryHandler.handle(query);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy đánh giá homestay thành công", reviews));
     }
 
     @GetMapping("/{homestayId}/available-rooms")
-    public ResponseEntity<List<RoomAvailabilityDto>> getAvailableRooms(
+    public ResponseEntity<ApiResponse<List<RoomAvailabilityDto>>> getAvailableRooms(
             @PathVariable String homestayId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayDen,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayDi) {
         List<RoomAvailabilityDto> rooms = getRoomAvailabilityQueryHandler.handle(homestayId, ngayDen, ngayDi);
-        return ResponseEntity.ok(rooms);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách phòng khả dụng thành công", rooms));
     }
 
     @GetMapping("/rooms/{maPhong}/images")
-    public ResponseEntity<RoomImagesDto> getRoomImages(@PathVariable String maPhong) {
+    public ResponseEntity<ApiResponse<RoomImagesDto>> getRoomImages(@PathVariable String maPhong) {
         RoomImagesDto dto = getRoomImagesQueryHandler.handle(maPhong);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy hình ảnh phòng thành công", dto));
     }
 
     @GetMapping("/rooms/{maPhong}/detail")
-    public ResponseEntity<RoomDetailResponseDTO> getRoomDetail(@PathVariable String maPhong) {
+    public ResponseEntity<ApiResponse<RoomDetailResponseDTO>> getRoomDetail(@PathVariable String maPhong) {
         RoomDetailResponseDTO dto = getRoomDetailQueryHandler.handle(maPhong);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy chi tiết phòng thành công", dto));
     }
 
     @GetMapping("/{homestayId}/dichvu")
-    public ResponseEntity<HomestayDichVuResponseDto> getDichVuByHomestay(@PathVariable String homestayId) {
-        var dto = getHomestayDichVuQueryHandler.handle(new GetHomestayDichVuQuery(homestayId));
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<ApiResponse<HomestayDichVuResponseDto>> getDichVuByHomestay(@PathVariable String homestayId) {
+        HomestayDichVuResponseDto dto = getHomestayDichVuQueryHandler.handle(new GetHomestayDichVuQuery(homestayId));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy dịch vụ homestay thành công", dto));
     }
 
 }

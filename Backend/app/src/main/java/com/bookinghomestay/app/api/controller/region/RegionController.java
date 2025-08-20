@@ -10,7 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/locations")
 @RequiredArgsConstructor
-public class KhuVucController {
+public class RegionController {
 
     private final GetAllKhuVucQueryHandler getAllKhuVucQueryHandler;
 

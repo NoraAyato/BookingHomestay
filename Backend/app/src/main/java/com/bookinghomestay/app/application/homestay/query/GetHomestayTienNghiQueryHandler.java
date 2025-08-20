@@ -1,42 +1,29 @@
 package com.bookinghomestay.app.application.homestay.query;
 
 import com.bookinghomestay.app.api.dto.homestay.HomestayTienNghiResponseDto;
-import com.bookinghomestay.app.domain.model.*;
+import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
+import com.bookinghomestay.app.domain.service.HomestayDomainService;
+import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GetHomestayTienNghiQueryHandler {
 
-    private final IHomestayRepository homestayRepository;
+        private final IHomestayRepository homestayRepository;
+        private final HomestayDomainService homestayDomainService;
 
-    @Transactional
-    public HomestayTienNghiResponseDto handle(GetHomestayTienNghiQuery query) {
-        Homestay homestay = homestayRepository.findById(query.getHomestayId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy homestay"));
+        @Transactional
+        public HomestayTienNghiResponseDto handle(GetHomestayTienNghiQuery query) {
+                Homestay homestay = homestayRepository.findById(query.getHomestayId())
+                                .orElseThrow(() -> new RuntimeException("Không tìm thấy homestay"));
 
-        List<HomestayTienNghiResponseDto.TienNghiDto> tienNghiDtos = homestay.getPhongs().stream()
-                .flatMap(phong -> phong.getChiTietPhongs().stream())
-                .collect(Collectors.toMap(
-                        chiTiet -> chiTiet.getTienNghi().getMaTienNghi(), 
-                        chiTiet -> new HomestayTienNghiResponseDto.TienNghiDto(
-                                chiTiet.getTienNghi().getMaTienNghi(),
-                                chiTiet.getTienNghi().getTenTienNghi(),
-                                chiTiet.getTienNghi().getMoTa(),
-                                chiTiet.getSoLuong()),
-                        (existing, replacement) -> {
-                            existing.setSoLuong(existing.getSoLuong() + replacement.getSoLuong());
-                            return existing;
-                        }))
-                .values().stream()
-                .collect(Collectors.toList());
+                homestayDomainService.validateHomestay(homestay);
 
-        return new HomestayTienNghiResponseDto(homestay.getIdHomestay(), tienNghiDtos);
-    }
+                return HomestayMapper.toHomestayTienNghiResponseDto(homestay);
+        }
 }
