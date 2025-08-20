@@ -5,8 +5,6 @@ import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import org.springframework.context.ApplicationEventPublisher;
 import java.time.LocalDateTime;
 
 @Service

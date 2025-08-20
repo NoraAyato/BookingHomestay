@@ -92,7 +92,7 @@ Connection: close
   }
 ]
 ### Get available rooms of a homestay between 2 times
-GET http://localhost:8080/api/homestays/490c49f8-239e-4a49-bec3-09b2ba7ff3d4/available-rooms?ngayDen=2025-08-10T14:00:00&ngayDi=2025-08-12T12:00:00
+GET http://localhost:8080/api/homestays
 Accept: application/json
 ### Lấy tất cả tin tức
 GET http://localhost:8080/api/homestays

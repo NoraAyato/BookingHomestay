@@ -44,7 +44,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
         id: 'zalopay',
         name: 'Ví ZaloPay',
         icon: Icons.account_balance_wallet,
-        promotionText: 'Nhập mã G2JZALOPAY để được giảm giá cho đơn từ 150K',
+        promotionText: 'Nhập mã HFZALOPAY để được giảm giá cho đơn từ 150K',
         iconColor: Colors.blue,
       ),
       PaymentMethod(

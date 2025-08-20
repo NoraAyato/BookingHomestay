@@ -59,6 +59,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                 type: AppDialogType.success,
                 buttonText: 'Đóng',
                 onButtonPressed: () {
+                  // Tải lại danh sách đặt phòng trước khi quay lại
+                  context.read<BookingBloc>().add(GetMyBookingsEvent());
                   // Đóng dialog và quay lại màn hình danh sách
                   Navigator.of(context).pop(); // Đóng dialog
                   Navigator.of(context).pop(); // Quay lại màn hình danh sách

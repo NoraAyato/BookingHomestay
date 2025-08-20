@@ -46,7 +46,7 @@ public class BookingController {
     private final CancelBookingCommandHandler cancelBookingCommandHandler;
 
     @PostMapping
-    public ApiResponse<String> createBooking(@RequestBody CreateBookingRequest request) {
+    public ResponseEntity<ApiResponse<String>> createBooking(@RequestBody CreateBookingRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         CreateBookingCommand command = new CreateBookingCommand(
@@ -57,11 +57,12 @@ public class BookingController {
 
         String bookingId = bookingCommandHandler.handle(command);
 
-        return new ApiResponse<>(true, "Booking created successfully", bookingId);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Đặt phòng thành công", bookingId));
     }
 
     @PostMapping("/confirm")
-    public ApiResponse<BookingPaymentResponseDto> confirmBooking(@RequestBody ConfirmBookingPaymentRequest request) {
+    public ResponseEntity<ApiResponse<BookingPaymentResponseDto>> confirmBooking(
+            @RequestBody ConfirmBookingPaymentRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         ConfirmBookingCommand command = new ConfirmBookingCommand(userId,
@@ -71,38 +72,38 @@ public class BookingController {
 
         BookingPaymentResponseDto responseDto = confirmBookingCommandHandler.handle(command);
 
-        return new ApiResponse<>(true, "Booking confirmed successful", responseDto);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Xác nhận đặt phòng thành công", responseDto));
     }
 
     @GetMapping("/{bookingId}/detail")
-    public ApiResponse<BookingDetailResponseDto> getBookingDetail(@PathVariable String bookingId) {
+    public ResponseEntity<ApiResponse<BookingDetailResponseDto>> getBookingDetail(@PathVariable String bookingId) {
         BookingDetailResponseDto dto = getBookingDetailQueryHandler.handle(new GetBookingDetailQuery(bookingId));
         if (dto == null) {
-            return new ApiResponse<>(false, "Booking not found", null);
+            return ResponseEntity.ok(new ApiResponse<>(false, "Không tìm thấy đơn đặt phòng", null));
         }
-        return new ApiResponse<>(true, "Success", dto);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy chi tiết đơn đặt phòng thành công", dto));
     }
 
     @PostMapping("/payment")
-    public ApiResponse<Void> payBooking(@RequestBody ConfirmPaymentRequest request) {
+    public ResponseEntity<ApiResponse<Void>> payBooking(@RequestBody ConfirmPaymentRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
         BookingPaymentCommand command = new BookingPaymentCommand(request.getMaPDPhong(),
                 request.getSoTien(),
                 request.getPhuongThuc(), userId);
 
         bookingPaymentCommandHandler.handle(command);
-        return new ApiResponse<>(true, "Payment successful", null);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Thanh toán thành công", null));
     }
 
     @GetMapping("/my-bookings")
-    public ApiResponse<List<BookingListResponseDto>> getMyBookings() {
+    public ResponseEntity<ApiResponse<List<BookingListResponseDto>>> getMyBookings() {
         String userId = SecurityUtils.getCurrentUserId();
         List<BookingListResponseDto> bookings = getBookingListQueryHandler.handle(new GetBookingListQuery(userId));
-        return new ApiResponse<>(true, "Success", bookings);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách đặt phòng thành công", bookings));
     }
 
     @PostMapping("/cancel")
-    public ApiResponse<Void> cancelBooking(@RequestBody CancelBookingRequest request) {
+    public ResponseEntity<ApiResponse<Void>> cancelBooking(@RequestBody CancelBookingRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         CancelBookingCommand command = new CancelBookingCommand(
@@ -113,6 +114,6 @@ public class BookingController {
                 request.getSoTaiKhoan());
 
         cancelBookingCommandHandler.handle(command);
-        return new ApiResponse<>(true, "Booking cancelled successfully", null);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Hủy đặt phòng thành công", null));
     }
 }

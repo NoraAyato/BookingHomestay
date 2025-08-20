@@ -2,10 +2,11 @@ package com.bookinghomestay.app.application.homestay.query;
 
 import com.bookinghomestay.app.api.dto.homestay.RoomAvailabilityDto;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
-
 import com.bookinghomestay.app.domain.model.Phong;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
+import com.bookinghomestay.app.domain.service.HomestayDomainService;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
+import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class GetRoomAvailabilityQueryHandler {
 
     private final IHomestayRepository homestayRepository;
     private final PendingRoomService pendingRoomService; // service check Redis
+    private final HomestayDomainService homestayDomainService;
 
     @Transactional(readOnly = true)
     public List<RoomAvailabilityDto> handle(String homestayId, LocalDateTime ngayDen, LocalDateTime ngayDi) {
@@ -30,20 +32,23 @@ public class GetRoomAvailabilityQueryHandler {
             throw new ResourceNotFoundException("Hiện không có phòng khả dụng !");
         }
 
-        List<RoomAvailabilityDto> availableRooms = rooms.stream()
+        // Lọc phòng khả dụng thông qua domain service và Redis
+        List<Phong> availableRooms = rooms.stream()
+                .filter(phong -> homestayDomainService.isRoomAvailable(phong, ngayDen.toLocalDate(),
+                        ngayDi.toLocalDate()))
                 .filter(phong -> pendingRoomService.isRoomAvailable(
                         phong.getMaPhong(),
                         ngayDen.toLocalDate(),
                         ngayDi.toLocalDate()))
-                .map(phong -> new RoomAvailabilityDto(
-                        phong.getMaPhong(),
-                        phong.getTenPhong(),
-                        phong.getDonGia()))
                 .collect(Collectors.toList());
 
         if (availableRooms.isEmpty()) {
             throw new ResourceNotFoundException("Tất cả phòng hiện đang được đặt !");
         }
-        return availableRooms;
+
+        // Chuyển đổi sang DTO thông qua mapper
+        return availableRooms.stream()
+                .map(HomestayMapper::toRoomAvailabilityDto)
+                .collect(Collectors.toList());
     }
 }
