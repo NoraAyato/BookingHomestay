@@ -3,9 +3,9 @@ package com.bookinghomestay.app.api.controller.news;
 import com.bookinghomestay.app.api.dto.ApiResponse;
 import com.bookinghomestay.app.api.dto.tintuc.NewsDetailResponseDto;
 import com.bookinghomestay.app.api.dto.tintuc.NewsResponseDto;
-import com.bookinghomestay.app.application.tintuc.query.GetAllNewsQueryHandler;
-import com.bookinghomestay.app.application.tintuc.query.GetNewsDetailQuery;
-import com.bookinghomestay.app.application.tintuc.query.GetNewsDetailQueryHandler;
+import com.bookinghomestay.app.application.news.query.GetAllNewsQueryHandler;
+import com.bookinghomestay.app.application.news.query.GetNewsDetailQuery;
+import com.bookinghomestay.app.application.news.query.GetNewsDetailQueryHandler;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
