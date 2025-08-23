@@ -5,6 +5,8 @@ import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.domain.repository.IPhongRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
+import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
+import com.bookinghomestay.app.domain.exception.BusinessException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,40 +33,37 @@ public class CreateBookingCommandHandler {
         );
 
         if (!held) {
-            throw new IllegalStateException("Phòng đã được giữ hoặc đang được đặt!");
+            throw new BusinessException("Phòng đã được giữ hoặc đang được đặt!");
         }
 
-        try {
-            var phongOptional = phongRepository.findById(command.getMaPhong());
-            System.out.println(command.getMaPhong());
-            if (phongOptional.isEmpty()) {
-                throw new IllegalArgumentException(command.getMaPhong() + " not found");
-            }
-            var phong = phongOptional.get();
-            var userOptional = userRepository.findById(command.getUserId());
-            if (userOptional.isEmpty()) {
-                throw new IllegalArgumentException("User not found");
-            }
-            var user = userOptional.get();
-
-            PhieuDatPhong booking = new PhieuDatPhong(
-                    user,
-                    phong,
-                    command.getNgayDen().toLocalDate(),
-                    command.getNgayDi().toLocalDate(),
-                    "Pending");
-
-            bookingRepository.save(booking);
-
-            return booking.getMaPDPhong();
-
-        } catch (Exception ex) {
-
+        var phongOptional = phongRepository.findById(command.getMaPhong());
+        if (phongOptional.isEmpty()) {
             pendingRoomService.releaseRoom(
                     command.getMaPhong(),
                     command.getNgayDen().toLocalDate(),
                     command.getNgayDi().toLocalDate());
-            throw ex;
+            throw new ResourceNotFoundException("Không tìm thấy phòng với mã: " + command.getMaPhong());
         }
+        var phong = phongOptional.get();
+        var userOptional = userRepository.findById(command.getUserId());
+        if (userOptional.isEmpty()) {
+            pendingRoomService.releaseRoom(
+                    command.getMaPhong(),
+                    command.getNgayDen().toLocalDate(),
+                    command.getNgayDi().toLocalDate());
+            throw new ResourceNotFoundException("Không tìm thấy người dùng với mã: " + command.getUserId());
+        }
+        var user = userOptional.get();
+
+        PhieuDatPhong booking = new PhieuDatPhong(
+                user,
+                phong,
+                command.getNgayDen().toLocalDate(),
+                command.getNgayDi().toLocalDate(),
+                "Pending");
+
+        bookingRepository.save(booking);
+
+        return booking.getMaPDPhong();
     }
 }
