@@ -67,4 +67,9 @@ public class PhieuDatPhongRepositoryImpl implements IBookingRepository {
     public PhieuHuyPhong saveCancelledBooking(PhieuHuyPhong cancelledBooking) {
         return jpaPhieuHuyPhongRepository.save(cancelledBooking);
     }
+
+    @Override
+    public void saveAll(List<PhieuDatPhong> bookings) {
+        jpaPhieuDatPhong.saveAll(bookings);
+    }
 }
