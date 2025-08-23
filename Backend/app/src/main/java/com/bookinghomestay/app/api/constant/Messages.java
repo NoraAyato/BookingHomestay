@@ -9,6 +9,7 @@ public final class Messages {
     public static final String REFRESH_TOKEN_SUCCESS = "Đã refresh token thành công";
     public static final String GOOGLE_LOGIN_SUCCESS = "Đăng nhập Google thành công.";
     public static final String GOOGLE_PROVIDER = "Google";
+    public static final String SEND_OTP_SUCCESS = "Gửi OTP thành công";
     private Messages() {
         // Private constructor để ngăn khởi tạo instance
     }
