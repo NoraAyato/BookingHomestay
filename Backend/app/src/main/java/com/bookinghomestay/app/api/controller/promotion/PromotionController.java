@@ -19,6 +19,8 @@ import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQuery;
 import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQueryHandler;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -50,7 +52,7 @@ public class PromotionController {
 
     @PostMapping("/my-promotions")
     public ResponseEntity<ApiResponse<List<PromotionResponeDto>>> getUserPromotions(
-            @RequestBody GetMyPromotionRequestDto request) {
+            @Valid @RequestBody GetMyPromotionRequestDto request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         GetMyPromotionQuery query = new GetMyPromotionQuery(

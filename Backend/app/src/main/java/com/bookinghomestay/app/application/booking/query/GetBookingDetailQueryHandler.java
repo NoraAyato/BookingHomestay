@@ -1,6 +1,7 @@
 package com.bookinghomestay.app.application.booking.query;
 
 import com.bookinghomestay.app.api.dto.booking.BookingDetailResponseDto;
+import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.infrastructure.mapper.BookingMapper;
@@ -17,7 +18,8 @@ public class GetBookingDetailQueryHandler {
 
         var bookingOpt = bookingRepository.findById(query.getBookingId());
         if (bookingOpt.isEmpty()) {
-            return null;
+            throw new ResourceNotFoundException(
+                    "Booking not found with ID: " + query.getBookingId());
         }
 
         PhieuDatPhong booking = bookingOpt.get();

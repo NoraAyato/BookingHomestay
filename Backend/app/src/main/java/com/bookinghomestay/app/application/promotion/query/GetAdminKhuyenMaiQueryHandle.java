@@ -19,16 +19,12 @@ public class GetAdminKhuyenMaiQueryHandle {
     private final IKhuyenMaiRepository khuyenMaiRepository;
 
     public List<PromotionResponeDto> handle() {
-        try {
-            List<KhuyenMai> khuyenMais = khuyenMaiRepository.getAdminKm();
-            if (khuyenMais == null) {
-                return List.of();
-            }
-            return khuyenMais.stream()
-                    .map(PromotionMapper::toDto)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi lấy danh sách khuyến mãi", e);
+        List<KhuyenMai> khuyenMais = khuyenMaiRepository.getAdminKm();
+        if (khuyenMais == null) {
+            return List.of();
         }
+        return khuyenMais.stream()
+                .map(PromotionMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

@@ -1,8 +1,5 @@
 package com.bookinghomestay.app.application.promotion.query;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 
 import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
@@ -19,12 +16,9 @@ public class GetKhuyenMaiQueryHandler {
     private final IKhuyenMaiRepository khuyenMaiRepository;
 
     public PromotionResponeDto handle(String kmId) {
-        try {
-            KhuyenMai khuyenMai = khuyenMaiRepository.getKhuyenMaiById(kmId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khuyến mãi với ID: " + kmId));
-            return PromotionMapper.toDto(khuyenMai);
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi lấy khuyến mãi: " + e.getMessage(), e);
-        }
+        KhuyenMai khuyenMai = khuyenMaiRepository.getKhuyenMaiById(kmId)
+                .orElseThrow(() -> new com.bookinghomestay.app.domain.exception.ResourceNotFoundException(
+                        "Không tìm thấy khuyến mãi với ID: " + kmId));
+        return PromotionMapper.toDto(khuyenMai);
     }
 }

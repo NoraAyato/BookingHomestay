@@ -3,6 +3,8 @@ package com.bookinghomestay.app.application.booking.command;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bookinghomestay.app.domain.exception.BusinessException;
+import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.PhieuHuyPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
@@ -23,11 +25,13 @@ public class CancelBookingCommandHandler {
     public void handle(CancelBookingCommand command) {
         // Lấy thông tin phiếu đặt phòng
         PhieuDatPhong booking = bookingRepository.findById(command.getMaPDPhong())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy phiếu đặt phòng"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy phiếu đặt phòng"));
 
         // Kiểm tra người hủy có phải người đặt không
         if (!bookingDomainService.canCancelBooking(booking, command.getUserId())) {
-            throw new RuntimeException("Bạn không có quyền hủy phiếu đặt phòng này");
+            throw new BusinessException(
+                    "Bạn không có quyền hủy phiếu đặt phòng này");
         }
 
         // Kiểm tra chính sách hủy phòng
@@ -38,8 +42,9 @@ public class CancelBookingCommandHandler {
             String chinhSachHuyPhong = homestay.getChinhSachs().get(0).getHuyPhong();
             int soGioChoPhepHuy = bookingDomainService.extractHoursFromCancellationPolicy(chinhSachHuyPhong);
 
-            throw new RuntimeException("Không thể hủy phòng. Chính sách hủy phòng yêu cầu hủy trước ít nhất "
-                    + soGioChoPhepHuy + " giờ trước thời gian nhận phòng");
+            throw new BusinessException(
+                    "Không thể hủy phòng. Chính sách hủy phòng yêu cầu hủy trước ít nhất "
+                            + soGioChoPhepHuy + " giờ trước thời gian nhận phòng");
         }
 
         // Tạo phiếu hủy phòng

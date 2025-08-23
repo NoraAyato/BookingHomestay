@@ -5,15 +5,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
+import com.bookinghomestay.app.domain.exception.BusinessException;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.domain.repository.IKhuyenMaiRepository;
 
 import com.bookinghomestay.app.infrastructure.mapper.PromotionMapper;
+import com.bookinghomestay.app.domain.exception.BusinessException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +33,7 @@ public class GetMyPromotionQueryHandler {
             if (b.getChiTietDatPhongs().get(0).getMaPhong() != null) {
                 maPhongRef.set(b.getChiTietDatPhongs().get(0).getMaPhong());
             } else {
-                throw new IllegalArgumentException("Booking does not contain a valid room ID.");
+                throw new BusinessException("Phiếu đặt phòng không chứa mã phòng hợp lệ");
             }
         });
         String maPhong = maPhongRef.get();

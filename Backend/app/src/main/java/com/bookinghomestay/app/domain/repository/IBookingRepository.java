@@ -29,4 +29,6 @@ public interface IBookingRepository {
     Optional<PhieuHuyPhong> findCancelledBookingById(String bookingId);
 
     PhieuHuyPhong saveCancelledBooking(PhieuHuyPhong cancelledBooking);
+
+    void saveAll(List<PhieuDatPhong> bookings);
 }

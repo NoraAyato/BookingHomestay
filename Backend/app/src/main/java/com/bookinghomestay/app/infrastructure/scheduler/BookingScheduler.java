@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -27,28 +28,28 @@ public class BookingScheduler {
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(15);
         List<PhieuDatPhong> expiredBookings = bookingRepository.findPendingExpired(cutoff);
 
-        if (!expiredBookings.isEmpty()) {
-            log.info("Found {} expired bookings to check", expiredBookings.size());
+        if (expiredBookings.isEmpty()) {
+            log.debug("No expired bookings to process");
+            return;
         }
+        log.info("Found {} expired bookings to check", expiredBookings.size());
 
+        int skipped = 0;
+        List<PhieuDatPhong> bookingsToCancel = new ArrayList<>();
         for (PhieuDatPhong booking : expiredBookings) {
             try {
-                // Kiểm tra xem tất cả các phòng trong booking này còn đang hold không
                 boolean allRoomsStillOnHold = booking.getChiTietDatPhongs().stream()
                         .allMatch(ct -> !pendingRoomService.isRoomAvailable(
                                 ct.getMaPhong(),
                                 ct.getNgayDen().toLocalDate(),
                                 ct.getNgayDi().toLocalDate()));
 
-                // Nếu phòng vẫn đang hold, bỏ qua booking này
                 if (allRoomsStillOnHold) {
-                    log.info("Booking {} is still on hold, skipping", booking.getMaPDPhong());
+                    skipped++;
                     continue;
                 }
 
-                // Thực hiện xử lý cho những booking có phòng không còn hold
                 booking.getChiTietDatPhongs().forEach(ct -> {
-                    // Đảm bảo giải phóng bất kỳ phòng nào có thể vẫn còn trong Redis
                     pendingRoomService.releaseRoom(
                             ct.getMaPhong(),
                             ct.getNgayDen().toLocalDate(),
@@ -59,13 +60,16 @@ public class BookingScheduler {
                 if (booking.getHoadon() != null) {
                     booking.getHoadon().setTrangThai("Cancelled");
                 }
-                bookingRepository.save(booking);
-
-                log.info("Booking {} is cancelled due to expiration and rooms not being on hold",
-                        booking.getMaPDPhong());
+                bookingsToCancel.add(booking);
             } catch (Exception e) {
                 log.error("Error processing booking {}", booking.getMaPDPhong(), e);
             }
+        }
+        if (!bookingsToCancel.isEmpty()) {
+            bookingRepository.saveAll(bookingsToCancel);
+            log.info("Batch cancelled {} bookings. Skipped {} still on hold.", bookingsToCancel.size(), skipped);
+        } else {
+            log.info("No bookings cancelled. Skipped {} still on hold.", skipped);
         }
     }
 }

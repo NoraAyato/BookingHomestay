@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.bookinghomestay.app.api.dto.ApiResponse;
 import com.bookinghomestay.app.api.dto.booking.BookingDetailResponseDto;
 import com.bookinghomestay.app.api.dto.booking.BookingPaymentResponseDto;
@@ -30,6 +32,8 @@ import com.bookinghomestay.app.application.booking.query.GetBookingListQuery;
 import com.bookinghomestay.app.application.booking.query.GetBookingListQueryHandler;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -46,7 +50,7 @@ public class BookingController {
     private final CancelBookingCommandHandler cancelBookingCommandHandler;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<String>> createBooking(@RequestBody CreateBookingRequest request) {
+    public ResponseEntity<ApiResponse<String>> createBooking(@Valid @RequestBody CreateBookingRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         CreateBookingCommand command = new CreateBookingCommand(
@@ -62,7 +66,7 @@ public class BookingController {
 
     @PostMapping("/confirm")
     public ResponseEntity<ApiResponse<BookingPaymentResponseDto>> confirmBooking(
-            @RequestBody ConfirmBookingPaymentRequest request) {
+            @Valid @RequestBody ConfirmBookingPaymentRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         ConfirmBookingCommand command = new ConfirmBookingCommand(userId,
@@ -85,7 +89,7 @@ public class BookingController {
     }
 
     @PostMapping("/payment")
-    public ResponseEntity<ApiResponse<Void>> payBooking(@RequestBody ConfirmPaymentRequest request) {
+    public ResponseEntity<ApiResponse<Void>> payBooking(@Valid @RequestBody ConfirmPaymentRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
         BookingPaymentCommand command = new BookingPaymentCommand(request.getMaPDPhong(),
                 request.getSoTien(),
@@ -103,7 +107,7 @@ public class BookingController {
     }
 
     @PostMapping("/cancel")
-    public ResponseEntity<ApiResponse<Void>> cancelBooking(@RequestBody CancelBookingRequest request) {
+    public ResponseEntity<ApiResponse<Void>> cancelBooking(@Valid @RequestBody CancelBookingRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         CancelBookingCommand command = new CancelBookingCommand(

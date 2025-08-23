@@ -2,6 +2,8 @@ package com.bookinghomestay.app.api.controller.region;
 
 import com.bookinghomestay.app.api.dto.KhuVuc.KhuVucResponseDto;
 import com.bookinghomestay.app.application.khuvuc.query.GetAllKhuVucQueryHandler;
+import com.bookinghomestay.app.api.dto.ApiResponse;
+import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +17,8 @@ public class RegionController {
     private final GetAllKhuVucQueryHandler getAllKhuVucQueryHandler;
 
     @GetMapping
-    public List<KhuVucResponseDto> getAllKhuVuc() {
-        return getAllKhuVucQueryHandler.handle();
+    public ResponseEntity<ApiResponse<List<KhuVucResponseDto>>> getAllKhuVuc() {
+        List<KhuVucResponseDto> result = getAllKhuVucQueryHandler.handle();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách khu vực thành công", result));
     }
 }
