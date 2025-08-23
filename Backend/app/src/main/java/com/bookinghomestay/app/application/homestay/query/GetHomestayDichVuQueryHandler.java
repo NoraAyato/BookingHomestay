@@ -5,6 +5,8 @@ import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
 import com.bookinghomestay.app.domain.service.HomestayDomainService;
 import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
+import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
+import com.bookinghomestay.app.domain.exception.BusinessException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +22,12 @@ public class GetHomestayDichVuQueryHandler {
         @Transactional
         public HomestayDichVuResponseDto handle(GetHomestayDichVuQuery query) {
                 Homestay homestay = homestayRepository.findById(query.getHomestayId())
-                                .orElseThrow(() -> new RuntimeException("Không tìm thấy homestay"));
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Không tìm thấy homestay với mã: " + query.getHomestayId()));
 
-                homestayDomainService.validateHomestay(homestay);
+                if (!homestayDomainService.validateHomestay(homestay)) {
+                        throw new BusinessException("Homestay không hợp lệ hoặc thiếu thông tin bắt buộc");
+                }
 
                 return HomestayMapper.toHomestayDichVuResponseDto(homestay);
         }
