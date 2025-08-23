@@ -2,10 +2,8 @@ package com.bookinghomestay.app.application.users.query;
 
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
-
-import org.springframework.http.HttpStatus;
+import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class GetUserByIdQueryHandler {
@@ -17,6 +15,7 @@ public class GetUserByIdQueryHandler {
 
     public User handle(GetUserByIdQuery query) {
         return userRepository.findById(query.getUserId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Không tìm thấy người dùng với mã: " + query.getUserId()));
     }
 }

@@ -4,6 +4,7 @@ import com.bookinghomestay.app.api.dto.users.UserInfoDto;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
+import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +17,11 @@ public class GetCurrentUserQueryHandler {
     public UserInfoDto handle() {
         String userId = SecurityUtils.getCurrentUserId();
         if (userId == null) {
-            throw new RuntimeException("Không tìm thấy thông tin người dùng đăng nhập.");
+            throw new ResourceNotFoundException("Không tìm thấy thông tin người dùng đăng nhập.");
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với mã: " + userId));
 
         return new UserInfoDto(
                 user.getUserId(),

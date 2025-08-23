@@ -28,7 +28,7 @@ public class UpdateUserProfileCommandHandler {
 
                         userRepository.save(user);
                 } catch (Exception e) {
-                        System.out.println("Error updating user profile: " + e.getMessage());
+
                         throw new RuntimeException("Cập nhật thông tin người dùng thất bại: " + e.getMessage(), e);
                 }
         }

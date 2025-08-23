@@ -38,13 +38,14 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getById(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<UserResponseDto>> getById(@PathVariable String id) {
         User user = getUserByIdQueryHandler.handle(new GetUserByIdQuery(id));
-        return ResponseEntity.ok(new UserResponseDto(user));
+        return ResponseEntity
+                .ok(new ApiResponse<>(true, "Lấy thông tin người dùng thành công", new UserResponseDto(user)));
     }
 
     @PostMapping
-    public ResponseEntity<String> createUser(@Valid @RequestBody CreateUserRequestDto dto) {
+    public ResponseEntity<ApiResponse<Void>> createUser(@Valid @RequestBody CreateUserRequestDto dto) {
         CreateUserCommand command = new CreateUserCommand(
                 dto.getUserName(),
                 dto.getPassWord(),
@@ -57,9 +58,8 @@ public class UserController {
                 dto.isGender(),
                 dto.getBirthday(),
                 dto.getRoleId());
-
         createUserCommandHandler.handle(command);
-        return ResponseEntity.ok("User created successfully");
+        return ResponseEntity.ok(new ApiResponse<>(true, "Tạo người dùng thành công", null));
     }
 
     @GetMapping("/me")
