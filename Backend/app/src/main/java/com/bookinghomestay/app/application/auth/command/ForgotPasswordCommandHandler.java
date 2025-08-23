@@ -22,14 +22,13 @@ public class ForgotPasswordCommandHandler {
         this.otpTokenService = otpTokenService;
     }
 
-    public String handle(ForgotPasswordCommand command) {
+    public void handle(ForgotPasswordCommand command) {
         Optional<User> userOptional = userService.findByEmail(command.getEmail());
         User user = userOptional
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản phù hợp với email trên !"));
         String userOtp = generateOTP();
         emailService.sendResetPasswordEmail(user.getEmail(), userOtp);
         otpTokenService.saveOtp(user.getEmail(), userOtp, 1);
-        return Messages.FORGOT_PASSWORD_SUCCESS;
     }
 
     private String generateOTP() {
