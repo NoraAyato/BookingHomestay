@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/homestays/**").permitAll()
                         .requestMatchers("/img/**").permitAll()
                         .requestMatchers("/avatars/**").permitAll()
