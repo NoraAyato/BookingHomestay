@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import EmailOtpForm from "./EmailOtpForm";
-import { showToast } from "./Toast";
-import { sendOtp } from "../api/auth";
-
+import { useAuth } from "../contexts/useAuth";
 const RegisterForm = ({ switchToLogin, small }) => {
   const [formData, setFormData] = useState({
     email: "",
@@ -50,23 +48,16 @@ const RegisterForm = ({ switchToLogin, small }) => {
     setErrors({ ...errors, [name]: undefined });
   }
 
-  function handleSubmit(e) {
+  const { registerUser, sendOtpEmail } = useAuth();
+  async function handleSubmit(e) {
     e.preventDefault();
     if (validate()) {
       setLoading(true);
-      sendOtp(formData.email)
-        .then((res) => {
-          console.log("sendOtp response:", res);
-          if (res.success) {
-            setShowOtp(true);
-          } else {
-            showToast("error", res.message || "Gửi OTP thất bại");
-          }
-        })
-        .catch(() => {
-          showToast("error", "Gửi OTP thất bại");
-        })
-        .finally(() => setLoading(false));
+      const success = await sendOtpEmail(formData.email);
+      if (success) {
+        setShowOtp(true);
+      }
+      setLoading(false);
     }
   }
 
@@ -74,9 +65,16 @@ const RegisterForm = ({ switchToLogin, small }) => {
     return (
       <EmailOtpForm
         email={formData.email}
-        onVerified={() => {
-          showToast("success", "Đăng ký thành công!");
-          if (window.closeAuthPopup) window.closeAuthPopup();
+        onVerified={async () => {
+          const success = await registerUser(
+            formData.email,
+            formData.password,
+            formData.firstName,
+            formData.lastName
+          );
+          if (success) {
+            if (window.closeAuthPopup) window.closeAuthPopup();
+          }
         }}
         onBack={() => setShowOtp(false)}
       />

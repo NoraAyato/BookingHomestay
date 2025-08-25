@@ -40,16 +40,16 @@ const UserActions = ({
           >
             <img
               src={
-                userInfo.picture
-                  ? BASE_URL + userInfo.picture
+                userInfo.data.picture
+                  ? BASE_URL + userInfo.data.picture
                   : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      userInfo.userName
+                      userInfo.data.userName
                     )}&background=random`
               }
               alt="avatar"
               className={styles.avatar}
             />
-            <span className={styles.userName}>{userInfo.userName}</span>
+            <span className={styles.userName}>{userInfo.data.userName}</span>
             <svg
               className={`${styles.chevron} ${
                 showUserDropdown ? styles.chevronOpen : ""
@@ -76,7 +76,7 @@ const UserActions = ({
             style={{ willChange: "opacity, transform" }}
           >
             {/* Role-based item */}
-            {userInfo.role === "Host" && (
+            {userInfo.data.role === "Admin" && (
               <button className={styles.menuItemAdmin}>
                 <div className={styles.iconWrapper}>
                   <svg
@@ -98,7 +98,7 @@ const UserActions = ({
               </button>
             )}
 
-            {userInfo.role === "Admin" && (
+            {userInfo.data.role === "Host" && (
               <button className={styles.menuItemHost}>
                 <div className={styles.iconWrapperHost}>
                   <svg
@@ -121,7 +121,8 @@ const UserActions = ({
             )}
 
             {/* Divider if role-based item exists */}
-            {(userInfo.role === "Admin" || userInfo.role === "Host") && (
+            {(userInfo.data.role === "Admin" ||
+              userInfo.data.role === "Host") && (
               <div className={styles.divider}></div>
             )}
 

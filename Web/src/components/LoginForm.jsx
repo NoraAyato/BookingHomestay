@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-
-const LoginForm = ({ switchToRegister, small, setUserInfo, setShowAuth }) => {
+import { useAuth } from "../contexts/useAuth";
+const LoginForm = ({ switchToRegister, small, setShowAuth }) => {
+  const { loginUser } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -27,19 +28,13 @@ const LoginForm = ({ switchToRegister, small, setUserInfo, setShowAuth }) => {
       setLoading(false);
       return;
     }
-    const { loginAndGetUser } = await import("../api/auth");
-    const { showToast } = await import("./Toast");
-    const result = await loginAndGetUser(
+    const success = await loginUser(
       formData.email,
       formData.password,
       formData.rememberMe
     );
-    if (result.success && result.user) {
-      showToast("success", "Đăng nhập thành công!");
-      setUserInfo(result.user.data);
+    if (success) {
       setShowAuth(false);
-    } else {
-      showToast("error", result.message);
     }
     setLoading(false);
   };
