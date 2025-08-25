@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../contexts/useAuth";
 
 const EmailOtpForm = ({ email, onVerified, onBack }) => {
@@ -9,18 +9,21 @@ const EmailOtpForm = ({ email, onVerified, onBack }) => {
   const inputRefs = useRef([]);
 
   const { sendOtpEmail, verifyOtpEmail } = useAuth();
-  // Gửi lại OTP
+
+  // Gửi lại OTP và reset form
   const handleResend = async () => {
     setLoading(true);
     const success = await sendOtpEmail(email);
     if (success) {
-      setCountdown(60);
+      setOtp(["", "", "", "", "", ""]); // Reset OTP
+      setError(""); // Xóa thông báo lỗi
+      setCountdown(60); // Đặt lại đếm ngược
     }
     setLoading(false);
   };
 
   // Đếm ngược thời gian gửi lại OTP
-  React.useEffect(() => {
+  useEffect(() => {
     if (countdown > 0) {
       const timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
@@ -33,20 +36,12 @@ const EmailOtpForm = ({ email, onVerified, onBack }) => {
   const handleChange = (e, idx) => {
     const val = e.target.value.replace(/[^0-9]/g, "");
     if (val.length === 1) {
-      const newOtp = [...otp];
-      newOtp[idx] = val;
-      setOtp(newOtp);
-      if (idx < 5) inputRefs.current[idx + 1].focus();
-    } else if (val.length > 1) {
-      // Dán nhiều ký tự
-      const chars = val.split("").slice(0, 6);
-      const newOtp = [...otp];
-      chars.forEach((c, i) => {
-        if (idx + i < 6) newOtp[idx + i] = c;
+      setError(""); // Xóa lỗi khi nhập
+      setOtp((prevOtp) => {
+        const newOtp = [...prevOtp];
+        newOtp[idx] = val;
+        return newOtp;
       });
-      setOtp(newOtp);
-      const nextIdx = Math.min(idx + chars.length - 1, 5);
-      inputRefs.current[nextIdx].focus();
     }
   };
 
@@ -55,25 +50,48 @@ const EmailOtpForm = ({ email, onVerified, onBack }) => {
     if (e.key === "Backspace") {
       if (otp[idx]) {
         // Xóa ký tự ở ô hiện tại
-        const newOtp = [...otp];
-        newOtp[idx] = "";
-        setOtp(newOtp);
+        setOtp((prevOtp) => {
+          const newOtp = [...prevOtp];
+          newOtp[idx] = "";
+          return newOtp;
+        });
       } else if (idx > 0) {
         // Nếu ô hiện tại trống, chuyển về ô trước và xóa
         inputRefs.current[idx - 1].focus();
-        const newOtp = [...otp];
-        newOtp[idx - 1] = "";
-        setOtp(newOtp);
+        setOtp((prevOtp) => {
+          const newOtp = [...prevOtp];
+          newOtp[idx - 1] = "";
+          return newOtp;
+        });
       }
     }
   };
 
-  // Xử lý dán trực tiếp vào ô đầu tiên
-  const handlePaste = (e) => {
-    const paste = e.clipboardData.getData("text").replace(/[^0-9]/g, "");
-    if (paste.length === 6) {
-      setOtp(paste.split(""));
-      inputRefs.current[5].focus();
+  // Xử lý dán OTP vào bất kỳ ô nào
+  const handlePaste = (e, idx) => {
+    const paste = e.clipboardData
+      .getData("text")
+      .replace(/[^0-9]/g, "")
+      .slice(0, 6);
+    if (paste.length > 0) {
+      setError(""); // Xóa lỗi khi dán
+      setOtp((prevOtp) => {
+        const newOtp = [...prevOtp];
+        let pasteIndex = 0;
+        // Điền dữ liệu dán vào các ô còn trống, bắt đầu từ ô hiện tại
+        for (let i = idx; i < 6 && pasteIndex < paste.length; i++) {
+          if (!newOtp[i]) {
+            // Chỉ điền vào ô trống
+            newOtp[i] = paste[pasteIndex];
+            pasteIndex++;
+          }
+        }
+        // Tìm ô trống tiếp theo hoặc ô cuối cùng để focus
+        const nextEmptyIndex = newOtp.findIndex((val, i) => !val && i >= idx);
+        const focusIndex = nextEmptyIndex !== -1 ? nextEmptyIndex : 5;
+        inputRefs.current[focusIndex].focus();
+        return newOtp;
+      });
       e.preventDefault();
     }
   };
@@ -82,7 +100,7 @@ const EmailOtpForm = ({ email, onVerified, onBack }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const code = otp.join("");
-    if (code.length !== 6) {
+    if (code.length !== 6 || code.includes("")) {
       setError("Vui lòng nhập đủ 6 số OTP");
       return;
     }
@@ -102,7 +120,7 @@ const EmailOtpForm = ({ email, onVerified, onBack }) => {
         Nhập mã OTP đã gửi tới email{" "}
         <span className="font-semibold">{email}</span>
       </div>
-      <div className="flex gap-2 justify-center" onPaste={handlePaste}>
+      <div className="flex gap-2 justify-center">
         {otp.map((v, i) => (
           <input
             key={i}
@@ -112,6 +130,7 @@ const EmailOtpForm = ({ email, onVerified, onBack }) => {
             value={v}
             onChange={(e) => handleChange(e, i)}
             onKeyDown={(e) => handleKeyDown(e, i)}
+            onPaste={(e) => handlePaste(e, i)} // Thêm sự kiện onPaste cho từng ô
             className="w-10 h-10 text-center border border-gray-300 rounded-lg text-lg focus:border-rose-500 focus:ring-rose-500"
             inputMode="numeric"
             autoComplete="one-time-code"

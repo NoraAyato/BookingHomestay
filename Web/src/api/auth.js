@@ -5,13 +5,21 @@ export const login = async (email, password, rememberMe) => {
   return await http.post("/api/auth/login", { email, password, rememberMe });
 };
 
-export const register = async (email, password, firstname, lastname) => {
+export const register = async (email, passWord, firstName, lastName) => {
   return await http.post("/api/auth/register", {
     email,
-    password,
-    firstname,
-    lastname,
+    passWord,
+    firstName,
+    lastName,
   });
+};
+
+export const forgotPassword = async (email) => {
+  return await http.post("/api/auth/forgot-password", { email });
+};
+
+export const resetPassword = async (token, newPassword) => {
+  return await http.post("/api/auth/reset-password", { token, newPassword });
 };
 
 // Gửi OTP tới email

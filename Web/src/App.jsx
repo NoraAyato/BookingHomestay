@@ -1,10 +1,12 @@
-import React from "react";
+import React, { Suspense } from "react";
+import LoadingSpinner from "./components/LoadingSpinner";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import PostDetail from "./pages/PostDetail";
 import GoogleCallback from "./pages/GoogleCallback";
 import { AuthProvider } from "./contexts/AuthContext";
+const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
 function App() {
   return (
     <AuthProvider>
@@ -15,6 +17,14 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/post/:id" element={<PostDetail />} />
             <Route path="/google-callback" element={<GoogleCallback />} />
+            <Route
+              path="/reset-password"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ResetPassword />
+                </Suspense>
+              }
+            />
           </Routes>
         </div>
       </Router>

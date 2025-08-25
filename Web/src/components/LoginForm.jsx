@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/useAuth";
-const LoginForm = ({ switchToRegister, small, setShowAuth }) => {
+const LoginForm = ({
+  switchToRegister,
+  small,
+  setShowAuth,
+  switchToForgot,
+}) => {
   const { loginUser } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
@@ -96,6 +101,7 @@ const LoginForm = ({ switchToRegister, small, setShowAuth }) => {
         <button
           type="button"
           className="text-xs text-rose-600 hover:text-rose-700 font-medium"
+          onClick={switchToForgot}
         >
           Quên mật khẩu?
         </button>

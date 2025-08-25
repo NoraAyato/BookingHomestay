@@ -9,7 +9,14 @@ import {
   removeUserInfo,
 } from "../utils/session";
 import { getCurrentUser } from "../api/users";
-import { login, register, sendOtp, verifyOtp } from "../api/auth";
+import {
+  login,
+  register,
+  sendOtp,
+  verifyOtp,
+  forgotPassword,
+  resetPassword,
+} from "../api/auth";
 import { showToast } from "../components/Toast";
 import { AuthContext } from "./AuthContextObject";
 
@@ -46,7 +53,7 @@ export function AuthProvider({ children }) {
           setUser(getUser.data);
           setUserInfoLocal(getUser.data);
         }
-        showToast("success", "Đăng nhập thành công!");
+        showToast("success", res.data.message);
         return true;
       } else {
         setError(res.message || "Đăng nhập thất bại");
@@ -80,8 +87,12 @@ export function AuthProvider({ children }) {
     setError("");
     try {
       const res = await register(email, password, firstname, lastname);
+      console.log(res);
       if (res.success) {
-        showToast("success", res.message);
+        if (res.data?.data) {
+          setAccessToken(res.data.data.accessToken);
+        }
+        showToast("success", res.data.message);
         return true;
       } else {
         setError(res.message || "Đăng ký thất bại");
@@ -134,7 +145,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await sendOtp(email);
       if (res.success) {
-        showToast("success", res.message);
+        showToast("success", res.data.message);
         return true;
       } else {
         setError(res.message);
@@ -157,7 +168,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await verifyOtp(email, otp);
       if (res.success) {
-        showToast("success", "Xác thực OTP thành công!");
+        showToast("success", res.data.message);
         return true;
       } else {
         setError(res.message || "Xác thực OTP thất bại");
@@ -172,7 +183,49 @@ export function AuthProvider({ children }) {
       setLoading(false);
     }
   };
-
+  const forgotPasswordEmail = async (email) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await forgotPassword(email);
+      console.log(res);
+      if (res.success) {
+        showToast("success", res.data.message);
+        return true;
+      } else {
+        setError(res.message || "Yêu cầu thất bại");
+        showToast("error", res.message || "Yêu cầu thất bại");
+        return false;
+      }
+    } catch {
+      setError("Lỗi hệ thống");
+      showToast("error", "Lỗi hệ thống");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+  const resetPasswordUser = async (token, newPassword) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await resetPassword(token, newPassword);
+      if (res.success) {
+        showToast("success", res.data.message);
+        return true;
+      } else {
+        setError(res.message || "Đặt lại mật khẩu thất bại");
+        showToast("error", res.message || "Đặt lại mật khẩu thất bại");
+        return false;
+      }
+    } catch {
+      setError("Lỗi hệ thống");
+      showToast("error", "Lỗi hệ thống");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -194,6 +247,8 @@ export function AuthProvider({ children }) {
     setError,
     handleGoogleLogin,
     handleGoogleCallback,
+    forgotPasswordEmail,
+    resetPasswordUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
