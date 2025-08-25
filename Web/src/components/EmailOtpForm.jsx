@@ -1,7 +1,5 @@
 import React, { useState, useRef } from "react";
-import { sendOtp, verifyOtp } from "../api/auth";
-import { showToast } from "./Toast";
-import Toast from "./Toast";
+import { useAuth } from "../contexts/useAuth";
 
 const EmailOtpForm = ({ email, onVerified, onBack }) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -10,19 +8,13 @@ const EmailOtpForm = ({ email, onVerified, onBack }) => {
   const [countdown, setCountdown] = useState(60);
   const inputRefs = useRef([]);
 
+  const { sendOtpEmail, verifyOtpEmail } = useAuth();
   // Gửi lại OTP
   const handleResend = async () => {
     setLoading(true);
-    try {
-      const res = await sendOtp(email);
-      if (res.success) {
-        showToast("success", res.message || "Đã gửi lại mã OTP");
-        setCountdown(60);
-      } else {
-        showToast("error", res.message || "Gửi lại OTP thất bại");
-      }
-    } catch {
-      showToast("error", "Gửi lại OTP thất bại");
+    const success = await sendOtpEmail(email);
+    if (success) {
+      setCountdown(60);
     }
     setLoading(false);
   };
@@ -95,15 +87,11 @@ const EmailOtpForm = ({ email, onVerified, onBack }) => {
       return;
     }
     setLoading(true);
-    try {
-      const res = await verifyOtp(email, code);
-      if (res.success) {
-        onVerified();
-      } else {
-        setError(res.message || "Mã OTP không đúng");
-      }
-    } catch {
-      setError("Xác thực thất bại");
+    const success = await verifyOtpEmail(email, code);
+    if (success) {
+      onVerified();
+    } else {
+      setError("Mã OTP không đúng hoặc xác thực thất bại");
     }
     setLoading(false);
   };

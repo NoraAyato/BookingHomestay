@@ -1,15 +1,15 @@
 import { BASE_URL } from "./config";
 import {
-  getToken,
+  getAccessToken,
   getRefreshToken,
-  setToken,
+  setAccessToken,
   removeToken,
 } from "../utils/session";
 
 const request = async (endpoint, options = {}) => {
   try {
     // Tự động gắn accessToken vào header nếu có
-    const accessToken = getToken();
+    const accessToken = getAccessToken();
     const headers = {
       "Content-Type": "application/json",
       ...(options.headers || {}),
@@ -33,7 +33,7 @@ const request = async (endpoint, options = {}) => {
         });
         if (refreshRes.ok) {
           const refreshData = await refreshRes.json();
-          setToken(refreshData.accessToken);
+          setAccessToken(refreshData.accessToken);
           headers["Authorization"] = `Bearer ${refreshData.accessToken}`;
           const retryRes = await fetch(`${BASE_URL}${endpoint}`, {
             ...options,

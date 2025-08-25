@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import { BASE_URL } from "../api/config";
@@ -6,41 +6,23 @@ import DesktopNav from "./DesktopNav";
 import MobileNav from "./MobileNav";
 import UserActions from "./UserActions";
 import AuthPopup from "./AuthPopup";
+import { useAuth } from "../contexts/useAuth";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState("login");
-  const [userInfo, setUserInfo] = useState(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const location = useLocation();
-
-  const handleLogout = () => {
-    import("../utils/session").then(({ removeToken }) => {
-      removeToken();
-      setUserInfo(null);
-      setShowUserDropdown(false);
-    });
-  };
-
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (accessToken) {
-      import("../api/http").then(({ default: http }) => {
-        http.get("/api/users/me").then((res) => {
-          if (res.success && res.data.data) {
-            setUserInfo(res.data.data);
-          }
-        });
-      });
-    }
-  }, []);
+  const { user, logout, loading } = useAuth();
 
   const openAuth = (mode = "login") => {
     setAuthMode(mode);
     setShowAuth(true);
   };
-
+  React.useEffect(() => {
+    setShowUserDropdown(false);
+  }, [user]);
   const closeAuth = () => setShowAuth(false);
 
   return (
@@ -66,12 +48,13 @@ const Navbar = () => {
 
             {/* User Actions */}
             <UserActions
-              userInfo={userInfo}
+              userInfo={user}
               showUserDropdown={showUserDropdown}
               setShowUserDropdown={setShowUserDropdown}
-              handleLogout={handleLogout}
+              handleLogout={logout}
               openAuth={openAuth}
               BASE_URL={BASE_URL}
+              loading={loading}
             />
 
             {/* Mobile menu button */}
@@ -104,7 +87,6 @@ const Navbar = () => {
         authMode={authMode}
         setAuthMode={setAuthMode}
         closeAuth={closeAuth}
-        setUserInfo={setUserInfo}
         setShowAuth={setShowAuth}
       />
     </>

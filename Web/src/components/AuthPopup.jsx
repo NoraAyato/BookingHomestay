@@ -2,54 +2,15 @@ import React from "react";
 import styles from "./Navbar.module.css";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
-import { loginWithGoogle } from "../api/auth";
-import { showToast } from "./Toast";
-
+import { useAuth } from "../contexts/useAuth";
 const AuthPopup = ({
   showAuth,
   authMode,
   setAuthMode,
   closeAuth,
-  setUserInfo,
   setShowAuth,
 }) => {
-  // Thêm script Google Identity Services khi mount
-  React.useEffect(() => {
-    if (!window.google && showAuth) {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      document.body.appendChild(script);
-    }
-  }, [showAuth]);
-
-  // Xử lý đăng nhập Google
-  const handleGoogleLogin = () => {
-    if (!window.google || !window.google.accounts) {
-      showToast("error", "Không thể khởi tạo Google Login");
-      return;
-    }
-    window.google.accounts.id.initialize({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      callback: async (response) => {
-        const idToken = response.credential;
-        try {
-          const res = await loginWithGoogle(idToken);
-          if (res.success) {
-            showToast("success", "Đăng nhập Google thành công!");
-            if (closeAuth) closeAuth();
-            // Xử lý lưu user nếu cần
-          } else {
-            showToast("error", res.message || "Đăng nhập Google thất bại");
-          }
-        } catch {
-          showToast("error", "Đăng nhập Google thất bại");
-        }
-      },
-    });
-    window.google.accounts.id.prompt();
-  };
-
+  const { handleGoogleLogin } = useAuth();
   return (
     <>
       {showAuth && (
@@ -79,7 +40,6 @@ const AuthPopup = ({
                   <LoginForm
                     switchToRegister={() => setAuthMode("register")}
                     small
-                    setUserInfo={setUserInfo}
                     setShowAuth={setShowAuth}
                   />
                 ) : (
