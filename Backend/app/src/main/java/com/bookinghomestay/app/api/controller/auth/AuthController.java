@@ -6,8 +6,11 @@ import com.bookinghomestay.app.api.dto.Auth.*;
 import com.bookinghomestay.app.application.auth.command.*;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +24,12 @@ public class AuthController {
     private final RegisterUserCommandHandler registerHandler;
     private final ChangePasswordCommandHandler changePasswordHandler;
     private final ForgotPasswordCommandHandler forgotPasswordCommandHandler;
-    private final VerifyRefreshOtpCommandHandler verifyRefreshOtpCommandHandler;
     private final RefreshTokenCommandHandler refreshTokenCommandHandler;
     private final GoogleLoginCommandHandler googleLoginCommandHandler;
     private final ResetPasswordCommandHandler resetPasswordCommandHandler;
     private final GenerateOtpCommandHandler generateOtpCommandHandler;
     private final VerifyOtpCommandHandler verifyOtpCommandHandler;
+    private final GoogleCallbackCommandHandler googleCallbackCommandHandler;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponseDto>> login(@Valid @RequestBody LoginRequestDto dto) {
@@ -57,13 +60,6 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponse<>(true, Messages.FORGOT_PASSWORD_SUCCESS, null));
     }
 
-    @PostMapping("/verify-refresh-otp")
-    public ResponseEntity<ApiResponse<AuthResponseDto>> verifyRefrshOtp(@RequestBody VerifyOtpRequestDto dto) {
-        AuthResponseDto respone = verifyRefreshOtpCommandHandler
-                .handle(new VerifyOtpCommand(dto.getEmail(), dto.getOtp()));
-        return ResponseEntity.ok(new ApiResponse<>(true, Messages.VERIFY_OTP_SUCCESS, respone));
-    }
-
     @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<AuthResponseDto>> refreshToken(@RequestBody RefreshTokenRequestDto dto) {
         AuthResponseDto response = refreshTokenCommandHandler.handle(new RefreshTokenCommand(dto.getRefreshToken()));
@@ -76,6 +72,14 @@ public class AuthController {
         AuthResponseDto response = googleLoginCommandHandler.handle(
                 new GoogleLoginCommand(dto.getIdToken()));
         return ResponseEntity.ok(new ApiResponse<>(true, Messages.GOOGLE_LOGIN_SUCCESS, response));
+    }
+
+    @GetMapping("/google/callback")
+    public void googleCallback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
+        AuthResponseDto authResponse = googleCallbackCommandHandler.handle(new GoogleCallbackCommand(code));
+        String redirectUrl = "http://localhost:5173/google-callback" + "?accessToken=" + authResponse.getAccessToken()
+                + "&refreshToken=" + authResponse.getRefreshToken();
+        response.sendRedirect(redirectUrl);
     }
 
     @PostMapping("/reset-password")

@@ -28,14 +28,14 @@ public class GenerateOtpCommandHandler {
         }
         String otp = generateOTP();
         String message = Messages.SEND_OTP_SUCCESS;
-        emailService.sendResetPasswordEmail(command.getEmail(), otp);
+        emailService.sendVerifyOtp(command.getEmail(), otp);
         otpTokenService.saveOtp(command.getEmail(), otp, 1);
         return new GenerateOtpResponseDto(message, otp);
     }
 
     private String generateOTP() {
         Random random = new Random();
-        int otp = 100000 + random.nextInt(900000); // từ 100000 đến 999999
+        int otp = 100000 + random.nextInt(900000);
         return String.valueOf(otp);
     }
 }

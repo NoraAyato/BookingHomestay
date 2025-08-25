@@ -6,6 +6,8 @@ import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.domain.service.EmailService;
 import org.springframework.stereotype.Component;
 import com.bookinghomestay.app.domain.service.OtpTokenService;
+import com.bookinghomestay.app.infrastructure.security.JwtTokenProvider;
+
 import java.util.Optional;
 import java.util.Random;
 
@@ -14,27 +16,22 @@ public class ForgotPasswordCommandHandler {
     private final EmailService emailService;
     private final IUserRepository userService;
     private final OtpTokenService otpTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public ForgotPasswordCommandHandler(EmailService emailService, IUserRepository userService,
-            OtpTokenService otpTokenService) {
+            OtpTokenService otpTokenService, JwtTokenProvider jwtTokenProvider) {
         this.emailService = emailService;
         this.userService = userService;
         this.otpTokenService = otpTokenService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     public void handle(ForgotPasswordCommand command) {
         Optional<User> userOptional = userService.findByEmail(command.getEmail());
         User user = userOptional
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản phù hợp với email trên !"));
-        String userOtp = generateOTP();
-        emailService.sendResetPasswordEmail(user.getEmail(), userOtp);
-        otpTokenService.saveOtp(user.getEmail(), userOtp, 1);
+        String resetPasswordToken = jwtTokenProvider.generateResetPasswordToken(user.getUserId());
+        emailService.sendResetPasswordEmail(user.getEmail(), resetPasswordToken);
+        otpTokenService.saveOtp(user.getEmail(), resetPasswordToken, 1);
     }
-
-    private String generateOTP() {
-        Random random = new Random();
-        int otp = 100000 + random.nextInt(900000); // từ 100000 đến 999999
-        return String.valueOf(otp);
-    }
-
 }
