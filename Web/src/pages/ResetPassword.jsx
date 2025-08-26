@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();

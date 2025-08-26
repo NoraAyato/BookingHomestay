@@ -3,7 +3,7 @@ import styles from "./Navbar.module.css";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import ForgotPasswordForm from "./ForgotPasswordForm";
-import { useAuth } from "../contexts/useAuth";
+import { useAuth } from "../hooks/useAuth";
 const AuthPopup = ({
   showAuth,
   authMode,

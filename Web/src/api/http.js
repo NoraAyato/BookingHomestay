@@ -6,71 +6,16 @@ import {
   removeToken,
 } from "../utils/session";
 
-const request = async (endpoint, options = {}) => {
-  try {
-    // Tự động gắn accessToken vào header nếu có
-    const accessToken = getAccessToken();
-    const headers = {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    };
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-    const res = await fetch(`${BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
-    // Nếu token hết hạn (401), thử refresh token
-    if (res.status === 401) {
-      const refreshToken = getRefreshToken();
-      if (refreshToken) {
-        // Gọi API refresh token
-        const refreshRes = await fetch(`${BASE_URL}/api/auth/refresh`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refreshToken }),
-        });
-        if (refreshRes.ok) {
-          const refreshData = await refreshRes.json();
-          setAccessToken(refreshData.accessToken);
-          headers["Authorization"] = `Bearer ${refreshData.accessToken}`;
-          const retryRes = await fetch(`${BASE_URL}${endpoint}`, {
-            ...options,
-            headers,
-          });
-          if (!retryRes.ok) {
-            let errorMessage = "Có lỗi xảy ra.";
-            let errorData;
-            const text = await retryRes.text();
-            try {
-              errorData = JSON.parse(text);
-              errorMessage =
-                errorData.message ||
-                errorData.error ||
-                errorData.status ||
-                text;
-            } catch {
-              errorMessage = text;
-            }
-            return { success: false, message: errorMessage, error: errorData };
-          }
-          const data = await retryRes.json();
-          return { success: true, data };
-        } else {
-          // Refresh token thất bại, logout user
-          removeToken();
-          return {
-            success: false,
-            message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-          };
-        }
-      }
-    }
-    if (!res.ok) {
-      let errorMessage = "Có lỗi xảy ra.";
-      let errorData;
-      const text = await res.text();
+let isRefreshing = false;
+let refreshPromise = null;
+const MAX_RETRY = 2;
+
+// Hàm xử lý lỗi chuẩn hóa trả về cho UI
+function handleError(res) {
+  let errorMessage = "Có lỗi xảy ra.";
+  let errorData;
+  if (res && typeof res.text === "function") {
+    return res.text().then((text) => {
       try {
         errorData = JSON.parse(text);
         errorMessage =
@@ -79,20 +24,140 @@ const request = async (endpoint, options = {}) => {
         errorMessage = text;
       }
       return { success: false, message: errorMessage, error: errorData };
-    }
-    const data = await res.json();
-    return { success: true, data };
-  } catch (err) {
-    return {
-      success: false,
-      message:
+    });
+  } else {
+    return Promise.resolve({ success: false, message: errorMessage });
+  }
+}
+
+const fetchWithTimeout = (url, options = {}, timeout = 15000) => {
+  const controller = options.signal ? null : new AbortController();
+  const signal = options.signal || (controller && controller.signal);
+  const fetchPromise = fetch(url, { ...options, signal });
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      if (controller) controller.abort();
+      reject(new Error("Request timeout"));
+    }, timeout);
+  });
+  return Promise.race([fetchPromise, timeoutPromise]).finally(() =>
+    clearTimeout(timeoutId)
+  );
+};
+
+const fetchWithAuth = async (
+  endpoint,
+  options = {},
+  accessToken,
+  timeout = 15000
+) => {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+  if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
+  return fetchWithTimeout(
+    `${BASE_URL}${endpoint}`,
+    { ...options, headers },
+    timeout
+  );
+};
+const request = async (endpoint, options = {}) => {
+  let retryCount = 0;
+  let lastError = null;
+  while (retryCount <= MAX_RETRY) {
+    try {
+      const accessToken = getAccessToken();
+      let res = await fetchWithAuth(endpoint, options, accessToken);
+      // Nếu token hết hạn (401), thử refresh token
+      if (res.status === 401) {
+        const refreshToken = getRefreshToken();
+        if (refreshToken) {
+          // Kiểm soát concurrency: chỉ refresh 1 lần nếu nhiều request cùng lúc
+          if (!isRefreshing) {
+            isRefreshing = true;
+            refreshPromise = fetchWithTimeout(
+              `${BASE_URL}/api/auth/refresh-token`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ refreshToken }),
+              }
+            ).then(async (refreshRes) => {
+              isRefreshing = false;
+              if (refreshRes.ok) {
+                const refreshData = await refreshRes.json();
+                setAccessToken(refreshData.accessToken);
+                return refreshData.accessToken;
+              } else {
+                removeToken();
+                throw new Error(
+                  "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+                );
+              }
+            });
+          }
+          let newAccessToken;
+          try {
+            newAccessToken = await refreshPromise;
+          } catch (err) {
+            return {
+              success: false,
+              message: err.message,
+            };
+          }
+          // Retry request với accessToken mới
+          res = await fetchWithAuth(endpoint, options, newAccessToken);
+          // Nếu vẫn lỗi 401 sau refresh, logout và trả về lỗi
+          if (res.status === 401) {
+            removeToken();
+            return {
+              success: false,
+              message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+            };
+          }
+        }
+      }
+      if (!res.ok) {
+        return await handleError(res);
+      }
+      const data = await res.json();
+      return { success: true, data };
+    } catch (err) {
+      lastError = err;
+      // Retry nếu lỗi mạng hoặc timeout
+      if (
         err.message &&
         (err.message.includes("Failed to fetch") ||
-          err.message.includes("NetworkError"))
-          ? "Không thể kết nối tới máy chủ. Vui lòng kiểm tra mạng hoặc thử lại sau."
-          : err.message || "Có lỗi xảy ra.",
-    };
+          err.message.includes("NetworkError") ||
+          err.message.includes("timeout")) &&
+        retryCount < MAX_RETRY
+      ) {
+        retryCount++;
+        continue;
+      }
+      // Nếu lỗi refresh token, logout
+      if (err.message && err.message.includes("timeout")) {
+        removeToken();
+      }
+      return {
+        success: false,
+        message: err.message || "Có lỗi xảy ra.",
+      };
+    }
   }
+  // Nếu hết retry vẫn lỗi
+  return {
+    success: false,
+    message:
+      lastError?.message &&
+      (lastError.message.includes("Failed to fetch") ||
+        lastError.message.includes("NetworkError") ||
+        lastError.message.includes("timeout"))
+        ? "Không thể kết nối tới máy chủ. Vui lòng kiểm tra mạng hoặc thử lại sau."
+        : lastError?.message || "Có lỗi xảy ra.",
+  };
 };
 
 const http = {

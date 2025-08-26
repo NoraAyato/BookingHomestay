@@ -6,7 +6,7 @@ import DesktopNav from "./DesktopNav";
 import MobileNav from "./MobileNav";
 import UserActions from "./UserActions";
 import AuthPopup from "./AuthPopup";
-import { useAuth } from "../contexts/useAuth";
+import { useAuth } from "../hooks/useAuth";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
