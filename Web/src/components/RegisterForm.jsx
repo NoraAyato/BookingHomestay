@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import EmailOtpForm from "./EmailOtpForm";
-import { useAuth } from "../contexts/useAuth";
+import { useAuth } from "../hooks/useAuth";
 const RegisterForm = ({ switchToLogin, small }) => {
   const [formData, setFormData] = useState({
     email: "",
