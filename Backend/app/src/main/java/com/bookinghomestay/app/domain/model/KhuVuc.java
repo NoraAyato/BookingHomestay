@@ -20,6 +20,11 @@ public class KhuVuc {
 
     @Column(name = "ten_kv", columnDefinition = "nvarchar(100)")
     private String tenKv;
+    @Column(name = "mota", nullable = true, columnDefinition = "nvarchar(255)")
+    private String mota;
+
+    @Column(name = "hinhanh", nullable = true)
+    private String hinhanh;
 
     @OneToMany(mappedBy = "khuVuc", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Homestay> homestays = new ArrayList<>();
