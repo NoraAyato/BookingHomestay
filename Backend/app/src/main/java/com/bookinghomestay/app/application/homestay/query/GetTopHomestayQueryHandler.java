@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.application.homestay.query;
 
-import com.bookinghomestay.app.api.dto.homestay.HomestayResponseDto;
+import com.bookinghomestay.app.api.dto.homestay.HomestayTop5ResponeDto;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
@@ -9,7 +9,10 @@ import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,15 +21,38 @@ public class GetTopHomestayQueryHandler {
 
     private final IHomestayRepository homestayRepository;
 
-    public List<HomestayResponseDto> handle() {
+    public List<HomestayTop5ResponeDto> handle() {
         List<Homestay> topHomestays = homestayRepository.getTopRated();
 
         if (topHomestays.isEmpty()) {
             throw new ResourceNotFoundException("Không tìm thấy homestay nào.");
         }
 
-        return topHomestays.stream()
-                .map(HomestayMapper::toHomestayResponseDto)
+        List<Homestay> filteredHomestays = new ArrayList<>();
+        Set<String> usedKhuVucIds = new HashSet<>();
+
+        for (Homestay homestay : topHomestays) {
+            String khuVucId = homestay.getKhuVuc().getMaKv();
+            boolean hasActiveRoom = homestay.getPhongs() != null &&
+                    !homestay.getPhongs().isEmpty() &&
+                    homestay.getPhongs().stream().anyMatch(phong -> "Active".equals(phong.getTrangThai()));
+
+            if (!usedKhuVucIds.contains(khuVucId) &&
+                    "Active".equals(homestay.getTrangThai()) &&
+                    hasActiveRoom &&
+                    filteredHomestays.size() < 5) {
+                filteredHomestays.add(homestay);
+                usedKhuVucIds.add(khuVucId);
+            }
+        }
+
+        if (filteredHomestays.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "Không tìm thấy homestay nào !");
+        }
+
+        return filteredHomestays.stream()
+                .map(HomestayMapper::toHomestayTop5ResponseDto)
                 .collect(Collectors.toList());
     }
 }
