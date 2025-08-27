@@ -53,8 +53,8 @@ public class HomestayController {
     }
 
     @GetMapping("/top")
-    public ResponseEntity<ApiResponse<List<HomestayResponseDto>>> getTopRated() {
-        List<HomestayResponseDto> topHomestays = getTopHandler.handle();
+    public ResponseEntity<ApiResponse<List<HomestayTop5ResponeDto>>> getTopRated() {
+        List<HomestayTop5ResponeDto> topHomestays = getTopHandler.handle();
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách top homestay thành công", topHomestays));
     }
 

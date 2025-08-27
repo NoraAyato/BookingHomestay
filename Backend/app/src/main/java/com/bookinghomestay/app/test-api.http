@@ -58,7 +58,7 @@ Accept: application/json
 
 
 ### Get available rooms of a homestay between 2 times
-GET http://localhost:8080/api/homestays
+GET http://localhost:8080/api/locations
 Accept: application/json
 ### Lấy tất cả tin tức
 GET http://localhost:8080/api/homestays

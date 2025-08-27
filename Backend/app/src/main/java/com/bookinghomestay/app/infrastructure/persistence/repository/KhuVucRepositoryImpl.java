@@ -24,4 +24,9 @@ public class KhuVucRepositoryImpl implements IKhuVucRepository {
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<KhuVuc> getTop5ByHomestayCount() {
+        return jpaRepo.findTop5OrderByHomestayCountDesc();
+    }
 }

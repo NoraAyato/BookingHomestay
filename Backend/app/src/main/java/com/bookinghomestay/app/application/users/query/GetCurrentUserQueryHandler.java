@@ -21,7 +21,7 @@ public class GetCurrentUserQueryHandler {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với mã: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng !"));
 
         return new UserInfoDto(
                 user.getUserId(),
@@ -34,6 +34,7 @@ public class GetCurrentUserQueryHandler {
                 user.getStatus(),
                 user.getRole().getName(),
                 user.getBirthday(),
-                user.isGender());
+                user.isGender(),
+                user.isRecieveEmail());
     }
 }

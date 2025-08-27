@@ -19,7 +19,7 @@ public class UploadUserImgCommandHandler {
 
     public void handle(UploadUserPictureCommand command) {
         User user = userRepository.findById(command.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng !"));
 
         MultipartFile file = command.getFile();
         if (file != null && !file.isEmpty()) {

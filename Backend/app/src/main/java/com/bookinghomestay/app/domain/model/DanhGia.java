@@ -36,9 +36,6 @@ public class DanhGia {
     @Column(name = "hinh_anh")
     private String hinhAnh;
 
-    @Column(name = "hai_long")
-    private short haiLong;
-    
     @Column(name = "sach_se")
     private short sachSe; // 0–10
 

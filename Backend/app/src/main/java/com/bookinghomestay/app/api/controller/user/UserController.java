@@ -54,7 +54,7 @@ public class UserController {
                 dto.getEmail(),
                 dto.getPicture(),
                 dto.getPhoneNumber(),
-                dto.getIsRecieveEmail(),
+                dto.isRecieveEmail(),
                 dto.isGender(),
                 dto.getBirthday(),
                 dto.getRoleId());

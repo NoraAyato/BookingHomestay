@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public class FileStorageService {
 
-    private static final String AVATAR_UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/avatars/";
+    private static final String AVATAR_UPLOAD_DIR = System.getProperty("user.dir") + "/img/uploads/avatars/";
     private static final String AVATAR_PUBLIC_PATH = "/avatars/";
 
     public String storeAvatar(MultipartFile file, String userId) {
