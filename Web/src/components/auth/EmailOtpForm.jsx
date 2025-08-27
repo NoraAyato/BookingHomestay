@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 
 const EmailOtpForm = ({ email, onVerified, onBack }) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
