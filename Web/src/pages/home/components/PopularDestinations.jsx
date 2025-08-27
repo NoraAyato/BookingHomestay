@@ -1,69 +1,51 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useStaggeredAnimation } from "../../../hooks/useInView";
+import { useLocationData } from "../../../hooks/useLocationData";
+import { getImageUrl } from "../../../utils/imageUrl";
 
 const PopularDestinations = () => {
   const [ref, shouldAnimate] = useStaggeredAnimation(100);
+  const { topLocations, loadingTop, errorTop } = useLocationData();
 
-  const destinations = [
-    {
-      id: 1,
-      name: "Đà Lạt",
-      description: "Thành phố ngàn hoa, khí hậu mát mẻ quanh năm",
-      image: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461",
-      count: 245,
-    },
-    {
-      id: 2,
-      name: "Hội An",
-      description: "Phố cổ lãng mạn với đèn lồng và kiến trúc độc đáo",
-      image: "https://images.unsplash.com/photo-1528127269322-539801943592",
-      count: 189,
-    },
-    {
-      id: 3,
-      name: "Hạ Long",
-      description: "Kỳ quan thiên nhiên với hàng nghìn đảo đá vôi",
-      image: "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1",
-      count: 167,
-    },
-    {
-      id: 4,
-      name: "Phú Quốc",
-      description: "Đảo ngọc với bãi biển cát trắng và nước biển trong xanh",
-      image: "https://images.unsplash.com/photo-1540202404-1b927e27fa8b",
-      count: 198,
-    },
-    {
-      id: 5,
-      name: "Nha Trang",
-      description: "Thiên đường biển với những bãi tắm nổi tiếng",
-      image: "https://images.unsplash.com/photo-1540202404-1b927e27fa9c",
-      count: 178,
-    },
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-      },
-    },
-  };
+  if (loadingTop) {
+    return (
+      <section
+        ref={ref}
+        className="py-12 w-full bg-gradient-to-b from-white to-rose-50/40"
+      >
+        <div className="max-w-[1400px] mx-auto px-4 text-center">
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Điểm Đến Phổ Biến
+            </h2>
+            <div className="h-1 w-16 bg-rose-500 rounded-full mb-6 mx-auto"></div>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Đang tải dữ liệu...
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  if (errorTop) {
+    return (
+      <section
+        ref={ref}
+        className="py-12 w-full bg-gradient-to-b from-white to-rose-50/40"
+      >
+        <div className="max-w-[1400px] mx-auto px-4 text-center">
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Điểm Đến Phổ Biến
+            </h2>
+            <div className="h-1 w-16 bg-rose-500 rounded-full mb-6 mx-auto"></div>
+            <p className="text-red-500 text-lg max-w-2xl mx-auto">{errorTop}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -85,24 +67,32 @@ const PopularDestinations = () => {
         </div>
 
         <motion.div
-          variants={containerVariants}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
+          }}
           initial="hidden"
           animate={shouldAnimate ? "visible" : "hidden"}
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8"
           style={{ willChange: "transform" }}
         >
-          {destinations.map((destination) => (
+          {topLocations.map((destination) => (
             <motion.div
               key={destination.id}
-              variants={cardVariants}
-              className="group relative bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform-gpu hover:-translate-y-2 cursor-pointer"
-              style={{
-                willChange: "transform, opacity",
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.5, ease: "easeOut" },
+                },
               }}
+              className="group relative bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform-gpu hover:-translate-y-2 cursor-pointer"
+              style={{ willChange: "transform, opacity" }}
             >
               <div className="relative aspect-[4/3] overflow-hidden">
                 <img
-                  src={destination.image}
+                  src={getImageUrl(destination.image)}
                   alt={destination.name}
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                 />
