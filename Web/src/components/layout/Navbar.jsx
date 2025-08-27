@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import { BASE_URL } from "../../api/config";
@@ -7,23 +7,18 @@ import MobileNav from "./MobileNav";
 import UserActions from "./UserActions";
 import AuthPopup from "../auth/AuthPopup";
 import { useAuth } from "../../hooks/useAuth";
+import { useAuthPopup } from "../../contexts/AuthPopupProvider";
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState("login");
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [showUserDropdown, setShowUserDropdown] = React.useState(false);
   const location = useLocation();
   const { user, logout, loading } = useAuth();
+  const { openAuthPopup } = useAuthPopup();
 
-  const openAuth = (mode = "login") => {
-    setAuthMode(mode);
-    setShowAuth(true);
-  };
   React.useEffect(() => {
     setShowUserDropdown(false);
   }, [user]);
-  const closeAuth = () => setShowAuth(false);
 
   return (
     <>
@@ -52,7 +47,7 @@ const Navbar = () => {
               showUserDropdown={showUserDropdown}
               setShowUserDropdown={setShowUserDropdown}
               handleLogout={logout}
-              openAuth={openAuth}
+              openAuth={openAuthPopup}
               BASE_URL={BASE_URL}
               loading={loading}
             />
@@ -77,18 +72,9 @@ const Navbar = () => {
         <MobileNav
           isMenuOpen={isMenuOpen}
           setIsMenuOpen={setIsMenuOpen}
-          openAuth={openAuth}
+          openAuth={openAuthPopup}
         />
       </nav>
-
-      {/* Auth Popup */}
-      <AuthPopup
-        showAuth={showAuth}
-        authMode={authMode}
-        setAuthMode={setAuthMode}
-        closeAuth={closeAuth}
-        setShowAuth={setShowAuth}
-      />
     </>
   );
 };
