@@ -1,64 +1,25 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useStaggeredAnimation } from "../../../hooks/useInView";
+import { useFeaturedHomestays } from "../../../hooks/useHomestayData";
+import LoadingSpinner from "../../../components/common/LoadingSpinner";
+import { getImageUrl } from "../../../utils/imageUrl";
 
 const FeaturedHomestays = () => {
   const [ref, shouldAnimate] = useStaggeredAnimation(100);
-
-  const featuredHomestays = [
-    {
-      id: 1,
-      title: "Villa Đà Lạt View Đồi",
-      location: "Đà Lạt, Lâm Đồng",
-      price: "1,200,000",
-      image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233",
-      rating: 4.8,
-      reviews: 124,
-    },
-    {
-      id: 2,
-      title: "Homestay Hội An Cổ Kính",
-      location: "Hội An, Quảng Nam",
-      price: "800,000",
-      image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b",
-      rating: 4.9,
-      reviews: 89,
-    },
-    {
-      id: 3,
-      title: "Sea View Nha Trang",
-      location: "Nha Trang, Khánh Hòa",
-      price: "1,500,000",
-      image: "https://images.unsplash.com/photo-1615571022219-eb45cf7faa9d",
-      rating: 4.7,
-      reviews: 156,
-    },
-    {
-      id: 4,
-      title: "Biệt Thự Sapa Mù Sương",
-      location: "Sa Pa, Lào Cai",
-      price: "1,100,000",
-      image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
-      rating: 4.6,
-      reviews: 92,
-    },
-    {
-      id: 5,
-      title: "Homestay Phú Quốc Biển Xanh",
-      location: "Phú Quốc, Kiên Giang",
-      price: "1,350,000",
-      image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
-      rating: 4.9,
-      reviews: 203,
-    },
-  ];
+  const {
+    data: featuredHomestays,
+    loading,
+    error,
+    refetch,
+  } = useFeaturedHomestays();
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15, // Delay giữa các card
+        staggerChildren: 0.15,
       },
     },
   };
@@ -74,6 +35,22 @@ const FeaturedHomestays = () => {
       },
     },
   };
+
+  const fallbackData =
+    loading && !featuredHomestays?.length
+      ? [
+          { id: "skeleton-1" },
+          { id: "skeleton-2" },
+          { id: "skeleton-3" },
+          { id: "skeleton-4" },
+          { id: "skeleton-5" },
+        ]
+      : [];
+
+  // Data to display - use real data or fallback
+  const displayData = featuredHomestays?.length
+    ? featuredHomestays
+    : fallbackData;
 
   return (
     <section ref={ref} className="py-8 w-full bg-rose-50/50">
@@ -111,7 +88,7 @@ const FeaturedHomestays = () => {
           className="flex flex-wrap justify-center gap-8"
           style={{ willChange: "transform" }}
         >
-          {featuredHomestays.map((homestay) => (
+          {displayData.map((homestay) => (
             <motion.div
               key={homestay.id}
               variants={cardVariants}
@@ -120,84 +97,119 @@ const FeaturedHomestays = () => {
                 willChange: "transform, opacity",
               }}
             >
-              <div className="relative pb-[65%] overflow-hidden">
-                <img
-                  src={homestay.image}
-                  alt={homestay.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-                />
-                <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-sm transition-transform duration-300 group-hover:scale-110">
-                  <svg
-                    className="w-4 h-4 text-amber-400 fill-current"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                </div>
-                {/* Gradient overlay on hover */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/0 group-hover:to-black/20 transition-all duration-500 ease-out"></div>
-              </div>
-
-              <div className="p-3">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-sm font-semibold text-gray-900 line-clamp-1 group-hover:text-rose-700 transition-colors duration-300">
-                    {homestay.title}
-                  </h3>
-                  <div className="flex items-center bg-amber-50 px-1.5 py-0.5 rounded transition-all duration-300 group-hover:bg-amber-100 group-hover:scale-105">
-                    <span className="text-amber-500 text-xs font-semibold">
-                      ★
-                    </span>
-                    <span className="ml-0.5 text-xs font-medium text-gray-700">
-                      {homestay.rating}
-                    </span>
+              {loading && !featuredHomestays?.length ? (
+                // Skeleton UI during loading
+                <div className="animate-pulse">
+                  <div className="relative pb-[65%] overflow-hidden bg-gray-200"></div>
+                  <div className="p-3">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+                    <div className="h-3 bg-gray-200 rounded w-5/6 mb-3"></div>
+                    <div className="pt-2 mt-3 border-t border-gray-100">
+                      <div className="flex justify-between">
+                        <div className="h-5 bg-gray-200 rounded w-1/4"></div>
+                        <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                <p className="text-gray-600 text-xs mb-3 flex items-center transition-colors duration-300 group-hover:text-gray-800">
-                  <svg
-                    className="w-3.5 h-3.5 text-rose-500 mr-1 transition-transform duration-300 group-hover:scale-110"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              ) : (
+                // Actual content
+                <>
+                  <div className="relative pb-[65%] overflow-hidden">
+                    <img
+                      src={getImageUrl(homestay.image)}
+                      alt={homestay.title}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src =
+                          "https://placehold.co/600x400?text=Error";
+                      }}
                     />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  {homestay.location}
-                </p>
-
-                <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-100 group-hover:border-gray-200 transition-colors duration-300">
-                  <div>
-                    <p className="font-bold text-rose-600 text-sm transition-colors duration-300 group-hover:text-rose-700">
-                      {homestay.price}đ
-                      <span className="text-gray-500 text-xs font-normal">
-                        /đêm
-                      </span>
-                    </p>
-                    <p className="text-xs text-gray-500 transition-colors duration-300 group-hover:text-gray-600">
-                      {homestay.reviews} đánh giá
-                    </p>
+                    <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-sm transition-transform duration-300 group-hover:scale-110">
+                      <svg
+                        className="w-4 h-4 text-amber-400 fill-current"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    </div>
+                    {/* Gradient overlay on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/0 group-hover:to-black/20 transition-all duration-500 ease-out"></div>
                   </div>
-                  <button className="px-2.5 py-1.5 bg-rose-500 text-white rounded text-xs font-medium hover:bg-rose-600 transition-all duration-300 transform-gpu hover:scale-105 shadow-sm group-hover:shadow-md">
-                    Đặt ngay
-                  </button>
-                </div>
-              </div>
+
+                  <div className="p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-sm font-semibold text-gray-900 line-clamp-1 group-hover:text-rose-700 transition-colors duration-300">
+                        {homestay.title}
+                      </h3>
+                      <div className="flex items-center bg-amber-50 px-1.5 py-0.5 rounded transition-all duration-300 group-hover:bg-amber-100 group-hover:scale-105">
+                        <span className="text-amber-500 text-xs font-semibold">
+                          ★
+                        </span>
+                        <span className="ml-0.5 text-xs font-medium text-gray-700">
+                          {homestay.rating}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-gray-600 text-xs mb-3 flex items-center transition-colors duration-300 group-hover:text-gray-800">
+                      <svg
+                        className="w-3.5 h-3.5 text-rose-500 mr-1 transition-transform duration-300 group-hover:scale-110"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      {homestay.location}
+                    </p>
+
+                    <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-100 group-hover:border-gray-200 transition-colors duration-300">
+                      <div>
+                        <p className="font-bold text-rose-600 text-sm transition-colors duration-300 group-hover:text-rose-700">
+                          {typeof homestay.price === "number"
+                            ? homestay.price.toLocaleString("vi-VN")
+                            : homestay.price}
+                          đ
+                          <span className="text-gray-500 text-xs font-normal">
+                            /đêm
+                          </span>
+                        </p>
+                        <p className="text-xs text-gray-500 transition-colors duration-300 group-hover:text-gray-600">
+                          {homestay.reviews || 0} đánh giá
+                        </p>
+                      </div>
+                      <button className="px-2.5 py-1.5 bg-rose-500 text-white rounded text-xs font-medium hover:bg-rose-600 transition-all duration-300 transform-gpu hover:scale-105 shadow-sm group-hover:shadow-md">
+                        Đặt ngay
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </motion.div>
           ))}
         </motion.div>
+
+        {loading && (
+          <div className="flex justify-center my-6">
+            <LoadingSpinner size="md" />
+          </div>
+        )}
 
         <div className="text-center mt-8">
           <button className="px-6 py-2.5 bg-white text-rose-600 border border-rose-600 rounded-md text-sm font-medium hover:bg-rose-50 hover:border-rose-700 hover:text-rose-700 transition-all duration-300 transform-gpu hover:-translate-y-0.5 shadow-sm">

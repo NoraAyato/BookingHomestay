@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import styles from "./UserActions.module.css";
+import { getImageUrl } from "../../utils/imageUrl";
 
 const UserActions = ({
   userInfo,
@@ -39,13 +40,7 @@ const UserActions = ({
             aria-haspopup="true"
           >
             <img
-              src={
-                userInfo.data.picture
-                  ? BASE_URL + userInfo.data.picture
-                  : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      userInfo.data.userName
-                    )}&background=random`
-              }
+              src={getImageUrl(userInfo.data.picture)}
               alt="avatar"
               className={styles.avatar}
             />
