@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styles from "./Navbar.module.css";
-import { BASE_URL } from "../api/config";
+import { BASE_URL } from "../../api/config";
 import DesktopNav from "./DesktopNav";
 import MobileNav from "./MobileNav";
 import UserActions from "./UserActions";
-import AuthPopup from "./AuthPopup";
-import { useAuth } from "../hooks/useAuth";
+import AuthPopup from "../auth/AuthPopup";
+import { useAuth } from "../../hooks/useAuth";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,7 +39,7 @@ const Navbar = () => {
                 <i className="fas fa-home text-white text-base"></i>
               </div>
               <span className={styles.navbarTitle} style={{ fontSize: "1rem" }}>
-                Rose Homestay
+                Home Feel
               </span>
             </Link>
 
