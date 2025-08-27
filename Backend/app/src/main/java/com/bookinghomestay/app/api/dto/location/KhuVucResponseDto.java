@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.dto.KhuVuc;
+package com.bookinghomestay.app.api.dto.location;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

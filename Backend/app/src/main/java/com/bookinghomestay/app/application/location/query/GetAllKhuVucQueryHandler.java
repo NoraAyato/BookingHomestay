@@ -1,6 +1,6 @@
-package com.bookinghomestay.app.application.khuvuc.query;
+package com.bookinghomestay.app.application.location.query;
 
-import com.bookinghomestay.app.api.dto.KhuVuc.KhuVucResponseDto;
+import com.bookinghomestay.app.api.dto.location.KhuVucResponseDto;
 import com.bookinghomestay.app.domain.repository.IKhuVucRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
