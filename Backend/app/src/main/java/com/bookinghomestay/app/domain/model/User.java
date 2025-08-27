@@ -26,7 +26,7 @@ public class User {
     private String email;
     private String picture;
     private String phoneNumber;
-    private String isRecieveEmail;
+    private boolean isRecieveEmail;
     private boolean gender;
     private LocalDate birthday;
     @Column(name = "created_at", nullable = false)

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class CreateUserCommandHandler {
 
     private final IUserRepository userRepository;
-   
+
     public void handle(CreateUserCommand command) {
         Role role = new Role();
         role.setRoleId(2L);
@@ -26,7 +26,7 @@ public class CreateUserCommandHandler {
         user.setEmail(command.getEmail());
         user.setPicture(command.getPicture());
         user.setPhoneNumber(command.getPhoneNumber());
-        user.setIsRecieveEmail(command.getIsRecieveEmail());
+        user.setRecieveEmail(command.isRecieveEmail());
         user.setGender(command.isGender());
         user.setBirthday(command.getBirthday());
         user.setCreatedAt(LocalDateTime.now());

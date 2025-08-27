@@ -25,7 +25,7 @@ public class CreateUserRequestDto {
 
     private String phoneNumber;
 
-    private String isRecieveEmail;
+    private boolean isRecieveEmail;
 
     private boolean gender;
 

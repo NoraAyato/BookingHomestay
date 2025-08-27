@@ -15,7 +15,7 @@ public class CreateUserCommand {
     private final String email;
     private final String picture;
     private final String phoneNumber;
-    private final String isRecieveEmail;
+    private final boolean isRecieveEmail;
     private final boolean gender;
     private final LocalDate birthday;
     private final Long roleId;

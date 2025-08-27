@@ -21,4 +21,5 @@ public class UserInfoDto {
     private String role;
     private LocalDate birthDay;
     private boolean gender;
+    private boolean getIsRecieveEmail;
 }
