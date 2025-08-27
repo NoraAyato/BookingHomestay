@@ -11,13 +11,16 @@ import Footer from "./components/layout/Footer";
 import HomePage from "./pages/home";
 import GoogleCallback from "./pages/auth/GoogleCallback";
 import { AuthProvider } from "./contexts/AuthContext";
+import { AuthPopupProvider } from "./contexts/AuthPopupProvider";
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <AuthPopupProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthPopupProvider>
     </AuthProvider>
   );
 
