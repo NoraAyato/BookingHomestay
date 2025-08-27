@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext } from "react";
 import {
   getAccessToken,
   setAccessToken,
@@ -18,7 +18,8 @@ import {
   resetPassword,
 } from "../api/auth";
 import { showToast } from "../components/common/Toast";
-import { AuthContext } from "./AuthContextObject";
+
+export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -232,6 +233,9 @@ export function AuthProvider({ children }) {
     removeToken();
     removeUserInfo();
     showToast("success", "Đã đăng xuất");
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
   };
 
   const value = {

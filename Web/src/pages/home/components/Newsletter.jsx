@@ -1,14 +1,20 @@
 import React, { useState } from "react";
+import { useAuth } from "../../../hooks/useAuth";
 
 const Newsletter = () => {
-  const [email, setEmail] = useState("");
+  const { user } = useAuth();
+  const isRecieveEmail = user?.data?.getIsRecieveEmail;
+  const userEmail = user?.data?.email || "";
+  const [email, setEmail] = useState(userEmail);
   const [status, setStatus] = useState("");
+
+  if (isRecieveEmail === true) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Add your newsletter signup logic here
     setStatus("success");
-    setEmail("");
+    setEmail(userEmail); // reset về email user nếu có
     setTimeout(() => setStatus(""), 3000);
   };
 
@@ -33,6 +39,7 @@ const Newsletter = () => {
             placeholder="Nhập email của bạn"
             className="px-6 py-3 rounded-lg flex-1 max-w-md focus:outline-none focus:ring-2 focus:ring-rose-500"
             required
+            autoComplete="email"
           />
           <button
             type="submit"

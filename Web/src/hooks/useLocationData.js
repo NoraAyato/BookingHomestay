@@ -31,7 +31,7 @@ export function useLocationData() {
       console.log("Top 5 Locations Response:", response);
       if (response.success && Array.isArray(response.data.data)) {
         setTopLocations(response.data.data);
-        console.log("Top 5 Locations Data:", response.data.data);
+
         APICache.set(CACHE_KEY_TOP, response.data.data, CACHE_TTL);
       } else {
         throw new Error(
