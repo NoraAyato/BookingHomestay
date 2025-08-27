@@ -66,15 +66,32 @@ const fetchWithAuth = async (
 const request = async (endpoint, options = {}) => {
   let retryCount = 0;
   let lastError = null;
+  const requireAuth = options.requireAuth;
   while (retryCount <= MAX_RETRY) {
     try {
       const accessToken = getAccessToken();
+      if (requireAuth && !accessToken) {
+        window.dispatchEvent(
+          new CustomEvent("AUTH_POPUP_EVENT", {
+            detail: { type: "openAuthPopup", mode: "login" },
+          })
+        );
+        window.dispatchEvent(
+          new CustomEvent("AUTH_POPUP_EVENT", {
+            detail: {
+              type: "showToast",
+              level: "warning",
+              message: "Bạn cần đăng nhập để tiếp tục",
+            },
+          })
+        );
+        return { success: false, message: "Bạn cần đăng nhập để tiếp tục" };
+      }
       let res = await fetchWithAuth(endpoint, options, accessToken);
       // Nếu token hết hạn (401), thử refresh token
       if (res.status === 401) {
         const refreshToken = getRefreshToken();
         if (refreshToken) {
-          // Kiểm soát concurrency: chỉ refresh 1 lần nếu nhiều request cùng lúc
           if (!isRefreshing) {
             isRefreshing = true;
             refreshPromise = fetchWithTimeout(
