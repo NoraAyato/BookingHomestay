@@ -77,7 +77,8 @@ public class AuthController {
     @GetMapping("/google/callback")
     public void googleCallback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
         AuthResponseDto authResponse = googleCallbackCommandHandler.handle(new GoogleCallbackCommand(code));
-        String redirectUrl = "http://localhost:5173/google-callback" + "?accessToken=" + authResponse.getAccessToken()
+        String redirectUrl = "http://localhost:5173/auth/google-callback" + "?accessToken="
+                + authResponse.getAccessToken()
                 + "&refreshToken=" + authResponse.getRefreshToken();
         response.sendRedirect(redirectUrl);
     }
