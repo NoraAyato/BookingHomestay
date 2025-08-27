@@ -15,7 +15,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendResetPasswordEmail(String to, String resetToken) {
-        String resetLink = "http://localhost:5173/reset-password?resetToken=" + resetToken;
+        String resetLink = "http://localhost:5173/auth/reset-password?resetToken=" + resetToken;
         String htmlContent = "<div style='font-family:Arial,sans-serif;padding:24px;'>"
                 + "<h2 style='color:#2d8cf0;'>Yêu cầu đặt lại mật khẩu</h2>"
                 + "<p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>"
