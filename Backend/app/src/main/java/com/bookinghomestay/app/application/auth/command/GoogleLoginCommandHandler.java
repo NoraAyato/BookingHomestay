@@ -42,7 +42,7 @@ public class GoogleLoginCommandHandler {
         Payload payload = idToken.getPayload();
         String email = payload.getEmail();
         String name = (String) payload.get("name");
-        String picture = (String) payload.get("picture");
+        
         String providerId = payload.getSubject();
 
         Optional<UserLogin> optionalUserLogin = userLoginRepository.findByProviderAndProviderId("google", providerId);
@@ -53,7 +53,6 @@ public class GoogleLoginCommandHandler {
         } else {
             user = userRepository.findByEmail(email).orElseGet(() -> {
                 User newUser = new User(email, name);
-                newUser.setPicture(picture);
                 return userRepository.save(newUser);
             });
 
