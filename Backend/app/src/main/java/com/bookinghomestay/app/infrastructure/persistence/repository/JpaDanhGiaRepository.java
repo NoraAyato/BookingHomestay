@@ -14,7 +14,7 @@ public interface JpaDanhGiaRepository extends JpaRepository<DanhGia, String> {
     @Query("SELECT COUNT(d) FROM DanhGia d WHERE d.homestay.idHomestay = :homestayId")
     int countByHomestayId(@Param("homestayId") String homestayId);
 
-    @Query("SELECT AVG(d.haiLong) FROM DanhGia d WHERE d.homestay.idHomestay = :homestayId")
-    Double averageHaiLongByHomestayId(@Param("homestayId") String homestayId);
+    @Query("SELECT AVG(d.dichVu) FROM DanhGia d WHERE d.homestay.idHomestay = :homestayId")
+    Double averageDichVuByHomestayId(@Param("homestayId") String homestayId);
 
 }

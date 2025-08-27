@@ -30,8 +30,8 @@ public class GetHomestayReviewsQueryHandler {
                         String[] parts = query.getHaiLongRange().split("-");
                         int min = Integer.parseInt(parts[0]);
                         int max = Integer.parseInt(parts[1]);
-                        if (dg.getHaiLong() < min || dg.getHaiLong() > max)
-                            return false;
+                        // if (dg.getHaiLong() < min || dg.getHaiLong() > max)
+                        // return false;
                     }
                     if (query.getReviewerType() != null) {
                         boolean isMe = dg.getNguoiDung().getUserId().equals(query.getCurrentUserId());
@@ -47,7 +47,7 @@ public class GetHomestayReviewsQueryHandler {
                         .username(dg.getNguoiDung().getUserName())
                         .binhLuan(dg.getBinhLuan())
                         .hinhAnh(dg.getHinhAnh())
-                        .haiLong(dg.getHaiLong())
+                        .haiLong(dg.getDichVu())
                         .sachSe(dg.getSachSe())
                         .tienIch(dg.getTienIch())
                         .dichVu(dg.getDichVu())

@@ -26,7 +26,7 @@ public class DanhGiaRepositoryImpl implements IDanhGiaRepository {
 
     @Override
     public Double averageHaiLongByHomestayId(String homestayId) {
-        return jpaDanhGiaRepository.averageHaiLongByHomestayId(homestayId);
+        return jpaDanhGiaRepository.averageDichVuByHomestayId(homestayId);
     }
 
 }
