@@ -1,18 +1,17 @@
 import React, { Suspense } from "react";
-import LoadingSpinner from "./components/LoadingSpinner";
+import LoadingSpinner from "./components/common/LoadingSpinner";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
 } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import Home from "./pages/Home";
-import PostDetail from "./pages/PostDetail";
-import GoogleCallback from "./pages/GoogleCallback";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import HomePage from "./pages/home";
+import GoogleCallback from "./pages/auth/GoogleCallback";
 import { AuthProvider } from "./contexts/AuthContext";
-const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
+const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 function App() {
   return (
     <AuthProvider>
@@ -32,11 +31,10 @@ function App() {
         {!hideLayout && <Navbar />}
         <div className="flex-1">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/post/:id" element={<PostDetail />} />
-            <Route path="/google-callback" element={<GoogleCallback />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/auth/google-callback" element={<GoogleCallback />} />
             <Route
-              path="/reset-password"
+              path="/auth/reset-password"
               element={
                 <Suspense fallback={<LoadingSpinner />}>
                   <ResetPassword />

@@ -17,7 +17,7 @@ import {
   forgotPassword,
   resetPassword,
 } from "../api/auth";
-import { showToast } from "../components/Toast";
+import { showToast } from "../components/common/Toast";
 import { AuthContext } from "./AuthContextObject";
 
 export function AuthProvider({ children }) {
