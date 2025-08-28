@@ -2,7 +2,6 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useStaggeredAnimation } from "../../../hooks/useInView";
 import { useFeaturedHomestays } from "../../../hooks/useHomestayData";
-import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import { getImageUrl } from "../../../utils/imageUrl";
 
 const FeaturedHomestays = () => {
@@ -47,7 +46,6 @@ const FeaturedHomestays = () => {
         ]
       : [];
 
-  // Data to display - use real data or fallback
   const displayData = featuredHomestays?.length
     ? featuredHomestays
     : fallbackData;
@@ -98,7 +96,6 @@ const FeaturedHomestays = () => {
               }}
             >
               {loading && !featuredHomestays?.length ? (
-                // Skeleton UI during loading
                 <div className="animate-pulse">
                   <div className="relative pb-[65%] overflow-hidden bg-gray-200"></div>
                   <div className="p-3">
@@ -204,12 +201,6 @@ const FeaturedHomestays = () => {
             </motion.div>
           ))}
         </motion.div>
-
-        {loading && (
-          <div className="flex justify-center my-6">
-            <LoadingSpinner size="md" />
-          </div>
-        )}
 
         <div className="text-center mt-8">
           <button className="px-6 py-2.5 bg-white text-rose-600 border border-rose-600 rounded-md text-sm font-medium hover:bg-rose-50 hover:border-rose-700 hover:text-rose-700 transition-all duration-300 transform-gpu hover:-translate-y-0.5 shadow-sm">

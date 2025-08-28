@@ -17,33 +17,22 @@ const HomePage = () => {
   return (
     <div className="homepage">
       {/* Hero Section with Search */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <HeroSection />
-      </Suspense>
+      <HeroSection />
 
       {/* Featured Homestays Section */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <FeaturedHomestays />
-      </Suspense>
-
+      <FeaturedHomestays />
       {/* Popular Destinations */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <PopularDestinations />
-      </Suspense>
+      <PopularDestinations />
 
       {/* Benefits Section */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <Benefits />
-      </Suspense>
+      <Benefits />
 
       <Suspense fallback={<LoadingSpinner />}>
         <Testimonials />
       </Suspense>
 
       {/* Newsletter Section */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <Newsletter />
-      </Suspense>
+      <Newsletter />
     </div>
   );
 };
