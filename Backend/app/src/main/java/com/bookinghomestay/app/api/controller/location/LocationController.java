@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.api.controller.location;
 
-import com.bookinghomestay.app.api.dto.ApiResponse;
+import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.api.dto.location.KhuVucResponseDto;
 import com.bookinghomestay.app.api.dto.location.KhuVucTop5ResponeDto;
 import com.bookinghomestay.app.application.location.query.GetAllKhuVucQueryHandler;
