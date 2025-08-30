@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.application.auth.command;
 
-import com.bookinghomestay.app.api.dto.Auth.AuthResponseDto;
+import com.bookinghomestay.app.api.dto.auth.AuthResponseDto;
 import com.bookinghomestay.app.domain.model.Role;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IRoleRepository;

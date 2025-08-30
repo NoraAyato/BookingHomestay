@@ -1,6 +1,5 @@
 package com.bookinghomestay.app.application.auth.command;
 
-import com.bookinghomestay.app.api.dto.Auth.AuthResponseDto;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.model.UserLogin;
 import com.bookinghomestay.app.domain.repository.IUserLoginRepository;
@@ -13,6 +12,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.bookinghomestay.app.api.constant.Messages;
+import com.bookinghomestay.app.api.dto.auth.AuthResponseDto;
+
 import java.util.Optional;
 
 @Service
