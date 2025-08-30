@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
-import com.bookinghomestay.app.api.dto.ApiResponse;
 import com.bookinghomestay.app.api.dto.booking.BookingDetailResponseDto;
 import com.bookinghomestay.app.api.dto.booking.BookingPaymentResponseDto;
 import com.bookinghomestay.app.api.dto.booking.ConfirmBookingPaymentRequest;
 import com.bookinghomestay.app.api.dto.booking.CreateBookingRequest;
+import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.api.dto.booking.ConfirmPaymentRequest;
-import com.bookinghomestay.app.api.dto.booking.BookingListResponseDto;
+
 import com.bookinghomestay.app.api.dto.booking.CancelBookingRequest;
 import com.bookinghomestay.app.application.booking.command.BookingPaymentCommand;
 import com.bookinghomestay.app.application.booking.command.BookingPaymentCommandHandler;
@@ -28,13 +28,9 @@ import com.bookinghomestay.app.application.booking.command.CreateBookingCommand;
 import com.bookinghomestay.app.application.booking.command.CreateBookingCommandHandler;
 import com.bookinghomestay.app.application.booking.query.GetBookingDetailQuery;
 import com.bookinghomestay.app.application.booking.query.GetBookingDetailQueryHandler;
-import com.bookinghomestay.app.application.booking.query.GetBookingListQuery;
-import com.bookinghomestay.app.application.booking.query.GetBookingListQueryHandler;
+
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
-import jakarta.validation.Valid;
-
-import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,7 +42,7 @@ public class BookingController {
     private final ConfirmBookingCommandHandler confirmBookingCommandHandler;
     private final GetBookingDetailQueryHandler getBookingDetailQueryHandler;
     private final BookingPaymentCommandHandler bookingPaymentCommandHandler;
-    private final GetBookingListQueryHandler getBookingListQueryHandler;
+    
     private final CancelBookingCommandHandler cancelBookingCommandHandler;
 
     @PostMapping
@@ -99,12 +95,7 @@ public class BookingController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Thanh toán thành công", null));
     }
 
-    @GetMapping("/my-bookings")
-    public ResponseEntity<ApiResponse<List<BookingListResponseDto>>> getMyBookings() {
-        String userId = SecurityUtils.getCurrentUserId();
-        List<BookingListResponseDto> bookings = getBookingListQueryHandler.handle(new GetBookingListQuery(userId));
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách đặt phòng thành công", bookings));
-    }
+    
 
     @PostMapping("/cancel")
     public ResponseEntity<ApiResponse<Void>> cancelBooking(@Valid @RequestBody CancelBookingRequest request) {

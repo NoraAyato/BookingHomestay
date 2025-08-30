@@ -16,7 +16,7 @@ import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.domain.repository.IKhuyenMaiRepository;
 import com.bookinghomestay.app.domain.repository.IServiceRepository;
-import com.bookinghomestay.app.domain.service.BookingDomainService;
+import com.bookinghomestay.app.domain.service.BookingService;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
 import com.bookinghomestay.app.infrastructure.mapper.BookingMapper;
 
@@ -32,7 +32,7 @@ public class ConfirmBookingCommandHandler {
     private final IServiceRepository serviceRepository;
     private final IKhuyenMaiRepository promotionRepository;
     private final PendingRoomService pendingRoomService;
-    private final BookingDomainService bookingDomainService;
+    private final BookingService bookingDomainService;
 
     @Transactional
     public BookingPaymentResponseDto handle(ConfirmBookingCommand command) {

@@ -1,0 +1,45 @@
+package com.bookinghomestay.app.application.booking.query;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.bookinghomestay.app.api.dto.booking.MyBookingListResponseDto;
+import com.bookinghomestay.app.api.dto.common.PageResponse;
+import com.bookinghomestay.app.domain.model.PhieuDatPhong;
+import com.bookinghomestay.app.domain.repository.IBookingRepository;
+import com.bookinghomestay.app.domain.service.BookingService;
+import com.bookinghomestay.app.infrastructure.mapper.BookingMapper;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class GetMyBookingListQueryHandler {
+    private final IBookingRepository bookingRepository;
+    private final BookingService bookingDomainService;
+
+    public PageResponse<MyBookingListResponseDto> handle(GetBookingListQuery query) {
+        List<PhieuDatPhong> allBookings = bookingRepository.findByUserId(query.getUserId());
+        int total = allBookings.size();
+        int page = query.getPage();
+        int limit = query.getLimit();
+        List<MyBookingListResponseDto> pagedBookings = allBookings.stream()
+                .sorted((b1, b2) -> b2.getNgayLap().compareTo(b1.getNgayLap()))
+                .skip((long) (query.getPage() - 1) * query.getLimit())
+                .limit(query.getLimit())
+                .map(booking -> {
+                    var tongTien = bookingDomainService.calculateTotalAmount(booking);
+                    return BookingMapper.toMyBookingListResponseDto(booking, tongTien);
+                })
+                .collect(Collectors.toList());
+
+        PageResponse<MyBookingListResponseDto> response = new PageResponse<>();
+        response.setItems(pagedBookings);
+        response.setTotal(total);
+        response.setPage(page);
+        response.setLimit(limit);
+        return response;
+    }
+}
