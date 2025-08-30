@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.bookinghomestay.app.api.dto.ApiResponse;
+
+import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.api.dto.homestay.*;
 import com.bookinghomestay.app.application.danhgia.query.GetHomestayReviewsQuery;
 import com.bookinghomestay.app.application.danhgia.query.GetHomestayReviewsQueryHandler;

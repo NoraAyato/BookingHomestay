@@ -10,7 +10,7 @@ import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.model.Phong;
 
 @Service
-public class HomestayDomainService {
+public class HomestayService {
 
     /**
      * Kiểm tra phòng có khả dụng trong khoảng thời gian
