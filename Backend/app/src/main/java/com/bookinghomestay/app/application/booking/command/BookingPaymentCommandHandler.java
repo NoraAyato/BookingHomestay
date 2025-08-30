@@ -14,7 +14,7 @@ import com.bookinghomestay.app.domain.model.HoaDon;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.ThanhToan;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
-import com.bookinghomestay.app.domain.service.BookingDomainService;
+import com.bookinghomestay.app.domain.service.BookingService;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
 
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class BookingPaymentCommandHandler {
 
     private final IBookingRepository bookingRepository;
     private final PendingRoomService pendingRoomService;
-    private final BookingDomainService bookingDomainService;
+    private final BookingService bookingDomainService;
 
     @Transactional
     public void handle(BookingPaymentCommand command) {

@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.dto.Nofication;
+package com.bookinghomestay.app.api.dto.nofication;
 
 import java.time.LocalDateTime;
 

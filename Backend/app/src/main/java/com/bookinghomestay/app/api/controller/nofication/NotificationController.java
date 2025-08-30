@@ -3,8 +3,8 @@ package com.bookinghomestay.app.api.controller.nofication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bookinghomestay.app.api.dto.ApiResponse;
-import com.bookinghomestay.app.api.dto.Nofication.NotificationResponeDto;
+import com.bookinghomestay.app.api.dto.common.ApiResponse;
+import com.bookinghomestay.app.api.dto.nofication.NotificationResponeDto;
 import com.bookinghomestay.app.application.nofication.command.SetReadNotificationCommand;
 import com.bookinghomestay.app.application.nofication.command.SetReadNotificationHandler;
 import com.bookinghomestay.app.application.nofication.query.GetPublicNotificationHandler;

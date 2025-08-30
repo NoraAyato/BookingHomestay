@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.infrastructure.mapper;
 
-import com.bookinghomestay.app.api.dto.Nofication.NotificationResponeDto;
+import com.bookinghomestay.app.api.dto.nofication.NotificationResponeDto;
 import com.bookinghomestay.app.domain.model.Notification;
 import com.bookinghomestay.app.domain.model.UserNotification;
 

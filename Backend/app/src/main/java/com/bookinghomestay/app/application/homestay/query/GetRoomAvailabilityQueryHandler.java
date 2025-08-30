@@ -4,7 +4,7 @@ import com.bookinghomestay.app.api.dto.homestay.RoomAvailabilityDto;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.model.Phong;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
-import com.bookinghomestay.app.domain.service.HomestayDomainService;
+import com.bookinghomestay.app.domain.service.HomestayService;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
 import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
 
@@ -22,7 +22,7 @@ public class GetRoomAvailabilityQueryHandler {
 
     private final IHomestayRepository homestayRepository;
     private final PendingRoomService pendingRoomService; // service check Redis
-    private final HomestayDomainService homestayDomainService;
+    private final HomestayService homestayDomainService;
 
     @Transactional(readOnly = true)
     public List<RoomAvailabilityDto> handle(String homestayId, LocalDateTime ngayDen, LocalDateTime ngayDi) {

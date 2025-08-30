@@ -11,7 +11,7 @@ import java.util.List;
 public class FileStorageService {
 
     private static final String AVATAR_UPLOAD_DIR = System.getProperty("user.dir") + "/img/uploads/avatars/";
-    private static final String AVATAR_PUBLIC_PATH = "/avatars/";
+    private static final String AVATAR_PUBLIC_PATH = "/img/uploads/avatars/";
 
     public String storeAvatar(MultipartFile file, String userId) {
         if (file == null || file.isEmpty()) {

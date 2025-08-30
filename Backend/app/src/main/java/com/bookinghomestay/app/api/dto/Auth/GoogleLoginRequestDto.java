@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.dto.Auth;
+package com.bookinghomestay.app.api.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

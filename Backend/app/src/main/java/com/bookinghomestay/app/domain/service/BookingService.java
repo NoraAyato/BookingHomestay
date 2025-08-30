@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BookingDomainService {
+public class BookingService {
     /**
      * Tính tổng tiền của booking
      */
@@ -28,20 +28,31 @@ public class BookingDomainService {
         if (booking.getChiTietDatPhongs() == null || booking.getChiTietDatPhongs().isEmpty()) {
             return BigDecimal.ZERO;
         }
-        var chiTiet = booking.getChiTietDatPhongs().get(0);
-        var phong = chiTiet.getPhong();
-        long soNgayLuuTru = ChronoUnit.DAYS.between(
-                chiTiet.getNgayDen().toLocalDate(),
-                chiTiet.getNgayDi().toLocalDate());
-        BigDecimal tongTienPhong = phong.getDonGia().multiply(BigDecimal.valueOf(soNgayLuuTru));
+        var chiTiet = booking.getChiTietDatPhongs();
+        BigDecimal tongTienPhong = BigDecimal.ZERO;
         BigDecimal tongTienDichVu = BigDecimal.ZERO;
-        if (chiTiet.getChiTietDichVus() != null) {
-            for (var dichVu : chiTiet.getChiTietDichVus()) {
-                tongTienDichVu = tongTienDichVu.add(
-                        dichVu.getDichVu().getDonGia().multiply(BigDecimal.valueOf(soNgayLuuTru)));
+        BigDecimal tongTien = BigDecimal.ZERO;
+        long soNgayLuuTru = chiTiet.stream()
+                .mapToLong(ct -> ChronoUnit.DAYS.between(
+                        ct.getNgayDen().toLocalDate(),
+                        ct.getNgayDi().toLocalDate()))
+                .sum();
+        for (var item : chiTiet) {
+            var phong = item.getPhong();
+            if (phong != null && phong.getDonGia() != null) {
+                tongTienPhong = tongTienPhong.add(phong.getDonGia().multiply(BigDecimal.valueOf(soNgayLuuTru)));
             }
+            var dichVu = item.getChiTietDichVus();
+            if (dichVu != null) {
+                for (var dv : dichVu) {
+                    tongTienDichVu = tongTienDichVu.add(
+                            dv.getDichVu().getDonGia().multiply(BigDecimal.valueOf(soNgayLuuTru)));
+                }
+            }
+            tongTien = tongTienPhong.add(tongTienDichVu);
         }
-        return tongTienPhong.add(tongTienDichVu);
+
+        return tongTien;
     }
 
     /**

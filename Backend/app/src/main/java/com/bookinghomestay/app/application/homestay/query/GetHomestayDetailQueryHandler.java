@@ -5,7 +5,7 @@ import com.bookinghomestay.app.api.dto.homestay.HomestayDetailResponseDto;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IDanhGiaRepository;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
-import com.bookinghomestay.app.domain.service.HomestayDomainService;
+import com.bookinghomestay.app.domain.service.HomestayService;
 import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.exception.BusinessException;
@@ -21,7 +21,7 @@ public class GetHomestayDetailQueryHandler {
 
         private final IHomestayRepository homestayRepository;
         private final IDanhGiaRepository danhGiaRepository;
-        private final HomestayDomainService homestayDomainService;
+        private final HomestayService homestayDomainService;
 
         @Transactional
         public HomestayDetailResponseDto handle(GetHomestayDetailQuery query) {

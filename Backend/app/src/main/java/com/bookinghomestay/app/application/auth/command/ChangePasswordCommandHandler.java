@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.application.auth.command;
 
-import com.bookinghomestay.app.api.dto.Auth.AuthResponseDto;
+import com.bookinghomestay.app.api.dto.auth.AuthResponseDto;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.infrastructure.security.JwtTokenProvider;

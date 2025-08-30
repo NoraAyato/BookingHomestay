@@ -7,21 +7,22 @@ import com.bookinghomestay.app.domain.repository.IUserRepository;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.logging.Logger;
+import com.bookinghomestay.app.domain.service.UserService;
 
 @Service
 @RequiredArgsConstructor
 public class UpdateUserProfileCommandHandler {
 
         private final IUserRepository userRepository;
-        private static final Logger logger = Logger.getLogger(UpdateUserProfileCommandHandler.class.getName());
 
         public void handle(UpdateUserProfileCommand command) {
                 try {
                         User user = userRepository.findById(command.getUserId())
-                                        .orElseThrow(() -> new RuntimeException("User not found"));
-
-                        user.setUserName(command.getUserName());
+                                        .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng !"));
+                        user.setFirstName(command.getFirstName());
+                        user.setLastName(command.getLastName());
+                        user.setUserName(UserService
+                                        .removeDiacritics(command.getFirstName() + " " + command.getLastName()));
                         user.setPhoneNumber(command.getPhoneNumber());
                         user.setGender(command.isGender());
                         user.setBirthday(command.getBirthday());

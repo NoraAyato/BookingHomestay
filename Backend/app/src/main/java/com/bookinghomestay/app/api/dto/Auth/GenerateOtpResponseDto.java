@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.dto.Auth;
+package com.bookinghomestay.app.api.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

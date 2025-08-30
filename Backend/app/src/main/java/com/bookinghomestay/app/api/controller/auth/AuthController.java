@@ -1,8 +1,8 @@
 package com.bookinghomestay.app.api.controller.auth;
 
 import com.bookinghomestay.app.api.constant.Messages;
-import com.bookinghomestay.app.api.dto.ApiResponse;
-import com.bookinghomestay.app.api.dto.Auth.*;
+import com.bookinghomestay.app.api.dto.auth.*;
+import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.application.auth.command.*;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfoDto {
+public class UserInfoResponeDto {
     private String userId;
     private String userName;
     private String email;
@@ -21,5 +21,6 @@ public class UserInfoDto {
     private String role;
     private LocalDate birthDay;
     private boolean gender;
-    private boolean getIsRecieveEmail;
+    private LocalDate createdAt;
+    private boolean isReceiveEmail;
 }

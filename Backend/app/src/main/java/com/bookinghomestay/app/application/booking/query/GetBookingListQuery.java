@@ -7,4 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class GetBookingListQuery {
     private String userId;
+    private int page;
+    private int limit;
 }

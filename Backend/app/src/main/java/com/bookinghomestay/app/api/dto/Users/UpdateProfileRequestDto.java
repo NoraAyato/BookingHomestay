@@ -12,12 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateProfileRequestDto {
-    private String userName;
+    private String firstName;
+    private String lastName;
     private String phoneNumber;
     private boolean gender;
     private String birthday;
 
     public LocalDate getBirthdayAsDate() {
-        return LocalDateTime.parse(birthday, DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate();
+        return LocalDate.parse(birthday, DateTimeFormatter.ISO_LOCAL_DATE);
     }
 }

@@ -8,7 +8,7 @@ import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.PhieuHuyPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
-import com.bookinghomestay.app.domain.service.BookingDomainService;
+import com.bookinghomestay.app.domain.service.BookingService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CancelBookingCommandHandler {
 
     private final IBookingRepository bookingRepository;
-    private final BookingDomainService bookingDomainService;
+    private final BookingService bookingDomainService;
 
     @Transactional
     public void handle(CancelBookingCommand command) {
