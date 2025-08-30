@@ -8,7 +8,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class UpdateUserProfileCommand {
     private final String userId;
-    private final String userName;
+    private final String firstName;
+    private final String lastName;
     private final String phoneNumber;
     private final boolean gender;
     private final LocalDate birthday;
