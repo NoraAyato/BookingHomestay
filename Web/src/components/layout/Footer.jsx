@@ -12,7 +12,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <a
-                  href="#"
+                  href="/aboutus"
                   className="text-sm text-gray-600 hover:text-rose-600 transition-colors"
                 >
                   Giới thiệu

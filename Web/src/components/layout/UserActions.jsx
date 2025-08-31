@@ -1,4 +1,6 @@
 import React, { useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useReloadNavigate } from "../../utils/useReloadNavigate";
 import styles from "./UserActions.module.css";
 import { getImageUrl } from "../../utils/imageUrl";
 
@@ -26,6 +28,8 @@ const UserActions = ({
     };
   }, [setShowUserDropdown]);
 
+  const navigate = useReloadNavigate();
+  const location = useLocation();
   return (
     <div className={styles.container}>
       {userInfo ? (
@@ -40,11 +44,11 @@ const UserActions = ({
             aria-haspopup="true"
           >
             <img
-              src={getImageUrl(userInfo.data.picture)}
+              src={getImageUrl(userInfo.picture)}
               alt="avatar"
               className={styles.avatar}
             />
-            <span className={styles.userName}>{userInfo.data.userName}</span>
+            <span className={styles.userName}>{userInfo.userName}</span>
             <svg
               className={`${styles.chevron} ${
                 showUserDropdown ? styles.chevronOpen : ""
@@ -71,7 +75,7 @@ const UserActions = ({
             style={{ willChange: "opacity, transform" }}
           >
             {/* Role-based item */}
-            {userInfo.data.role === "Admin" && (
+            {userInfo.role === "Admin" && (
               <button className={styles.menuItemAdmin}>
                 <div className={styles.iconWrapper}>
                   <svg
@@ -93,7 +97,7 @@ const UserActions = ({
               </button>
             )}
 
-            {userInfo.data.role === "Host" && (
+            {userInfo.role === "Host" && (
               <button className={styles.menuItemHost}>
                 <div className={styles.iconWrapperHost}>
                   <svg
@@ -116,13 +120,19 @@ const UserActions = ({
             )}
 
             {/* Divider if role-based item exists */}
-            {(userInfo.data.role === "Admin" ||
-              userInfo.data.role === "Host") && (
+            {(userInfo.role === "Admin" || userInfo.role === "Host") && (
               <div className={styles.divider}></div>
             )}
 
             {/* Regular menu items */}
-            <button className={styles.menuItem}>
+            <button
+              className={
+                location.pathname === "/user"
+                  ? `${styles.menuItem} ${styles.menuItemActive}`
+                  : styles.menuItem
+              }
+              onClick={() => navigate("/user")}
+            >
               <div className={styles.iconWrapper}>
                 <svg
                   className={styles.icon}
@@ -144,7 +154,14 @@ const UserActions = ({
               </span>
             </button>
 
-            <button className={styles.menuItem}>
+            <button
+              className={
+                location.pathname === "/user/booking-history"
+                  ? `${styles.menuItem} ${styles.menuItemActive}`
+                  : styles.menuItem
+              }
+              onClick={() => navigate("/user/booking-history")}
+            >
               <div className={styles.iconWrapper}>
                 <svg
                   className={styles.icon}
@@ -166,7 +183,14 @@ const UserActions = ({
               </span>
             </button>
 
-            <button className={styles.menuItem}>
+            <button
+              className={
+                location.pathname === "/user/promotions"
+                  ? `${styles.menuItem} ${styles.menuItemActive}`
+                  : styles.menuItem
+              }
+              onClick={() => navigate("/user/promotions")}
+            >
               <div className={styles.iconWrapper}>
                 <svg
                   className={styles.icon}

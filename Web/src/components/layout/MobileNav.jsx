@@ -1,14 +1,14 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import ReloadLink from "../common/ReloadLink";
 
 const MobileNavLink = ({ to, text, icon, onClick }) => (
-  <Link
+  <ReloadLink
     to={to}
     className="block px-2 py-1 rounded-md text-sm font-medium text-gray-700 hover:text-rose-600 hover:bg-rose-50 transition-colors duration-200"
     onClick={onClick}
   >
     <i className={`fas ${icon} mr-2`}></i> {text}
-  </Link>
+  </ReloadLink>
 );
 
 const MobileNav = ({ isMenuOpen, setIsMenuOpen, openAuth }) => (
@@ -33,13 +33,13 @@ const MobileNav = ({ isMenuOpen, setIsMenuOpen, openAuth }) => (
         onClick={() => setIsMenuOpen(false)}
       />
       <MobileNavLink
-        to="/Home/news"
+        to="/news"
         text="Tin tức"
         icon="fa-newspaper"
         onClick={() => setIsMenuOpen(false)}
       />
       <MobileNavLink
-        to="/Home/AboutUs"
+        to="/aboutus"
         text="Về chúng tôi"
         icon="fa-info-circle"
         onClick={() => setIsMenuOpen(false)}
