@@ -17,14 +17,13 @@ export function useFeaturedHomestays() {
     try {
       if (!skipCache) {
         const cachedData = APICache.get(CACHE_KEY_FEATURED);
-
         if (cachedData) {
           if (Array.isArray(cachedData)) {
             setData(cachedData);
             setLoading(false);
             return;
-          } else if (cachedData && Array.isArray(cachedData.data)) {
-            setData(cachedData.data);
+          } else if (cachedData && Array.isArray(cachedData)) {
+            setData(cachedData);
             setLoading(false);
             return;
           } else {
@@ -39,8 +38,6 @@ export function useFeaturedHomestays() {
       if (response.success) {
         if (Array.isArray(response.data)) {
           homestayArr = response.data;
-        } else if (response.data && Array.isArray(response.data.data)) {
-          homestayArr = response.data.data;
         } else {
           throw new Error("Dữ liệu không đúng định dạng mảng");
         }
