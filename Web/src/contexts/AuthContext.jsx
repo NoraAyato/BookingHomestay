@@ -18,7 +18,7 @@ import {
   resetPassword,
 } from "../api/auth";
 import { showToast } from "../components/common/Toast";
-
+import { getAuthReturnPath, removeAuthReturnPath } from "../utils/session";
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -43,18 +43,13 @@ export function AuthProvider({ children }) {
     setError("");
     try {
       const res = await login(email, password, rememberMe);
-      console.log(res);
       if (res.success) {
-        const accessToken = res.data?.data?.accessToken;
-        const refreshToken = res.data?.data?.refreshToken;
+        const accessToken = res.data?.accessToken;
+        const refreshToken = res.data?.refreshToken;
         if (accessToken) setAccessToken(accessToken);
         if (refreshToken) setRefreshToken(refreshToken);
-        const getUser = await getCurrentUser();
-        if (getUser.success && getUser.data) {
-          setUser(getUser.data);
-          setUserInfoLocal(getUser.data);
-        }
-        showToast("success", res.data.message);
+        await handleSetUserAfterAuth();
+        showToast("success", res.message);
         return true;
       } else {
         setError(res.message || "Đăng nhập thất bại");
@@ -90,10 +85,11 @@ export function AuthProvider({ children }) {
       const res = await register(email, password, firstname, lastname);
       console.log(res);
       if (res.success) {
-        if (res.data?.data) {
-          setAccessToken(res.data.data.accessToken);
+        if (res.data) {
+          setAccessToken(res.data.accessToken);
         }
-        showToast("success", res.data.message);
+        await handleSetUserAfterAuth();
+        showToast("success", res.message);
         return true;
       } else {
         setError(res.message || "Đăng ký thất bại");
@@ -119,18 +115,8 @@ export function AuthProvider({ children }) {
         setRefreshToken(refreshToken);
       }
       try {
-        const res = await getCurrentUser();
-        if (res.success && res.data) {
-          setUser(res.data);
-          setUserInfoLocal(res.data);
-          showToast("success", "Đăng nhập Google thành công");
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 1000);
-        } else {
-          showToast("error", res.message);
-          navigate("/");
-        }
+        await handleSetUserAfterAuth();
+        showToast("success", "Đăng nhập Google thành công");
       } catch {
         showToast("error", "Lỗi hệ thống");
         navigate("/");
@@ -146,7 +132,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await sendOtp(email);
       if (res.success) {
-        showToast("success", res.data.message);
+        showToast("success", res.message);
         return true;
       } else {
         setError(res.message);
@@ -169,7 +155,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await verifyOtp(email, otp);
       if (res.success) {
-        showToast("success", res.data.message);
+        showToast("success", res.message);
         return true;
       } else {
         setError(res.message || "Xác thực OTP thất bại");
@@ -189,9 +175,8 @@ export function AuthProvider({ children }) {
     setError("");
     try {
       const res = await forgotPassword(email);
-      console.log(res);
       if (res.success) {
-        showToast("success", res.data.message);
+        showToast("success", res.message);
         return true;
       } else {
         setError(res.message || "Yêu cầu thất bại");
@@ -212,7 +197,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await resetPassword(token, newPassword);
       if (res.success) {
-        showToast("success", res.data.message);
+        showToast("success", res.message);
         return true;
       } else {
         setError(res.message || "Đặt lại mật khẩu thất bại");
@@ -227,6 +212,25 @@ export function AuthProvider({ children }) {
       setLoading(false);
     }
   };
+
+  const handleSetUserAfterAuth = async () => {
+    const getUser = await getCurrentUser();
+    if (getUser.success && getUser.data) {
+      setUser(getUser.data);
+      setUserInfoLocal(getUser.data);
+      const returnPath = getAuthReturnPath();
+      if (returnPath) {
+        removeAuthReturnPath();
+        setTimeout(() => {
+          window.location.href = returnPath;
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1000);
+      }
+    }
+  };
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -234,7 +238,7 @@ export function AuthProvider({ children }) {
     removeUserInfo();
     showToast("success", "Đã đăng xuất");
     setTimeout(() => {
-      window.location.reload();
+      window.location.href = "/";
     }, 2000);
   };
 
