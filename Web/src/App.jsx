@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import LoadingSpinner from "./components/common/LoadingSpinner";
+import ProtectedRoute from "./components/common/ProtectedRoute";
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,15 +13,22 @@ import HomePage from "./pages/home";
 import GoogleCallback from "./pages/auth/GoogleCallback";
 import { AuthProvider } from "./contexts/AuthContext";
 import { AuthPopupProvider } from "./contexts/AuthPopupProvider";
+import UserPage from "./pages/user";
+import NewsPage from "./pages/news";
+import NewsDetailPage from "./pages/news/NewsDetail";
+import AboutUsPage from "./pages/aboutus";
+import HomestayIndex from "./pages/homestay";
+import HomestayDetail from "./pages/homestay/detail";
+
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 function App() {
   return (
     <AuthProvider>
-      <AuthPopupProvider>
-        <Router>
+      <Router>
+        <AuthPopupProvider>
           <AppContent />
-        </Router>
-      </AuthPopupProvider>
+        </AuthPopupProvider>
+      </Router>
     </AuthProvider>
   );
 
@@ -44,6 +52,45 @@ function App() {
                 </Suspense>
               }
             />
+
+            <Route
+              path="/user"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <UserPage />{" "}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/booking-history"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <UserPage />{" "}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/promotions"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  <UserPage />{" "}
+                </ProtectedRoute>
+              }
+            />
+
+            {/* News Routes */}
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:id" element={<NewsDetailPage />} />
+
+            {/* About Us Route */}
+            <Route path="/aboutus" element={<AboutUsPage />} />
+
+            {/* Homestay Routes */}
+            <Route path="/homestay/index" element={<HomestayIndex />} />
+            <Route path="/homestay/detail/:id" element={<HomestayDetail />} />
           </Routes>
         </div>
         {!hideLayout && <Footer />}
