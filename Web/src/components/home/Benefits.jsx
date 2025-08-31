@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { useStaggeredAnimation } from "../../../hooks/useInView";
+import { useStaggeredAnimation } from "../../hooks/useInView";
 
 const Benefits = () => {
   const [ref, shouldAnimate] = useStaggeredAnimation(100);

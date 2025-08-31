@@ -1,4 +1,3 @@
-// src/api/users.js
 import http from "./http";
 
 export async function getCurrentUser() {
@@ -6,5 +5,25 @@ export async function getCurrentUser() {
 }
 
 export async function updateUser(data) {
-  return await http.put("/api/users/me", data, { requireAuth: true });
+  return await http.put("/api/users/me/update-profile", data, {
+    requireAuth: true,
+  });
+}
+
+export async function updateAvatar(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return await http.put("/api/users/me/update-picture", formData, {
+    requireAuth: true,
+  });
+}
+export async function getMyBooking(page = 1, limit = 10) {
+  return http.get(`/api/users/me/my-bookings?page=${page}&limit=${limit}`, {
+    requireAuth: true,
+  });
+}
+export async function setReceiveEmail(isReceiveEmail) {
+  return await http.put(`/api/users/me/receive-email/${isReceiveEmail}`, {
+    requireAuth: true,
+  });
 }

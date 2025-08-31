@@ -4,11 +4,30 @@ import {
   getRefreshToken,
   setAccessToken,
   removeToken,
+  setRefreshToken,
+  removeUserInfo,
+  setAuthReturnPath,
 } from "../utils/session";
 
 let isRefreshing = false;
 let refreshPromise = null;
 const MAX_RETRY = 2;
+
+function handleAuthError(
+  message = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+) {
+  logoutAndCleanup();
+  window.dispatchEvent(
+    new CustomEvent("AUTH_POPUP_EVENT", {
+      detail: {
+        type: "openAuthPopup",
+        mode: "login",
+        message,
+      },
+    })
+  );
+  return { success: false };
+}
 
 // Hàm xử lý lỗi chuẩn hóa trả về cho UI
 function handleError(res) {
@@ -52,10 +71,11 @@ const fetchWithAuth = async (
   accessToken,
   timeout = 15000
 ) => {
-  const headers = {
-    "Content-Type": "application/json",
-    ...(options.headers || {}),
-  };
+  let headers = { ...(options.headers || {}) };
+  // Nếu body là FormData thì KHÔNG set Content-Type
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
   if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
   return fetchWithTimeout(
     `${BASE_URL}${endpoint}`,
@@ -73,27 +93,23 @@ const request = async (endpoint, options = {}) => {
       if (requireAuth && !accessToken) {
         window.dispatchEvent(
           new CustomEvent("AUTH_POPUP_EVENT", {
-            detail: { type: "openAuthPopup", mode: "login" },
-          })
-        );
-        window.dispatchEvent(
-          new CustomEvent("AUTH_POPUP_EVENT", {
             detail: {
-              type: "showToast",
-              level: "warning",
-              message: "Bạn cần đăng nhập để tiếp tục",
+              type: "openAuthPopup",
+              mode: "login",
+              to: "/",
+              message: "Bạn cần đăng nhập để tiếp tục !",
             },
           })
         );
-        return { success: false, message: "Bạn cần đăng nhập để tiếp tục" };
+        return { success: false };
       }
       let res = await fetchWithAuth(endpoint, options, accessToken);
-      // Nếu token hết hạn (401), thử refresh token
       if (res.status === 401) {
         const refreshToken = getRefreshToken();
         if (refreshToken) {
           if (!isRefreshing) {
             isRefreshing = true;
+            console.log("refreshing token...");
             refreshPromise = fetchWithTimeout(
               `${BASE_URL}/api/auth/refresh-token`,
               {
@@ -106,9 +122,10 @@ const request = async (endpoint, options = {}) => {
               if (refreshRes.ok) {
                 const refreshData = await refreshRes.json();
                 setAccessToken(refreshData.accessToken);
+                setRefreshToken(refreshData.refreshToken);
                 return refreshData.accessToken;
               } else {
-                removeToken();
+                logoutAndCleanup();
                 throw new Error(
                   "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
                 );
@@ -119,28 +136,26 @@ const request = async (endpoint, options = {}) => {
           try {
             newAccessToken = await refreshPromise;
           } catch (err) {
-            return {
-              success: false,
-              message: err.message,
-            };
+            return handleAuthError(err.message);
           }
           // Retry request với accessToken mới
           res = await fetchWithAuth(endpoint, options, newAccessToken);
-          // Nếu vẫn lỗi 401 sau refresh, logout và trả về lỗi
           if (res.status === 401) {
-            removeToken();
-            return {
-              success: false,
-              message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-            };
+            return handleAuthError();
           }
+        } else {
+          return handleAuthError();
         }
       }
       if (!res.ok) {
         return await handleError(res);
       }
-      const data = await res.json();
-      return { success: true, data };
+      const response = await res.json();
+      return {
+        success: response.success,
+        data: response.data,
+        message: response.message,
+      };
     } catch (err) {
       lastError = err;
       // Retry nếu lỗi mạng hoặc timeout
@@ -156,7 +171,7 @@ const request = async (endpoint, options = {}) => {
       }
       // Nếu lỗi refresh token, logout
       if (err.message && err.message.includes("timeout")) {
-        removeToken();
+        logoutAndCleanup();
       }
       return {
         success: false,
@@ -190,10 +205,13 @@ const http = {
     request(endpoint, {
       ...options,
       method: "PUT",
-      body: JSON.stringify(body),
+      body: body instanceof FormData ? body : JSON.stringify(body),
     }),
   delete: (endpoint, options = {}) =>
     request(endpoint, { ...options, method: "DELETE" }),
 };
-
+function logoutAndCleanup() {
+  removeToken();
+  removeUserInfo();
+}
 export default http;

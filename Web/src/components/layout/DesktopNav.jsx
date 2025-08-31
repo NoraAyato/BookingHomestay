@@ -1,8 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import ReloadLink from "../common/ReloadLink";
+import LocationDropdown from "./LocationDropdown";
 
 const NavLink = ({ to, text, icon, active }) => (
-  <Link
+  <ReloadLink
     to={to}
     className={`relative px-4 py-2 transition-colors duration-200 group flex items-center font-medium ${
       active ? "text-rose-600 font-bold" : "text-gray-700 hover:text-rose-600"
@@ -17,7 +18,7 @@ const NavLink = ({ to, text, icon, active }) => (
         active ? "w-3/4" : "w-0 group-hover:w-3/4"
       }`}
     ></span>
-  </Link>
+  </ReloadLink>
 );
 
 const DesktopNav = ({ location }) => (
@@ -34,23 +35,18 @@ const DesktopNav = ({ location }) => (
       icon="fa-search"
       active={location.pathname === "/Homestay/Index"}
     />
+    <LocationDropdown location={location} />
     <NavLink
-      to="/location"
-      text="Địa điểm"
-      icon="fa-map-marker-alt"
-      active={location.pathname === "/location"}
-    />
-    <NavLink
-      to="/Home/news"
+      to="/news"
       text="Tin tức"
       icon="fa-newspaper"
-      active={location.pathname === "/Home/news"}
+      active={location.pathname.startsWith("/news")}
     />
     <NavLink
-      to="/Home/AboutUs"
+      to="/aboutus"
       text="Về chúng tôi"
       icon="fa-info-circle"
-      active={location.pathname === "/Home/AboutUs"}
+      active={location.pathname === "/aboutus"}
     />
   </div>
 );

@@ -30,7 +30,6 @@ export const searchHomestays = (params = {}) => {
   if (params.location) queryParams.append("location", params.location);
   if (params.checkIn) queryParams.append("checkIn", params.checkIn);
   if (params.checkOut) queryParams.append("checkOut", params.checkOut);
-  if (params.guests) queryParams.append("guests", params.guests);
   if (params.minPrice) queryParams.append("minPrice", params.minPrice);
   if (params.maxPrice) queryParams.append("maxPrice", params.maxPrice);
   if (params.amenities) {

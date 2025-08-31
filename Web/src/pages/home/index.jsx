@@ -1,40 +1,33 @@
 import React, { Suspense } from "react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-
-// Lazy load các component
-const HeroSection = React.lazy(() => import("./components/HeroSection"));
+const HeroSection = React.lazy(() =>
+  import("../../components/home/HeroSection")
+);
 const FeaturedHomestays = React.lazy(() =>
-  import("./components/FeaturedHomestays")
+  import("../../components/home/FeaturedHomestays")
 );
 const PopularDestinations = React.lazy(() =>
-  import("./components/PopularDestinations")
+  import("../../components/home/PopularDestinations")
 );
-const Testimonials = React.lazy(() => import("./components/Testimonials"));
-const Benefits = React.lazy(() => import("./components/Benefits"));
-const Newsletter = React.lazy(() => import("./components/Newsletter"));
+const Testimonials = React.lazy(() =>
+  import("../../components/home/Testimonials")
+);
+const Benefits = React.lazy(() => import("../../components/home/Benefits"));
+const Newsletter = React.lazy(() => import("../../components/home/Newsletter"));
 
 const HomePage = () => {
   return (
     <div className="homepage">
       {/* Hero Section with Search */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <HeroSection />
-      </Suspense>
+      <HeroSection />
 
       {/* Featured Homestays Section */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <FeaturedHomestays />
-      </Suspense>
-
+      <FeaturedHomestays />
       {/* Popular Destinations */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <PopularDestinations />
-      </Suspense>
+      <PopularDestinations />
 
       {/* Benefits Section */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <Benefits />
-      </Suspense>
+      <Benefits />
 
       <Suspense fallback={<LoadingSpinner />}>
         <Testimonials />

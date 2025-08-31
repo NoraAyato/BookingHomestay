@@ -250,3 +250,9 @@
   height: 1rem;
   color: #fff;
 }
+
+.menuItemActive {
+  background-color: #ffe4e6;
+  color: #e11d48;
+  font-weight: 600;
+}

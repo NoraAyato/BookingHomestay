@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useStaggeredAnimation } from "../../../hooks/useInView";
+import { useStaggeredAnimation } from "../../hooks/useInView";
 
 const Testimonials = () => {
-  const [ref, shouldAnimate] = useStaggeredAnimation(100); 
+  const [ref, shouldAnimate] = useStaggeredAnimation(100);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);

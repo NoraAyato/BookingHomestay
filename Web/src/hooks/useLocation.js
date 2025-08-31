@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, cache } from "react";
 import { APICache } from "../utils/cache";
 import { getTop5Location, getAllLocation } from "../api/location";
 
 const CACHE_KEY_TOP = "location_top5";
 const CACHE_KEY_ALL = "location_all";
-const CACHE_TTL = 15 * 60 * 1000; // 15 phút
+const CACHE_TTL = 15 * 60 * 1000;
 
 export function useLocationData() {
   const [topLocations, setTopLocations] = useState([]);
@@ -15,7 +15,7 @@ export function useLocationData() {
   const [errorAll, setErrorAll] = useState(null);
 
   // Fetch top 5 location
-  const fetchTop5Locations = useCallback(async (skipCache = true) => {
+  const fetchTop5Locations = useCallback(async (skipCache = false) => {
     setLoadingTop(true);
     setErrorTop(null);
     try {
@@ -28,18 +28,17 @@ export function useLocationData() {
         }
       }
       const response = await getTop5Location();
-      console.log("Top 5 Locations Response:", response);
-      if (response.success && Array.isArray(response.data.data)) {
-        setTopLocations(response.data.data);
 
-        APICache.set(CACHE_KEY_TOP, response.data.data, CACHE_TTL);
+      if (response.success && Array.isArray(response.data)) {
+        setTopLocations(response.data);
+        APICache.set(CACHE_KEY_TOP, response.data, CACHE_TTL);
       } else {
         throw new Error(
           response.message || "Không thể lấy danh sách địa điểm top 5"
         );
       }
     } catch (err) {
-      setErrorTop(err.message || "Đã xảy ra lỗi khi tải địa điểm top 5");
+      setErrorTop("Đã xảy ra lỗi khi tải địa điểm top 5");
       const cached = APICache.get(CACHE_KEY_TOP, true);
       if (cached && Array.isArray(cached)) {
         setTopLocations(cached);
@@ -63,9 +62,9 @@ export function useLocationData() {
         }
       }
       const response = await getAllLocation();
-      if (response.success && Array.isArray(response.data.data)) {
-        setAllLocations(response.data.data);
-        APICache.set(CACHE_KEY_ALL, response.data.data, CACHE_TTL);
+      if (response.success && Array.isArray(response.data)) {
+        setAllLocations(response.data);
+        APICache.set(CACHE_KEY_ALL, response.data, CACHE_TTL);
       } else {
         throw new Error(response.message || "Không thể lấy danh sách địa điểm");
       }

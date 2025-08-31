@@ -1,9 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { useStaggeredAnimation } from "../../../hooks/useInView";
-import { useFeaturedHomestays } from "../../../hooks/useHomestayData";
-import LoadingSpinner from "../../../components/common/LoadingSpinner";
-import { getImageUrl } from "../../../utils/imageUrl";
+import { useStaggeredAnimation } from "../../hooks/useInView";
+import { useFeaturedHomestays } from "../../hooks/useHomestay";
+import { getImageUrl } from "../../utils/imageUrl";
 
 const FeaturedHomestays = () => {
   const [ref, shouldAnimate] = useStaggeredAnimation(100);
@@ -47,10 +46,27 @@ const FeaturedHomestays = () => {
         ]
       : [];
 
-  // Data to display - use real data or fallback
   const displayData = featuredHomestays?.length
     ? featuredHomestays
     : fallbackData;
+
+  if (error) {
+    return (
+      <section ref={ref} className="py-12 w-full bg-rose-50/50">
+        <div className="max-w-[1400px] mx-auto px-4 text-center">
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Homestay Nổi Bật
+            </h2>
+            <div className="h-1 w-16 bg-rose-500 rounded-full mb-6 mx-auto"></div>
+            <p className="text-red-500 text-lg max-w-2xl mx-auto">
+              {error.message || "Đã có lỗi xảy ra khi tải dữ liệu homestay"}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section ref={ref} className="py-8 w-full bg-rose-50/50">
@@ -98,7 +114,6 @@ const FeaturedHomestays = () => {
               }}
             >
               {loading && !featuredHomestays?.length ? (
-                // Skeleton UI during loading
                 <div className="animate-pulse">
                   <div className="relative pb-[65%] overflow-hidden bg-gray-200"></div>
                   <div className="p-3">
@@ -127,16 +142,6 @@ const FeaturedHomestays = () => {
                           "https://placehold.co/600x400?text=Error";
                       }}
                     />
-                    <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-sm transition-transform duration-300 group-hover:scale-110">
-                      <svg
-                        className="w-4 h-4 text-amber-400 fill-current"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    </div>
-                    {/* Gradient overlay on hover */}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/0 group-hover:to-black/20 transition-all duration-500 ease-out"></div>
                   </div>
 
@@ -204,12 +209,6 @@ const FeaturedHomestays = () => {
             </motion.div>
           ))}
         </motion.div>
-
-        {loading && (
-          <div className="flex justify-center my-6">
-            <LoadingSpinner size="md" />
-          </div>
-        )}
 
         <div className="text-center mt-8">
           <button className="px-6 py-2.5 bg-white text-rose-600 border border-rose-600 rounded-md text-sm font-medium hover:bg-rose-50 hover:border-rose-700 hover:text-rose-700 transition-all duration-300 transform-gpu hover:-translate-y-0.5 shadow-sm">
