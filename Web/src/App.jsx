@@ -89,7 +89,7 @@ function App() {
             <Route path="/aboutus" element={<AboutUsPage />} />
 
             {/* Homestay Routes */}
-            <Route path="/homestay/index" element={<HomestayIndex />} />
+            <Route path="/homestay" element={<HomestayIndex />} />
             <Route path="/homestay/detail/:id" element={<HomestayDetail />} />
           </Routes>
         </div>
