@@ -1,6 +1,7 @@
 package com.bookinghomestay.app;
 
 import com.bookinghomestay.app.application.homestay.indexing.HomestayIndexingService;
+import com.bookinghomestay.app.application.location.indexing.LocationIndexingService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,7 +20,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AppApplication implements CommandLineRunner {
 
-	private final HomestayIndexingService indexingService;
+	private final HomestayIndexingService homestayIndexingService;
+	private final LocationIndexingService locationIndexingService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(AppApplication.class, args);
@@ -27,7 +29,10 @@ public class AppApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-		indexingService.indexAllHomestayToES();
+		homestayIndexingService.indexAllHomestayToES();
 		System.out.println("✅ Đã index toàn bộ homestay vào Elasticsearch");
+
+		locationIndexingService.indexAllLocationsToES();
+		System.out.println("✅ Đã index toàn bộ khu vực vào Elasticsearch");
 	}
 }
