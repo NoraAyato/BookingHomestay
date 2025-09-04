@@ -1,10 +1,15 @@
 import { useState, useEffect, useCallback, cache } from "react";
 import { APICache } from "../utils/cache";
-import { getTop5Location, getAllLocation } from "../api/location";
+import {
+  getTop5Location,
+  getAllLocation,
+  searchLocationByPrefix,
+} from "../api/location";
 
 const CACHE_KEY_TOP = "location_top5";
 const CACHE_KEY_ALL = "location_all";
 const CACHE_TTL = 15 * 60 * 1000;
+const CACHE_KEY_PREFIX = "location_prefix_";
 
 export function useLocationData() {
   const [topLocations, setTopLocations] = useState([]);
@@ -13,6 +18,9 @@ export function useLocationData() {
   const [loadingAll, setLoadingAll] = useState(false);
   const [errorTop, setErrorTop] = useState(null);
   const [errorAll, setErrorAll] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [errorSearch, setErrorSearch] = useState(null);
 
   // Fetch top 5 location
   const fetchTop5Locations = useCallback(async (skipCache = false) => {
@@ -79,6 +87,46 @@ export function useLocationData() {
     }
   }, []);
 
+  // Tìm kiếm địa điểm theo prefix
+  const searchByPrefix = useCallback(async (prefix) => {
+    if (!prefix || prefix.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+
+    setLoadingSearch(true);
+    setErrorSearch(null);
+
+    try {
+      const cacheKey = CACHE_KEY_PREFIX + prefix.toLowerCase();
+      APICache.remove(cacheKey);
+      const cached = APICache.get(cacheKey);
+      console.log("Cached search results:", cached);
+      if (cached && Array.isArray(cached)) {
+        setSearchResults(cached);
+        setLoadingSearch(false);
+        return;
+      }
+
+      // Gọi API tìm kiếm
+      const response = await searchLocationByPrefix(prefix);
+      console.log("Search results:", response);
+      if (response.success && Array.isArray(response.data)) {
+        setSearchResults(response.data);
+
+        // Cache kết quả tìm kiếm với TTL ngắn hơn
+        APICache.set(cacheKey, response.data, 5 * 60 * 1000); // 5 phút
+      } else {
+        throw new Error(response.message || "Không thể tìm địa điểm");
+      }
+    } catch (err) {
+      setErrorSearch(err.message || "Đã xảy ra lỗi khi tìm địa điểm");
+      setSearchResults([]);
+    } finally {
+      setLoadingSearch(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchTop5Locations();
     fetchAllLocations();
@@ -102,5 +150,9 @@ export function useLocationData() {
     errorAll,
     refetchTop,
     refetchAll,
+    searchByPrefix,
+    searchResults,
+    loadingSearch,
+    errorSearch,
   };
 }

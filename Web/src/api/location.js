@@ -6,3 +6,10 @@ export const getTop5Location = () => {
 export const getAllLocation = () => {
   return http.get(`/api/locations`);
 };
+
+// Tìm kiếm địa điểm theo prefix
+export const searchLocationByPrefix = (prefix) => {
+  return http.get(
+    `/api/locations/search/suggest?prefix=${encodeURIComponent(prefix)}`
+  );
+};

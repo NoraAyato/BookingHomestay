@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { formatDateDisplay } from "../../utils/date";
+import LocationSearchSuggestion from "../common/LocationSearchSuggestion";
+import { useNavigate } from "react-router-dom";
+
 const HeroSection = () => {
   // State cho các trường nhập liệu
   const [location, setLocation] = useState("");
+  const [locationId, setLocationId] = useState("");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
+  const navigate = useNavigate();
 
   // State cho hiển thị định dạng dd/mm/yyyy
   const [checkInDisplay, setCheckInDisplay] = useState("");
@@ -68,8 +73,16 @@ const HeroSection = () => {
   // Xử lý form submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Xử lý tìm kiếm
-    console.log("Tìm kiếm:", { location, checkInDate, checkOutDate });
+
+    // Chuyển hướng đến trang homestay/index với query params
+    navigate({
+      pathname: "/homestay",
+      search: `?location=${encodeURIComponent(
+        location
+      )}&locationId=${encodeURIComponent(
+        locationId || ""
+      )}&checkIn=${checkInDate}&checkOut=${checkOutDate}`,
+    });
   };
 
   return (
@@ -99,7 +112,7 @@ const HeroSection = () => {
             className="flex flex-col md:flex-row gap-6"
             onSubmit={handleSubmit}
           >
-            <div className="flex-1">
+            <div className="flex-1 relative z-30">
               <label
                 htmlFor="location"
                 className="block text-gray-700 text-sm font-medium mb-1 text-left"
@@ -109,14 +122,17 @@ const HeroSection = () => {
               </label>
               <div className="relative">
                 <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-rose-500"></i>
-                <input
-                  id="location"
-                  type="text"
-                  placeholder="Bạn muốn đi đâu?"
-                  className="w-full pl-10 pr-4 py-3 rounded-md border-2 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-700 text-base"
+                <LocationSearchSuggestion
                   value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  required
+                  onChange={(value, locationData) => {
+                    setLocation(value);
+                    if (locationData && locationData.id) {
+                      setLocationId(locationData.id);
+                    } else {
+                      setLocationId("");
+                    }
+                  }}
+                  placeholder="Bạn muốn đi đâu?"
                 />
               </div>
             </div>
@@ -130,17 +146,24 @@ const HeroSection = () => {
                   Ngày nhận phòng
                 </label>
                 <div className="relative">
-                  <i className="far fa-calendar-alt absolute left-3 top-1/2 transform -translate-y-1/2 text-rose-500"></i>
                   <input
                     type="text"
-                    className="pl-10 pr-4 py-3 rounded-md border-2 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-700 text-base w-48"
-                    placeholder="Ngày nhận phòng"
+                    className="pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-700 shadow-sm transition-all duration-150 w-48"
+                    placeholder="Chọn ngày"
                     value={checkInDisplay}
                     readOnly
                     onClick={() =>
                       document.getElementById("checkin-date").showPicker()
                     }
                   />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-rose-500">
+                    <i className="far fa-calendar-alt"></i>
+                  </div>
+                  {!checkInDate && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                      <i className="fas fa-chevron-down text-xs"></i>
+                    </div>
+                  )}
                   <input
                     id="checkin-date"
                     type="date"
@@ -162,11 +185,14 @@ const HeroSection = () => {
                   Ngày trả phòng
                 </label>
                 <div className="relative">
-                  <i className="far fa-calendar-check absolute left-3 top-1/2 transform -translate-y-1/2 text-rose-500"></i>
                   <input
                     type="text"
-                    className="pl-10 pr-4 py-3 rounded-md border-2 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-700 text-base w-48"
-                    placeholder="Ngày trả phòng"
+                    className={`pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm transition-all duration-150 w-48 ${
+                      !checkInDate
+                        ? "bg-gray-50 text-gray-400"
+                        : "text-gray-700"
+                    }`}
+                    placeholder="Chọn ngày"
                     value={checkOutDisplay}
                     readOnly
                     onClick={() =>
@@ -174,6 +200,14 @@ const HeroSection = () => {
                       document.getElementById("checkout-date").showPicker()
                     }
                   />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-rose-500">
+                    <i className="far fa-calendar-check"></i>
+                  </div>
+                  {checkInDate && !checkOutDate && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                      <i className="fas fa-chevron-down text-xs"></i>
+                    </div>
+                  )}
                   <input
                     id="checkout-date"
                     type="date"
@@ -191,7 +225,7 @@ const HeroSection = () => {
             <div className="flex items-end">
               <button
                 type="submit"
-                className="px-8 py-3 bg-rose-600 text-white rounded-md hover:bg-rose-700 transition-colors text-base font-medium h-[50px]"
+                className="px-8 py-3 bg-rose-600 text-white rounded-md hover:bg-rose-700 transition-colors text-base font-medium h-[50px] shadow-md hover:shadow-lg"
               >
                 <i className="fas fa-search mr-2"></i>
                 Tìm kiếm

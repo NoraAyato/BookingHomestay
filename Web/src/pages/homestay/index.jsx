@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import Pagination from "../../components/common/Pagination";
 import HomestayList from "../../components/homestay/HomestayList";
@@ -14,6 +13,7 @@ const HomestayIndex = () => {
   // State for search parameters and results
   const [searchParams, setSearchParams] = useState({
     location: "",
+    locationId: "", // Thêm locationId để lưu mã khu vực
     checkIn: "",
     checkOut: "",
     minPrice: "",
@@ -37,6 +37,8 @@ const HomestayIndex = () => {
 
     if (params.has("location"))
       newSearchParams.location = params.get("location");
+    if (params.has("locationId"))
+      newSearchParams.locationId = params.get("locationId");
     if (params.has("checkIn")) newSearchParams.checkIn = params.get("checkIn");
     if (params.has("checkOut"))
       newSearchParams.checkOut = params.get("checkOut");
@@ -77,8 +79,12 @@ const HomestayIndex = () => {
         // Apply filters to mock data
         let filteredHomestays = [...mockHomestays];
 
-        // Filter by location
-        if (searchParams.location) {
+        // Filter by location ID if available, otherwise by location name
+        if (searchParams.locationId) {
+          filteredHomestays = filteredHomestays.filter(
+            (homestay) => homestay.locationId === searchParams.locationId
+          );
+        } else if (searchParams.location) {
           filteredHomestays = filteredHomestays.filter((homestay) =>
             homestay.location
               .toLowerCase()
@@ -128,12 +134,6 @@ const HomestayIndex = () => {
     fetchHomestays();
   }, [searchParams]);
 
-  // Format date for display
-  const formatDate = (dateString) => {
-    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
-    return new Date(dateString).toLocaleDateString("vi-VN", options);
-  };
-
   // Format price display
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN");
@@ -178,6 +178,7 @@ const HomestayIndex = () => {
   const resetFilters = () => {
     setSearchParams({
       location: "",
+      locationId: "",
       checkIn: "",
       checkOut: "",
       minPrice: "",
@@ -190,10 +191,8 @@ const HomestayIndex = () => {
     setPriceRange([500000, 5000000]);
 
     // Clear URL parameters and navigate to base path
-    navigate("/Homestay/Index");
-  };
-
-  // Handle page change for pagination
+    navigate("/homestay");
+  }; // Handle page change for pagination
   const handlePageChange = (newPage) => {
     setSearchParams((prev) => ({
       ...prev,
@@ -223,7 +222,7 @@ const HomestayIndex = () => {
     });
 
     navigate({
-      pathname: "/Homestay/Index",
+      pathname: "/homestay",
       search: params.toString(),
     });
   };
