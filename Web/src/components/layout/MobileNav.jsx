@@ -21,7 +21,7 @@ const MobileNav = ({ isMenuOpen, setIsMenuOpen, openAuth }) => (
         onClick={() => setIsMenuOpen(false)}
       />
       <MobileNavLink
-        to="/Homestay/Index"
+        to="/homestay"
         text="Tìm homestay"
         icon="fa-search"
         onClick={() => setIsMenuOpen(false)}

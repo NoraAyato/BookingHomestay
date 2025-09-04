@@ -30,10 +30,10 @@ const DesktopNav = ({ location }) => (
       active={location.pathname === "/"}
     />
     <NavLink
-      to="/Homestay/Index"
+      to="/homestay"
       text="Tìm homestay"
       icon="fa-search"
-      active={location.pathname === "/Homestay/Index"}
+      active={location.pathname === "/homestay"}
     />
     <LocationDropdown location={location} />
     <NavLink
