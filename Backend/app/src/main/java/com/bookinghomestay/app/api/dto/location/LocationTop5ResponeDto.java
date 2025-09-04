@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class KhuVucTop5ResponeDto {
+public class LocationTop5ResponeDto {
     private String id;
     private String name;
     private String description;

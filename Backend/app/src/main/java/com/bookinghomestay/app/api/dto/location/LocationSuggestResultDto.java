@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class KhuVucResponseDto {
-    private String maKv;
+public class LocationSuggestResultDto {
+    private String id;
     private String tenKv;
 }
