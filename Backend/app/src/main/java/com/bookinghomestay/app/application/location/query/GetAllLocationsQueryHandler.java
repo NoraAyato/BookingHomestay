@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.application.location.query;
 
-import com.bookinghomestay.app.api.dto.location.KhuVucResponseDto;
+import com.bookinghomestay.app.api.dto.location.LocationResponseDto;
 import com.bookinghomestay.app.domain.repository.IKhuVucRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class GetAllKhuVucQueryHandler {
+public class GetAllLocationsQueryHandler {
 
     private final IKhuVucRepository khuVucRepository;
 
-    public List<KhuVucResponseDto> handle() {
+    public List<LocationResponseDto> handle() {
         return khuVucRepository.getAll().stream()
-                .map(kv -> new KhuVucResponseDto(kv.getMaKv(), kv.getTenKv()))
+                .map(kv -> new LocationResponseDto(kv.getMaKv(), kv.getTenKv()))
                 .collect(Collectors.toList());
     }
 }
