@@ -26,9 +26,6 @@ public class Homestay {
     @Column(name = "trang_thai", nullable = false, length = 50, columnDefinition = "nvarchar(50)")
     private String trangThai;
 
-    @Column(name = "price_per_night")
-    private BigDecimal pricePerNight;
-
     @Column(name = "hinh_anh")
     private String hinhAnh;
 
