@@ -27,7 +27,7 @@ export const searchHomestays = (params = {}) => {
   // Build query string from params
   const queryParams = new URLSearchParams();
 
-  if (params.location) queryParams.append("location", params.location);
+  if (params.locationId) queryParams.append("locationId", params.locationId);
   if (params.checkIn) queryParams.append("checkIn", params.checkIn);
   if (params.checkOut) queryParams.append("checkOut", params.checkOut);
   if (params.minPrice) queryParams.append("minPrice", params.minPrice);
@@ -41,4 +41,18 @@ export const searchHomestays = (params = {}) => {
   if (params.limit) queryParams.append("limit", params.limit);
 
   return http.get(`/api/homestays/search?${queryParams.toString()}`);
+};
+
+export const getAvailableRooms = (params = {}) => {
+  // Build query string from params
+  const queryParams = new URLSearchParams();
+
+  if (params.checkIn) queryParams.append("ngayDen", params.checkIn);
+  if (params.checkOut) queryParams.append("ngayDi", params.checkOut);
+  // homestayId truyền vào path
+  return http.get(
+    `/api/homestays/${
+      params.homestayId
+    }/available-rooms?${queryParams.toString()}`
+  );
 };

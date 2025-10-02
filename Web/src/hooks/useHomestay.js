@@ -1,73 +1,185 @@
 import { useState, useEffect, useCallback } from "react";
-import { getFeaturedHomestays } from "../api/homestay";
+import {
+  getFeaturedHomestays,
+  searchHomestays,
+  getHomestayById,
+  getAvailableRooms,
+} from "../api/homestay";
 import { APICache } from "../utils/cache";
 
 const CACHE_KEY_FEATURED = "featured_homestays";
 const CACHE_TTL = 15 * 60 * 1000; // 15 minutes cache
 
-export function useFeaturedHomestays() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+// Hook đa năng cho homestay: featured, all, search, refetch từng loại, chi tiết
+export function useHomestayData() {
+  const [featuredHomestays, setFeaturedHomestays] = useState([]);
+  const [allHomestays, setAllHomestays] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [homestayDetail, setHomestayDetail] = useState(null);
+  const [availableRooms, setAvailableRooms] = useState([]);
 
-  const fetchHomestays = useCallback(async (skipCache = false) => {
-    setLoading(true);
-    setError(null);
+  const [loadingFeatured, setLoadingFeatured] = useState(false);
+  const [loadingAll, setLoadingAll] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [loadingRooms, setLoadingRooms] = useState(false);
 
+  const [errorFeatured, setErrorFeatured] = useState(null);
+  const [errorAll, setErrorAll] = useState(null);
+  const [errorSearch, setErrorSearch] = useState(null);
+  const [errorDetail, setErrorDetail] = useState(null);
+  const [errorRooms, setErrorRooms] = useState(null);
+
+  // Lấy featured homestays
+  const fetchFeatured = useCallback(async (skipCache = false) => {
+    setLoadingFeatured(true);
+    setErrorFeatured(null);
     try {
       if (!skipCache) {
         const cachedData = APICache.get(CACHE_KEY_FEATURED);
-        if (cachedData) {
-          if (Array.isArray(cachedData)) {
-            setData(cachedData);
-            setLoading(false);
-            return;
-          } else if (cachedData && Array.isArray(cachedData)) {
-            setData(cachedData);
-            setLoading(false);
-            return;
-          } else {
-          }
+        if (cachedData && Array.isArray(cachedData)) {
+          setFeaturedHomestays(cachedData);
+          setLoadingFeatured(false);
+          return;
         }
       }
-
-      // Fetch from API if not in cache or cache skipped
       const response = await getFeaturedHomestays();
-
-      let homestayArr = [];
-      if (response.success) {
-        if (Array.isArray(response.data)) {
-          homestayArr = response.data;
-        } else {
-          throw new Error("Dữ liệu không đúng định dạng mảng");
-        }
-        setData(homestayArr);
-        APICache.set(CACHE_KEY_FEATURED, homestayArr, CACHE_TTL);
+      if (response.success && Array.isArray(response.data)) {
+        setFeaturedHomestays(response.data);
+        APICache.set(CACHE_KEY_FEATURED, response.data, CACHE_TTL);
       } else {
-        throw new Error(response.message || "Failed to fetch homestays");
+        throw new Error(response.message || "Không thể lấy homestay nổi bật");
       }
     } catch (err) {
-      setError(err.message || "Đã xảy ra lỗi khi tải dữ liệu homestay");
-      // If API fails, attempt to use stale cache as fallback
-      const cachedData = APICache.get(CACHE_KEY_FEATURED, true); // Get even if expired
-      if (cachedData && Array.isArray(cachedData)) {
-        setData(cachedData);
-      } else {
-        setData([]);
-      }
+      setErrorFeatured(err.message || "Đã xảy ra lỗi khi tải homestay nổi bật");
+      setFeaturedHomestays([]);
     } finally {
-      setLoading(false);
+      setLoadingFeatured(false);
     }
   }, []);
 
-  // Initial fetch on mount
+  // Lấy all homestays
+  const fetchAll = useCallback(async () => {
+    setLoadingAll(true);
+    setErrorAll(null);
+    try {
+      // Giả sử có API getAllHomestays, nếu chưa có thì để []
+      if (typeof getAllHomestays === "function") {
+        const response = await getAllHomestays();
+        if (response.success && Array.isArray(response.data)) {
+          setAllHomestays(response.data);
+          console.log("All homestays:", response);
+        } else {
+          throw new Error(
+            response.message || "Không thể lấy danh sách homestay"
+          );
+        }
+      } else {
+        setAllHomestays([]);
+      }
+    } catch (err) {
+      setErrorAll(err.message || "Đã xảy ra lỗi khi tải danh sách homestay");
+      setAllHomestays([]);
+    } finally {
+      setLoadingAll(false);
+    }
+  }, []);
+
+  // Tìm kiếm homestay
+  const doSearchHomestays = useCallback(async (params) => {
+    setLoadingSearch(true);
+    setErrorSearch(null);
+    try {
+      const response = await searchHomestays(params);
+      console.log("All homestays:", response);
+      if (response.success && Array.isArray(response.data.items)) {
+        setSearchResults(response.data.items);
+      } else {
+        setSearchResults([]);
+        throw new Error(response.message || "Không tìm thấy homestay phù hợp");
+      }
+    } catch (err) {
+      setErrorSearch(err.message || "Đã xảy ra lỗi khi tìm kiếm homestay");
+      setSearchResults([]);
+    } finally {
+      setLoadingSearch(false);
+    }
+  }, []);
+
+  // Lấy chi tiết homestay
+  const fetchHomestayDetail = useCallback(async (id) => {
+    setLoadingDetail(true);
+    setErrorDetail(null);
+    try {
+      const response = await getHomestayById(id);
+      if (response.success && response.data) {
+        setHomestayDetail(response.data);
+      } else {
+        throw new Error(response.message || "Không tìm thấy homestay");
+      }
+    } catch (err) {
+      setErrorDetail(err.message || "Đã xảy ra lỗi khi lấy chi tiết homestay");
+      setHomestayDetail(null);
+    } finally {
+      setLoadingDetail(false);
+    }
+  }, []);
+
+  // Lấy danh sách phòng khả dụng
+  const fetchAvailableRooms = useCallback(async (params) => {
+    setLoadingRooms(true);
+    setErrorRooms(null);
+    try {
+      const response = await getAvailableRooms(params);
+      if (response.success && Array.isArray(response.data)) {
+        setAvailableRooms(response.data);
+      } else {
+        throw new Error(response.message || "Không tìm thấy phòng khả dụng");
+      }
+    } catch (err) {
+      setErrorRooms(err.message || "Đã xảy ra lỗi khi lấy phòng khả dụng");
+      setAvailableRooms([]);
+    } finally {
+      setLoadingRooms(false);
+    }
+  }, []);
+
+  // Refetch từng loại
+  const refetchFeatured = useCallback(
+    () => fetchFeatured(true),
+    [fetchFeatured]
+  );
+  const refetchAll = useCallback(() => fetchAll(), [fetchAll]);
+  const search = useCallback(
+    (params) => doSearchHomestays(params),
+    [doSearchHomestays]
+  );
+
+  // Fetch featured on mount
   useEffect(() => {
-    fetchHomestays();
-  }, [fetchHomestays]);
+    fetchFeatured();
+  }, [fetchFeatured]);
 
-  const refetch = useCallback(() => {
-    return fetchHomestays(true);
-  }, [fetchHomestays]);
-
-  return { data, loading, error, refetch };
+  return {
+    featuredHomestays,
+    allHomestays,
+    searchResults,
+    homestayDetail,
+    availableRooms,
+    loadingFeatured,
+    loadingAll,
+    loadingSearch,
+    loadingDetail,
+    loadingRooms,
+    errorFeatured,
+    errorAll,
+    errorSearch,
+    errorDetail,
+    errorRooms,
+    refetchFeatured,
+    refetchAll,
+    searchHomestays: search,
+    fetchHomestayDetail,
+    fetchAvailableRooms,
+  };
 }
