@@ -1,116 +1,130 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import {
+  useParams,
+  Link,
+  useLocation as useRouterLocation,
+} from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import ImageGallery from "../../components/common/ImageGallery";
 import Breadcrumb from "../../components/common/Breadcrumb";
 import RoomsList from "../../components/homestay/RoomsList";
 import ReviewsList from "../../components/homestay/ReviewsList";
-import mockHomestays from "../../api/mockData/homestays";
-import { getReviewsByHomestayId } from "../../api/mockData/reviews";
-import { getRoomsByHomestayId } from "../../api/mockData/rooms";
-
+import LocationMap from "../../components/homestay/LocationMap";
+import { useHomestayData } from "../../hooks/useHomestay";
+import { renderDescription } from "../../utils/string";
+import { getImageUrl } from "../../utils/imageUrl";
+import { formatPrice } from "../../utils/price";
 const HomestayDetail = () => {
   const { id } = useParams();
-  const [homestay, setHomestay] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const routerLocation = useRouterLocation();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [selectedDates, setSelectedDates] = useState({
-    checkIn: "",
-    checkOut: "",
-  });
-  const [guests, setGuests] = useState(1);
+  const getInitialDates = () => {
+    const params = new URLSearchParams(routerLocation.search);
+    return {
+      checkIn: params.get("checkIn") || "",
+      checkOut: params.get("checkOut") || "",
+    };
+  };
+  const [selectedDates, setSelectedDates] = useState(getInitialDates);
   const [totalNights, setTotalNights] = useState(0);
-  const [reviewsList, setReviewsList] = useState([]);
-  const [rooms, setRooms] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
 
+  const {
+    homestayDetail,
+    loadingDetail,
+    errorDetail,
+    fetchHomestayDetail,
+    availableRooms,
+    loadingRooms,
+    errorRooms,
+    fetchAvailableRooms,
+  } = useHomestayData();
   useEffect(() => {
-    const fetchHomestayDetail = async () => {
-      setLoading(true);
-      try {
-        // Simulate API call with timeout
-        await new Promise((resolve) => setTimeout(resolve, 800));
+    // Fetch homestay detail khi id thay đổi
+    fetchHomestayDetail(id);
 
-        // Find homestay by ID from mock data
-        const found = mockHomestays.find((homestay) => homestay.id === id);
-
-        if (!found) {
-          throw new Error("Homestay không tồn tại");
-        }
-
-        setHomestay(found);
-
-        // Fetch reviews for this homestay
-        const homestayReviews = getReviewsByHomestayId(id);
-        setReviewsList(homestayReviews);
-
-        // Fetch rooms for this homestay
-        const homestayRooms = getRoomsByHomestayId(id);
-        setRooms(homestayRooms);
-      } catch (err) {
-        setError(err.message || "Có lỗi xảy ra khi tải thông tin homestay");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHomestayDetail();
+    // Reset selected room khi chuyển homestay
+    setSelectedRoom(null);
   }, [id]);
 
+  // Gộp useEffect xử lý dates và rooms logic
   useEffect(() => {
-    // Calculate number of nights when dates change
-    if (selectedDates.checkIn && selectedDates.checkOut) {
-      const checkInDate = new Date(selectedDates.checkIn);
-      const checkOutDate = new Date(selectedDates.checkOut);
+    const newDates = getInitialDates();
+    setSelectedDates(newDates);
 
+    // Calculate number of nights when dates change
+    if (newDates.checkIn && newDates.checkOut) {
+      const checkInDate = new Date(newDates.checkIn);
+      const checkOutDate = new Date(newDates.checkOut);
       const diffTime = checkOutDate.getTime() - checkInDate.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
       setTotalNights(diffDays > 0 ? diffDays : 0);
+
+      // Fetch available rooms if homestay is loaded
+      if (homestayDetail) {
+        fetchAvailableRooms({
+          homestayId: homestayDetail.id,
+          checkIn: newDates.checkIn,
+          checkOut: newDates.checkOut,
+        });
+      }
     } else {
       setTotalNights(0);
     }
-  }, [selectedDates.checkIn, selectedDates.checkOut]);
+  }, [routerLocation.search, homestayDetail]);
 
-  // Format price display
-  const formatPrice = (price) => {
-    return price?.toLocaleString("vi-VN");
+  useEffect(() => {
+    // Calculate nights when manual date selection
+    if (selectedDates.checkIn && selectedDates.checkOut) {
+      const checkInDate = new Date(selectedDates.checkIn);
+      const checkOutDate = new Date(selectedDates.checkOut);
+      const diffTime = checkOutDate.getTime() - checkInDate.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      setTotalNights(diffDays > 0 ? diffDays : 0);
+
+      if (homestayDetail) {
+        fetchAvailableRooms({
+          homestayId: homestayDetail.id,
+          checkIn: selectedDates.checkIn,
+          checkOut: selectedDates.checkOut,
+        });
+      }
+    } else {
+      setTotalNights(0);
+    }
+  }, [selectedDates.checkIn, selectedDates.checkOut, homestayDetail]);
+
+  // Auto-select first room when rooms are loaded
+  useEffect(() => {
+    if (availableRooms && availableRooms.length > 0 && !selectedRoom) {
+      setSelectedRoom(availableRooms[0]);
+    }
+  }, [availableRooms, selectedRoom]);
+
+  // Helper để lấy ngày tối đa cho phép nhận phòng (30 ngày từ hôm nay)
+  const getMaxCheckInDate = () => {
+    const today = new Date();
+    today.setDate(today.getDate() + 30);
+    return today.toISOString().split("T")[0];
   };
 
-  // Get appropriate icon for amenity
-  const getAmenityIcon = (amenity) => {
-    const amenityMap = {
-      Wifi: "wifi",
-      "Máy lạnh": "snowflake",
-      Bếp: "utensils",
-      "Máy giặt": "tshirt",
-      TV: "tv",
-      "Hồ bơi": "swimming-pool",
-      "Bãi đậu xe": "parking",
-      "Bồn tắm": "bath",
-      "Lò vi sóng": "microwave",
-      "Ban công": "door-open",
-      "Tủ lạnh": "refrigerator",
-      "Phòng gym": "dumbbell",
-    };
-
-    return amenityMap[amenity] || "check";
-  };
-
-  // Handle date changes
+  // Handle date changes với validation ngày nhận phòng không quá 30 ngày kể từ hôm nay
   const handleDateChange = (e) => {
     const { name, value } = e.target;
+    if (name === "checkIn") {
+      const maxCheckIn = getMaxCheckInDate();
+      if (value > maxCheckIn) {
+        setSelectedDates({
+          ...selectedDates,
+          checkIn: maxCheckIn,
+        });
+        return;
+      }
+    }
     setSelectedDates({
       ...selectedDates,
       [name]: value,
     });
-  };
-
-  // Handle guest count changes
-  const handleGuestChange = (e) => {
-    const value = parseInt(e.target.value);
-    setGuests(value);
   };
 
   // Handle booking form submission
@@ -136,7 +150,6 @@ const HomestayDetail = () => {
       roomName: selectedRoom.name,
       checkIn: selectedDates.checkIn,
       checkOut: selectedDates.checkOut,
-      guests: guests,
       nights: totalNights,
       pricePerNight: selectedRoom.discountPrice || selectedRoom.price,
       totalPrice:
@@ -147,8 +160,6 @@ const HomestayDetail = () => {
         totalNights * (selectedRoom.discountPrice || selectedRoom.price) * 1.1,
     };
 
-    // For now, just show the booking details
-    console.log("Booking Data:", bookingData);
     alert(
       `Đặt phòng thành công!\nPhòng: ${selectedRoom.name}\nNgày: ${
         selectedDates.checkIn
@@ -158,7 +169,7 @@ const HomestayDetail = () => {
     );
   };
 
-  if (loading) {
+  if (loadingDetail) {
     return (
       <div className="flex justify-center items-center min-h-[500px]">
         <LoadingSpinner />
@@ -166,11 +177,11 @@ const HomestayDetail = () => {
     );
   }
 
-  if (error) {
+  if (errorDetail) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-          <p>{error}</p>
+          <p>{errorDetail}</p>
           <Link
             to="/Homestay/Index"
             className="text-rose-600 font-medium mt-2 inline-block"
@@ -181,6 +192,11 @@ const HomestayDetail = () => {
       </div>
     );
   }
+
+  // Lấy dữ liệu từ homestayDetail
+  const homestay = homestayDetail;
+  const loading = loadingDetail;
+  const error = errorDetail;
 
   if (!homestay) return null;
 
@@ -326,7 +342,7 @@ const HomestayDetail = () => {
                         SUPERHOST
                       </span>
                     )}
-                    Chủ nhà {host.name}
+                    Chủ nhà {host.hostName}
                   </h2>
                   <p className="text-gray-600 text-sm">
                     Tham gia từ {host.joined}
@@ -334,30 +350,20 @@ const HomestayDetail = () => {
                 </div>
                 <div className="flex-shrink-0">
                   <img
-                    src={host.avatar}
-                    alt={host.name}
+                    src={getImageUrl(host.avatar)}
+                    alt={host.hostName}
                     className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm"
                   />
                 </div>
               </div>
             </div>
-
             {/* Description section */}
             <div className="border-b pb-6 mb-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Mô tả</h2>
               <div className="prose max-w-none text-gray-600">
-                <p>{description}</p>
-                <p className="mt-4">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie
-                  vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh
-                  porttitor. Ut in nulla enim. Phasellus molestie magna non est
-                  bibendum non venenatis nisl tempor. Suspendisse dictum feugiat
-                  nisl ut dapibus.
-                </p>
+                <p>{renderDescription(description)}</p>
               </div>
             </div>
-
             {/* Tags section */}
             {tags && tags.length > 0 && (
               <div className="border-b pb-6 mb-6">
@@ -376,28 +382,32 @@ const HomestayDetail = () => {
                 </div>
               </div>
             )}
-
             {/* Rooms section */}
             <div className="border-b pb-6 mb-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Danh sách phòng
               </h2>
-              {rooms.length > 0 ? (
+              {loadingRooms ? (
+                <div className="py-8 text-center">
+                  <LoadingSpinner />
+                </div>
+              ) : errorRooms ? (
+                <p className="text-red-500">{errorRooms}</p>
+              ) : availableRooms && availableRooms.length > 0 ? (
                 <RoomsList
-                  rooms={rooms}
+                  rooms={availableRooms}
+                  selectedRoom={selectedRoom}
                   onSelectRoom={(room) => {
                     setSelectedRoom(room);
-                    // Scroll to booking form
                     document
                       .getElementById("booking-form")
-                      .scrollIntoView({ behavior: "smooth" });
+                      .scrollIntoView({ behavior: "smooth", block: "nearest" });
                   }}
                 />
               ) : (
                 <p className="text-gray-500">Không có thông tin phòng</p>
               )}
             </div>
-
             {/* Policies section */}
             {homestay.policies && (
               <div className="border-b pb-6 mb-6">
@@ -443,16 +453,8 @@ const HomestayDetail = () => {
                 </div>
               </div>
             )}
-
             {/* Location section */}
-            <div className="border-b pb-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Vị trí</h2>
-              <p className="text-gray-600 mb-4">{address}</p>
-              <div className="h-[300px] bg-gray-200 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Bản đồ sẽ được hiển thị ở đây</p>
-              </div>
-            </div>
-
+            <LocationMap address={address} title={title} />
             {/* Reviews section */}
             <div className="border-b pb-6 mb-6">
               <div className="flex items-center mb-6">
@@ -474,20 +476,19 @@ const HomestayDetail = () => {
               </div>
 
               {/* Reviews list with pagination */}
-              <ReviewsList reviews={reviewsList} />
+              {/* <ReviewsList reviews={reviewsList} /> */}
             </div>
-
             {/* Host section */}
             <div className="pb-6">
               <div className="flex items-start">
                 <img
-                  src={host.avatar}
-                  alt={host.name}
+                  src={getImageUrl(host.avatar)}
+                  alt={host.hostName}
                   className="w-16 h-16 rounded-full mr-4"
                 />
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 mb-1">
-                    Chủ nhà {host.name}
+                    Chủ nhà {host.hostName}
                   </h2>
                   <p className="text-gray-500 text-sm mb-2">
                     Thành viên từ {host.joined}
@@ -523,9 +524,9 @@ const HomestayDetail = () => {
                     </div>
                   </div>
                   <p className="text-gray-600">
-                    Xin chào! Tôi là {host.name}, rất vui được đón tiếp bạn tại
-                    homestay của tôi. Tôi luôn cố gắng cung cấp trải nghiệm tốt
-                    nhất cho khách hàng và sẵn sàng hỗ trợ bạn 24/7.
+                    Xin chào! Tôi là {host.hostName}, rất vui được đón tiếp bạn
+                    tại homestay của tôi. Tôi luôn cố gắng cung cấp trải nghiệm
+                    tốt nhất cho khách hàng và sẵn sàng hỗ trợ bạn 24/7.
                   </p>
                   <button className="mt-4 px-4 py-2 border border-gray-900 rounded-md font-medium hover:bg-gray-50">
                     Liên hệ chủ nhà
@@ -539,7 +540,7 @@ const HomestayDetail = () => {
           <div className="lg:col-span-1">
             <div
               id="booking-form"
-              className="sticky top-10 bg-white rounded-xl border shadow-lg p-6"
+              className="sticky top-12 bg-white rounded-xl border shadow-lg p-6"
             >
               <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b">
                 Thông tin đặt phòng
@@ -657,6 +658,7 @@ const HomestayDetail = () => {
                       onChange={handleDateChange}
                       className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
                       min={new Date().toISOString().split("T")[0]}
+                      max={getMaxCheckInDate()}
                     />
                   </div>
                   <div>
@@ -699,10 +701,7 @@ const HomestayDetail = () => {
                     </span>
                     <span>{formatPrice(displayPrice * totalNights)}đ</span>
                   </div>
-                  <div className="flex justify-between text-gray-700">
-                    <span>Phí dịch vụ</span>
-                    <span>{formatPrice(totalPrice * 0.1)}đ</span>
-                  </div>
+
                   <div className="pt-3 mt-3 border-t border-gray-200 flex justify-between font-bold">
                     <span>Tổng tiền</span>
                     <span>{formatPrice(totalPrice + totalPrice * 0.1)}đ</span>
@@ -716,24 +715,5 @@ const HomestayDetail = () => {
     </div>
   );
 };
-
-// Helper function to get icon for amenity
-function getAmenityIcon(amenity) {
-  const iconMap = {
-    WiFi: "wifi",
-    "Điều hòa": "snowflake",
-    Bếp: "utensils",
-    "Bể bơi": "swimming-pool",
-    "Bãi đỗ xe": "parking",
-    TV: "tv",
-    "Máy giặt": "tshirt",
-    "Ban công": "cloud",
-    "Lò vi sóng": "microwave",
-    BBQ: "fire",
-    "Lò sưởi": "fire-alt",
-  };
-
-  return iconMap[amenity] || "check";
-}
 
 export default HomestayDetail;

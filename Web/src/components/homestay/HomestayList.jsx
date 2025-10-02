@@ -1,7 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-
+import { getImageUrl } from "../../utils/imageUrl";
+import { renderDescription } from "../../utils/string";
 const HomestayList = ({
   homestays,
   loading,
@@ -9,12 +10,6 @@ const HomestayList = ({
   formatPrice,
   searchParams,
 }) => {
-  // Format the image URL to ensure it's valid
-  const getValidImageUrl = (imageUrl) => {
-    if (!imageUrl) return "https://placehold.co/600x400?text=No+Image";
-    return imageUrl;
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -73,10 +68,15 @@ const HomestayList = ({
             transition={{ duration: 0.3, delay: index * 0.05 }}
             className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200 group"
           >
-            <Link to={`/Homestay/Detail/${homestay.id}`} className="block">
+            <Link
+              to={`/Homestay/detail/${homestay.id}?checkIn=${encodeURIComponent(
+                searchParams.checkIn || ""
+              )}&checkOut=${encodeURIComponent(searchParams.checkOut || "")}`}
+              className="block"
+            >
               <div className="relative pb-[60%] overflow-hidden">
                 <img
-                  src={getValidImageUrl(homestay.images?.[0])}
+                  src={getImageUrl(homestay.image)}
                   alt={homestay.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   onError={(e) => {
@@ -110,9 +110,12 @@ const HomestayList = ({
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-500 mb-2 line-clamp-2">
-                  {homestay.description}
-                </p>
+                <p
+                  className="text-sm text-gray-500 mb-2 line-clamp-2"
+                  dangerouslySetInnerHTML={{
+                    __html: renderDescription(homestay.description),
+                  }}
+                ></p>
 
                 <p className="text-sm text-gray-700 mb-3 flex items-center">
                   <svg
@@ -179,7 +182,9 @@ const HomestayList = ({
                       </p>
                     )}
                     <p className="text-gray-500 text-xs">
-                      {homestay.reviews} đánh giá
+                      {homestay.reviews
+                        ? `${homestay.reviews} đánh giá`
+                        : "Chưa có đánh giá"}
                     </p>
                   </div>
                   <div

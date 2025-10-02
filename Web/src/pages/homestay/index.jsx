@@ -4,31 +4,42 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import Pagination from "../../components/common/Pagination";
 import HomestayList from "../../components/homestay/HomestayList";
 import SearchSection from "../../components/homestay/SearchSection";
-import mockHomestays from "../../api/mockData/homestays";
-
+import { useHomestayData } from "../../hooks/useHomestay";
+import { formatPrice } from "../../utils/price";
 const HomestayIndex = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Hàm lấy local date yyyy-mm-dd
+  const getLocalDate = (offset = 0) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   // State for search parameters and results
   const [searchParams, setSearchParams] = useState({
     location: "",
-    locationId: "", // Thêm locationId để lưu mã khu vực
-    checkIn: "",
-    checkOut: "",
-    minPrice: "",
-    maxPrice: "",
+    locationId: "",
+    checkIn: getLocalDate(0),
+    checkOut: getLocalDate(1),
+    minPrice: 100000,
+    maxPrice: 5000000,
     amenities: [],
     page: 1,
     limit: 12,
   });
-  const [homestays, setHomestays] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [totalResults, setTotalResults] = useState(0);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
-  const [priceRange, setPriceRange] = useState([500000, 5000000]);
+  const [priceRange, setPriceRange] = useState([100000, 5000000]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+
+  const { searchResults, loadingSearch, errorSearch, searchHomestays } =
+    useHomestayData();
 
   // Parse URL query parameters on component mount
   useEffect(() => {
@@ -68,76 +79,10 @@ const HomestayIndex = () => {
 
   // Fetch homestays based on search parameters
   useEffect(() => {
-    const fetchHomestays = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 600));
-
-        // Apply filters to mock data
-        let filteredHomestays = [...mockHomestays];
-
-        // Filter by location ID if available, otherwise by location name
-        if (searchParams.locationId) {
-          filteredHomestays = filteredHomestays.filter(
-            (homestay) => homestay.locationId === searchParams.locationId
-          );
-        } else if (searchParams.location) {
-          filteredHomestays = filteredHomestays.filter((homestay) =>
-            homestay.location
-              .toLowerCase()
-              .includes(searchParams.location.toLowerCase())
-          );
-        }
-
-        // Filter by price range
-        if (searchParams.minPrice && searchParams.maxPrice) {
-          const minPrice = parseInt(searchParams.minPrice);
-          const maxPrice = parseInt(searchParams.maxPrice);
-          filteredHomestays = filteredHomestays.filter((homestay) => {
-            const price = homestay.discountPrice || homestay.price;
-            return price >= minPrice && price <= maxPrice;
-          });
-        }
-
-        // Filter by amenities
-        if (searchParams.amenities && searchParams.amenities.length > 0) {
-          filteredHomestays = filteredHomestays.filter((homestay) => {
-            return searchParams.amenities.every((amenity) =>
-              homestay.amenities.includes(amenity)
-            );
-          });
-        }
-
-        // Calculate total results
-        setTotalResults(filteredHomestays.length);
-
-        // Apply pagination
-        const startIndex = (searchParams.page - 1) * searchParams.limit;
-        const endIndex = startIndex + searchParams.limit;
-        const paginatedHomestays = filteredHomestays.slice(
-          startIndex,
-          endIndex
-        );
-
-        setHomestays(paginatedHomestays);
-      } catch (err) {
-        setError("Có lỗi xảy ra khi tải dữ liệu");
-        console.error("Error fetching homestays:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHomestays();
+    console.log("Fetching homestays with params:", searchParams);
+    searchHomestays(searchParams);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
-
-  // Format price display
-  const formatPrice = (price) => {
-    return price.toLocaleString("vi-VN");
-  };
 
   // Handle form submission
   const handleSubmit = (e) => {
@@ -147,7 +92,14 @@ const HomestayIndex = () => {
 
   // Handle price range change
   const handlePriceRangeChange = (newPriceRange) => {
-    setPriceRange(newPriceRange);
+    let [min, max] = newPriceRange;
+    // Đảm bảo min không lớn hơn max và max không nhỏ hơn min
+    if (min > max) min = max;
+    if (max < min) max = min;
+    // Giới hạn min/max trong khoảng hợp lệ
+    if (min < 100000) min = 100000;
+    if (max > 10000000) max = 10000000;
+    setPriceRange([min, max]);
   };
 
   // Handle amenity selection
@@ -179,16 +131,16 @@ const HomestayIndex = () => {
     setSearchParams({
       location: "",
       locationId: "",
-      checkIn: "",
-      checkOut: "",
-      minPrice: "",
-      maxPrice: "",
+      checkIn: getLocalDate(0),
+      checkOut: getLocalDate(1),
+      minPrice: 100000,
+      maxPrice: 5000000,
       amenities: [],
       page: 1,
       limit: 12,
     });
     setSelectedAmenities([]);
-    setPriceRange([500000, 5000000]);
+    setPriceRange([100000, 5000000]);
 
     // Clear URL parameters and navigate to base path
     navigate("/homestay");
@@ -209,7 +161,7 @@ const HomestayIndex = () => {
     if (searchParams.location) params.append("location", searchParams.location);
     if (searchParams.checkIn) params.append("checkIn", searchParams.checkIn);
     if (searchParams.checkOut) params.append("checkOut", searchParams.checkOut);
-    if (priceRange[0] !== 500000)
+    if (priceRange[0] !== 100000)
       params.append("minPrice", priceRange[0].toString());
     if (priceRange[1] !== 5000000)
       params.append("maxPrice", priceRange[1].toString());
@@ -278,12 +230,12 @@ const HomestayIndex = () => {
                   max="10000000"
                   step="100000"
                   value={priceRange[0]}
-                  onChange={(e) =>
-                    handlePriceRangeChange([
-                      parseInt(e.target.value),
-                      priceRange[1],
-                    ])
-                  }
+                  onChange={(e) => {
+                    let val = parseInt(e.target.value);
+                    // Không cho min vượt quá max
+                    if (val > priceRange[1]) val = priceRange[1];
+                    handlePriceRangeChange([val, priceRange[1]]);
+                  }}
                   className="w-full"
                 />
                 <input
@@ -292,12 +244,12 @@ const HomestayIndex = () => {
                   max="10000000"
                   step="100000"
                   value={priceRange[1]}
-                  onChange={(e) =>
-                    handlePriceRangeChange([
-                      priceRange[0],
-                      parseInt(e.target.value),
-                    ])
-                  }
+                  onChange={(e) => {
+                    let val = parseInt(e.target.value);
+                    // Không cho max nhỏ hơn min
+                    if (val < priceRange[0]) val = priceRange[0];
+                    handlePriceRangeChange([priceRange[0], val]);
+                  }}
                   className="w-full"
                 />
               </div>
@@ -348,29 +300,31 @@ const HomestayIndex = () => {
           {/* Main content */}
           <div className="flex-1">
             {/* Loading state */}
-            {loading ? (
+            {loadingSearch ? (
               <div className="flex justify-center items-center min-h-[300px]">
                 <LoadingSpinner />
               </div>
-            ) : error ? (
+            ) : errorSearch ? (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                <p>{error}</p>
+                <p>{errorSearch}</p>
               </div>
             ) : (
               <>
                 <HomestayList
-                  homestays={homestays}
-                  loading={loading}
-                  totalResults={totalResults}
+                  homestays={searchResults}
+                  loading={loadingSearch}
+                  totalResults={searchResults.length}
                   formatPrice={formatPrice}
                   searchParams={searchParams}
                 />
 
                 {/* Pagination */}
-                {totalResults > searchParams.limit && (
+                {searchResults.length > searchParams.limit && (
                   <Pagination
                     currentPage={searchParams.page}
-                    totalPages={Math.ceil(totalResults / searchParams.limit)}
+                    totalPages={Math.ceil(
+                      searchResults.length / searchParams.limit
+                    )}
                     onChangePage={handlePageChange}
                     prevLabel="Trước"
                     nextLabel="Sau"
