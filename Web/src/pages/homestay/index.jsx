@@ -5,6 +5,7 @@ import Pagination from "../../components/common/Pagination";
 import HomestayList from "../../components/homestay/HomestayList";
 import SearchSection from "../../components/homestay/SearchSection";
 import { useHomestayData } from "../../hooks/useHomestay";
+import { useDebounce } from "../../hooks/useDebounce";
 import { formatPrice } from "../../utils/price";
 const HomestayIndex = () => {
   const location = useLocation();
@@ -32,6 +33,20 @@ const HomestayIndex = () => {
     page: 1,
     limit: 12,
   });
+
+  // Debounced search params để giảm thiểu số lần gọi API khi người dùng đang thay đổi tham số
+  const debouncedSearchParams = useDebounce(searchParams, 500);
+
+  // Hàm kiểm tra xem có thể tìm kiếm với tham số hiện tại hay không
+  const canSearch = (params) => {
+    // Kiểm tra cả checkIn và checkOut phải tồn tại và không phải chuỗi rỗng
+    return (
+      params.checkIn &&
+      params.checkIn.trim() !== "" &&
+      params.checkOut &&
+      params.checkOut.trim() !== ""
+    );
+  };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
@@ -77,12 +92,14 @@ const HomestayIndex = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
-  // Fetch homestays based on search parameters
+  // Fetch homestays based on debounced search parameters
   useEffect(() => {
-    console.log("Fetching homestays with params:", searchParams);
-    searchHomestays(searchParams);
+    // Chỉ gọi API khi cả checkIn và checkOut đều có giá trị hợp lệ
+    if (canSearch(debouncedSearchParams)) {
+      searchHomestays(debouncedSearchParams);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [debouncedSearchParams]);
 
   // Handle form submission
   const handleSubmit = (e) => {
@@ -156,6 +173,11 @@ const HomestayIndex = () => {
 
   // Update URL with current search parameters
   const updateUrlAndRefetch = () => {
+    // Kiểm tra xem có thể tìm kiếm với tham số hiện tại hay không
+    if (!canSearch(searchParams)) {
+      return; // Không thực hiện tìm kiếm nếu thiếu tham số
+    }
+
     const params = new URLSearchParams();
 
     if (searchParams.location) params.append("location", searchParams.location);

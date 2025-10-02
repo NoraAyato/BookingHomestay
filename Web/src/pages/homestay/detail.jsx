@@ -14,15 +14,20 @@ import { useHomestayData } from "../../hooks/useHomestay";
 import { renderDescription } from "../../utils/string";
 import { getImageUrl } from "../../utils/imageUrl";
 import { formatPrice } from "../../utils/price";
+import { formatCheckInCheckoOutDate } from "../../utils/date";
 const HomestayDetail = () => {
   const { id } = useParams();
   const routerLocation = useRouterLocation();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const getInitialDates = () => {
     const params = new URLSearchParams(routerLocation.search);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
     return {
-      checkIn: params.get("checkIn") || "",
-      checkOut: params.get("checkOut") || "",
+      checkIn: params.get("checkIn") || formatCheckInCheckoOutDate(today),
+      checkOut: params.get("checkOut") || formatCheckInCheckoOutDate(tomorrow),
     };
   };
   const [selectedDates, setSelectedDates] = useState(getInitialDates);
@@ -42,12 +47,10 @@ const HomestayDetail = () => {
   useEffect(() => {
     // Fetch homestay detail khi id thay đổi
     fetchHomestayDetail(id);
-
     // Reset selected room khi chuyển homestay
     setSelectedRoom(null);
   }, [id]);
 
-  // Gộp useEffect xử lý dates và rooms logic
   useEffect(() => {
     const newDates = getInitialDates();
     setSelectedDates(newDates);
@@ -108,7 +111,6 @@ const HomestayDetail = () => {
     return today.toISOString().split("T")[0];
   };
 
-  // Handle date changes với validation ngày nhận phòng không quá 30 ngày kể từ hôm nay
   const handleDateChange = (e) => {
     const { name, value } = e.target;
     if (name === "checkIn") {
@@ -233,7 +235,7 @@ const HomestayDetail = () => {
       <Breadcrumb
         items={[
           { label: "Trang chủ", link: "/" },
-          { label: "Homestay", link: "/Homestay/Index" },
+          { label: "Homestay", link: "/homestay" },
           { label: title },
         ]}
       />
