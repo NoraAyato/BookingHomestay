@@ -2,14 +2,29 @@ import React, { useState, useEffect } from "react";
 import { formatDateDisplay } from "../../utils/date";
 import LocationSearchSuggestion from "../common/LocationSearchSuggestion";
 import { useNavigate } from "react-router-dom";
-
+import { useLocationData } from "../../hooks/useLocation";
+import { normalizeString } from "../../utils/string";
 const HeroSection = () => {
+  // State cho biết đã blur từng ô hay chưa
+  const [touched, setTouched] = useState({
+    location: false,
+    checkIn: false,
+    checkOut: false,
+  });
+  const [submitted, setSubmitted] = useState(false);
+  // State cho lỗi
+  const [locationError, setLocationError] = useState("");
+  const [checkInError, setCheckInError] = useState("");
+  const [checkOutError, setCheckOutError] = useState("");
   // State cho các trường nhập liệu
   const [location, setLocation] = useState("");
   const [locationId, setLocationId] = useState("");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
   const navigate = useNavigate();
+
+  // Hook để tìm kiếm địa điểm
+  const { allLocations } = useLocationData();
 
   // State cho hiển thị định dạng dd/mm/yyyy
   const [checkInDisplay, setCheckInDisplay] = useState("");
@@ -71,16 +86,56 @@ const HeroSection = () => {
   }, [checkInDate]);
 
   // Xử lý form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitted(true);
 
-    // Chuyển hướng đến trang homestay/index với query params
+    let hasError = false;
+    let finalLocationId = locationId;
+    let finalLocationName = location;
+    // Validate location
+    if (!location || !location.trim()) {
+      setLocationError("Vui lòng nhập khu vực");
+      hasError = true;
+    } else {
+      if (!locationId) {
+        const normalizedInput = normalizeString(location);
+        let matchedLocation = allLocations.find((loc) => {
+          const normalizedTenKv = normalizeString(loc.tenKv);
+          return normalizedTenKv === normalizedInput;
+        });
+        if (!matchedLocation) {
+          matchedLocation = allLocations.find((loc) => {
+            const normalizedTenKv = normalizeString(loc.tenKv);
+            return normalizedTenKv.includes(normalizedInput);
+          });
+        }
+        if (matchedLocation) {
+          finalLocationId = matchedLocation.maKv || "";
+          finalLocationName = matchedLocation.tenKv || location;
+        } else {
+          setLocationError(
+            "Khu vực không hợp lệ hoặc không có trong danh sách"
+          );
+          hasError = true;
+        }
+      }
+    }
+    if (!checkInDate) {
+      setCheckInError("Vui lòng chọn ngày nhận phòng");
+      hasError = true;
+    }
+    if (!checkOutDate) {
+      setCheckOutError("Vui lòng chọn ngày trả phòng");
+      hasError = true;
+    }
+    if (hasError) return;
     navigate({
       pathname: "/homestay",
       search: `?location=${encodeURIComponent(
-        location
+        finalLocationName
       )}&locationId=${encodeURIComponent(
-        locationId || ""
+        finalLocationId || ""
       )}&checkIn=${checkInDate}&checkOut=${checkOutDate}`,
     });
   };
@@ -126,14 +181,29 @@ const HeroSection = () => {
                   value={location}
                   onChange={(value, locationData) => {
                     setLocation(value);
-                    if (locationData && locationData.id) {
-                      setLocationId(locationData.id);
+                    // Nếu nhập hợp lệ thì ẩn lỗi ngay
+                    if (value && value.trim()) {
+                      setLocationError("");
+                    }
+                    if (
+                      locationData &&
+                      (locationData.id || locationData.maKv)
+                    ) {
+                      setLocationId(locationData.id || locationData.maKv);
                     } else {
                       setLocationId("");
                     }
                   }}
                   placeholder="Bạn muốn đi đâu?"
+                  onBlur={() =>
+                    setTouched((prev) => ({ ...prev, location: true }))
+                  }
                 />
+                {locationError && (touched.location || submitted) && (
+                  <div className="absolute left-0 mt-1 text-xs text-red-500 bg-white px-2 py-1 rounded shadow z-50 border border-red-200">
+                    {locationError}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-4">
@@ -169,11 +239,21 @@ const HeroSection = () => {
                     type="date"
                     className="absolute opacity-0 w-0 h-0"
                     value={checkInDate}
-                    onChange={(e) => setCheckInDate(e.target.value)}
+                    onChange={(e) => {
+                      setCheckInDate(e.target.value);
+                      if (e.target.value) setCheckInError("");
+                    }}
                     min={minCheckInDate}
                     max={maxCheckInDate}
-                    required
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, checkIn: true }))
+                    }
                   />
+                  {checkInError && (touched.checkIn || submitted) && (
+                    <div className="absolute left-0 mt-1 text-xs text-red-500 bg-white px-2 py-1 rounded shadow z-50 border border-red-200">
+                      {checkInError}
+                    </div>
+                  )}
                 </div>
               </div>
               <div>
@@ -213,12 +293,22 @@ const HeroSection = () => {
                     type="date"
                     className="absolute opacity-0 w-0 h-0"
                     value={checkOutDate}
-                    onChange={(e) => setCheckOutDate(e.target.value)}
+                    onChange={(e) => {
+                      setCheckOutDate(e.target.value);
+                      if (e.target.value) setCheckOutError("");
+                    }}
                     min={minCheckOutDate}
                     max={maxCheckOutDate}
                     disabled={!checkInDate}
-                    required
+                    onBlur={() =>
+                      setTouched((prev) => ({ ...prev, checkOut: true }))
+                    }
                   />
+                  {checkOutError && (touched.checkOut || submitted) && (
+                    <div className="absolute left-0 mt-1 text-xs text-red-500 bg-white px-2 py-1 rounded shadow z-50 border border-red-200">
+                      {checkOutError}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
