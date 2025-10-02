@@ -26,7 +26,7 @@ function handleAuthError(
       },
     })
   );
-  return { success: false };
+  return { success: false, isAuthError: true }; // Thêm flag để nhận biết auth error
 }
 
 // Hàm xử lý lỗi chuẩn hóa trả về cho UI
@@ -119,11 +119,13 @@ const request = async (endpoint, options = {}) => {
               }
             ).then(async (refreshRes) => {
               isRefreshing = false;
+
               if (refreshRes.ok) {
-                const refreshData = await refreshRes.json();
-                setAccessToken(refreshData.accessToken);
-                setRefreshToken(refreshData.refreshToken);
-                return refreshData.accessToken;
+                const res = await refreshRes.json();
+
+                setAccessToken(res.data.accessToken);
+                setRefreshToken(res.data.refreshToken);
+                return res.data.accessToken;
               } else {
                 logoutAndCleanup();
                 throw new Error(
@@ -140,7 +142,7 @@ const request = async (endpoint, options = {}) => {
           }
           // Retry request với accessToken mới
           res = await fetchWithAuth(endpoint, options, newAccessToken);
-          if (res.status === 401) {
+          if (res.status === 403) {
             return handleAuthError();
           }
         } else {

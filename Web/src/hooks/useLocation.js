@@ -101,7 +101,7 @@ export function useLocationData() {
       const cacheKey = CACHE_KEY_PREFIX + prefix.toLowerCase();
       APICache.remove(cacheKey);
       const cached = APICache.get(cacheKey);
-      console.log("Cached search results:", cached);
+      // console.log("Cached search results:", cached);
       if (cached && Array.isArray(cached)) {
         setSearchResults(cached);
         setLoadingSearch(false);
@@ -110,7 +110,7 @@ export function useLocationData() {
 
       // Gọi API tìm kiếm
       const response = await searchLocationByPrefix(prefix);
-      console.log("Search results:", response);
+      // console.log("Search results:", response);
       if (response.success && Array.isArray(response.data)) {
         setSearchResults(response.data);
 

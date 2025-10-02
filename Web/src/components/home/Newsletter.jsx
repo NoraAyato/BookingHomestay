@@ -1,16 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useUser from "../../hooks/useUser";
+import { useAuth } from "../../hooks/useAuth";
+
 const Newsletter = () => {
-  const { user, isReceiveEmailStatus, updateReceiveEmail } = useUser();
-  console.log(isReceiveEmailStatus); //need small fix
+  const { user: authUser } = useAuth();
+  const { currentUser, isReceiveEmailStatus, updateReceiveEmail } = useUser();
+  const user = currentUser || authUser;
   const isRecieveEmail = user?.receiveEmail;
   const userEmail = user?.email || "";
   const [email, setEmail] = useState(userEmail);
+
+  // Update email khi user data thay đổi
+  useEffect(() => {
+    if (user?.email) {
+      setEmail(user.email);
+    }
+  }, [user?.email]);
+
+  // Ẩn component nếu user đã đăng ký nhận email
   if (isRecieveEmail) return null;
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateReceiveEmail();
-    setEmail(userEmail);
+    if (user) {
+      updateReceiveEmail();
+    } else {
+      // Nếu chưa đăng nhập → có thể lưu email để sau này xử lý
+      // console.log("Guest email subscription:", email);
+      // // TODO: Implement guest email subscription
+    }
   };
 
   return (

@@ -9,13 +9,6 @@ export function parseDate(dateStr) {
   // Nếu là dạng YYYY-MM-DD
   return new Date(dateStr);
 }
-export const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-};
 
 // Hàm format ngày dạng dd/mm/yyyy
 export const formatDateDisplay = (dateString) => {
@@ -25,4 +18,86 @@ export const formatDateDisplay = (dateString) => {
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
+};
+
+export const formatCheckInCheckoOutDate = (date) => {
+  return date.toISOString().split("T")[0];
+};
+
+export const formatLocal = (date) => {
+  if (!date) return "";
+
+  // Nếu date đã là chuỗi định dạng YYYY-MM-DD, trả về nguyên dạng
+  if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return date;
+  }
+
+  // Chuyển đổi thành đối tượng Date nếu chưa phải
+  const dateObj = date instanceof Date ? date : new Date(date);
+
+  // Kiểm tra nếu dateObj hợp lệ
+  if (isNaN(dateObj.getTime())) {
+    console.warn("Invalid date provided to formatLocal:", date);
+    return "";
+  }
+
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+export const getMaxCheckInDate = () => {
+  const today = new Date();
+  today.setDate(today.getDate() + 30);
+  return today.toISOString().split("T")[0];
+};
+
+export const getTodayFormatted = () => {
+  const today = new Date();
+  return today.toISOString().split("T")[0];
+};
+
+export const getTomorrowFormatted = () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().split("T")[0];
+};
+
+export const getMaxCheckOutDate = (checkInDate) => {
+  if (!checkInDate) return "";
+  const checkIn = new Date(checkInDate);
+  const maxCheckOut = new Date(checkIn);
+  maxCheckOut.setDate(checkIn.getDate() + 30);
+  return maxCheckOut.toISOString().split("T")[0];
+};
+
+export const getDaysBetween = (startDate, endDate) => {
+  if (!startDate || !endDate) return 0;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffTime = end.getTime() - start.getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
+export const isValidCheckInDate = (checkInDate) => {
+  if (!checkInDate) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const checkIn = new Date(checkInDate);
+  const maxCheckIn = new Date(today);
+  maxCheckIn.setDate(today.getDate() + 30);
+
+  return checkIn >= today && checkIn <= maxCheckIn;
+};
+
+export const isValidCheckOutDate = (checkInDate, checkOutDate) => {
+  if (!checkInDate || !checkOutDate) return false;
+  const checkIn = new Date(checkInDate);
+  const checkOut = new Date(checkOutDate);
+  const maxCheckOut = new Date(checkIn);
+  maxCheckOut.setDate(checkIn.getDate() + 30);
+
+  return checkOut > checkIn && checkOut <= maxCheckOut;
 };

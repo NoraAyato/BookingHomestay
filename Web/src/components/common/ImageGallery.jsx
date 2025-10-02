@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { getImageUrl } from "../../utils/imageUrl";
 /**
  * Reusable image gallery component with multiple display modes
  * @param {Object} props Component props
@@ -114,7 +114,7 @@ const ImageGallery = ({
         style={{ height: typeof height === "number" ? `${height}px` : height }}
       >
         <img
-          src={images[0]}
+          src={getImageUrl(images[0])}
           alt={title || "Image"}
           className="w-full h-full object-cover"
           onError={(e) => {
@@ -153,7 +153,7 @@ const ImageGallery = ({
                 className="absolute inset-0 w-full h-full"
               >
                 <img
-                  src={images[activeIndex]}
+                  src={getImageUrl(images[activeIndex])}
                   alt={`${title || "Image"} ${activeIndex + 1}`}
                   className="w-full h-full object-cover"
                   onError={(e) => {

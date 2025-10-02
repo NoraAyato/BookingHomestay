@@ -1,4 +1,4 @@
-import { parseDate, formatDate } from "../../utils/date";
+import { parseDate, formatDateDisplay } from "../../utils/date";
 import React, { useState, useEffect } from "react";
 import Pagination from "../common/Pagination";
 import { motion } from "framer-motion";
@@ -107,7 +107,7 @@ const UserBookings = () => {
                     NGÀY ĐẶT:
                   </span>
                   <span className="text-gray-700">
-                    {formatDate(booking.bookingDate)}
+                    {formatDateDisplay(booking.bookingDate)}
                   </span>
                 </div>
               </div>
@@ -226,7 +226,7 @@ const UserBookings = () => {
                       >
                         <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                       </svg>
-                      Check-in: {formatDate(booking.rooms[0].checkIn)}
+                      Check-in: {formatDateDisplay(booking.rooms[0].checkIn)}
                     </span>
                     <span className="flex items-center">
                       <svg
@@ -236,7 +236,7 @@ const UserBookings = () => {
                       >
                         <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                       </svg>
-                      Check-out: {formatDate(booking.rooms[0].checkOut)}
+                      Check-out: {formatDateDisplay(booking.rooms[0].checkOut)}
                     </span>
                     <span className="flex items-center">
                       <svg

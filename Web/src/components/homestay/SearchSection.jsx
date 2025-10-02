@@ -1,6 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import LocationSearchSuggestion from "../common/LocationSearchSuggestion";
+import { showToast } from "../common/Toast";
+import {
+  getTodayFormatted,
+  getMaxCheckInDate,
+  getMaxCheckOutDate,
+  isValidCheckInDate,
+  isValidCheckOutDate,
+  formatLocal,
+  getDaysBetween,
+  formatDateDisplay,
+} from "../../utils/date";
 
 const SearchSection = ({ searchParams, setSearchParams, handleSubmit }) => {
   // Lấy query params từ URL
@@ -25,6 +36,46 @@ const SearchSection = ({ searchParams, setSearchParams, handleSubmit }) => {
       setSearchParams(newParams);
     }
   }, []);
+
+  const [checkInError, setCheckInError] = useState("");
+  const [checkOutError, setCheckOutError] = useState("");
+
+  // Validate ngày nhận và trả sử dụng các hàm utility
+  useEffect(() => {
+    setCheckInError("");
+    setCheckOutError("");
+    if (searchParams.checkIn && searchParams.checkOut) {
+      // Ngày nhận không quá 30 ngày từ hôm nay
+      if (!isValidCheckInDate(searchParams.checkIn)) {
+        const message = "Ngày nhận phòng không được quá 30 ngày từ hôm nay";
+        setCheckInError(message);
+        showToast("warning", message);
+      }
+
+      // Ngày trả phải sau ngày nhận và không quá 30 ngày
+      if (!isValidCheckOutDate(searchParams.checkIn, searchParams.checkOut)) {
+        const message = "Ngày trả phòng phải sau ngày nhận phòng";
+        setCheckOutError(message);
+        showToast("warning", message);
+      }
+
+      // Khoảng cách không quá 30 ngày
+      const diff = getDaysBetween(searchParams.checkIn, searchParams.checkOut);
+      if (diff > 30) {
+        const message = "Thời gian lưu trú không được quá 30 ngày";
+        setCheckOutError(message);
+        showToast("warning", message);
+      }
+    }
+  }, [searchParams.checkIn, searchParams.checkOut]);
+
+  const today = getTodayFormatted();
+  const maxCheckIn = getMaxCheckInDate();
+  const minCheckOut = searchParams.checkIn || today;
+  const maxCheckOut = searchParams.checkIn
+    ? getMaxCheckOutDate(searchParams.checkIn)
+    : getMaxCheckOutDate(today);
+
   return (
     <div className="bg-gradient-to-r from-rose-500 to-rose-600 py-12 relative overflow-visible">
       {/* Decorative elements */}
@@ -46,9 +97,9 @@ const SearchSection = ({ searchParams, setSearchParams, handleSubmit }) => {
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 max-w-5xl mx-auto transform transition-all">
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-              <div className="md:col-span-5 relative z-30">
+          <form>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end md:justify-between">
+              <div className="md:col-span-4 flex-1 min-w-0">
                 <label
                   htmlFor="location"
                   className="block text-gray-700 font-medium text-sm mb-1"
@@ -72,7 +123,7 @@ const SearchSection = ({ searchParams, setSearchParams, handleSubmit }) => {
                 />
               </div>
 
-              <div className="md:col-span-3">
+              <div className="md:col-span-4 flex-1 min-w-0">
                 <label
                   htmlFor="checkIn"
                   className="block text-gray-700 font-medium text-sm mb-1"
@@ -85,6 +136,8 @@ const SearchSection = ({ searchParams, setSearchParams, handleSubmit }) => {
                   id="checkIn"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-700 shadow-sm"
                   value={searchParams.checkIn}
+                  min={formatLocal(today)}
+                  max={formatLocal(maxCheckIn)}
                   onChange={(e) =>
                     setSearchParams({
                       ...searchParams,
@@ -94,7 +147,7 @@ const SearchSection = ({ searchParams, setSearchParams, handleSubmit }) => {
                 />
               </div>
 
-              <div className="md:col-span-3">
+              <div className="md:col-span-4 flex-1 min-w-0">
                 <label
                   htmlFor="checkOut"
                   className="block text-gray-700 font-medium text-sm mb-1"
@@ -107,6 +160,8 @@ const SearchSection = ({ searchParams, setSearchParams, handleSubmit }) => {
                   id="checkOut"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-700 shadow-sm"
                   value={searchParams.checkOut}
+                  min={formatLocal(minCheckOut)}
+                  max={formatLocal(maxCheckOut)}
                   onChange={(e) =>
                     setSearchParams({
                       ...searchParams,
@@ -114,16 +169,6 @@ const SearchSection = ({ searchParams, setSearchParams, handleSubmit }) => {
                     })
                   }
                 />
-              </div>
-
-              <div className="md:col-span-1 flex justify-center">
-                <button
-                  type="submit"
-                  className="w-full h-12 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors shadow-md hover:shadow-lg flex items-center justify-center"
-                  aria-label="Tìm kiếm"
-                >
-                  <i className="fas fa-search text-xl"></i>
-                </button>
               </div>
             </div>
           </form>

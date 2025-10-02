@@ -1,17 +1,27 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { useStaggeredAnimation } from "../../hooks/useInView";
-import { useFeaturedHomestays } from "../../hooks/useHomestay";
+import { useHomestayData } from "../../hooks/useHomestay";
 import { getImageUrl } from "../../utils/imageUrl";
 
 const FeaturedHomestays = () => {
+  const navigate = useNavigate();
   const [ref, shouldAnimate] = useStaggeredAnimation(100);
   const {
-    data: featuredHomestays,
-    loading,
-    error,
-    refetch,
-  } = useFeaturedHomestays();
+    featuredHomestays,
+    loadingFeatured: loading,
+    errorFeatured: error,
+    refetchFeatured: refetch,
+  } = useHomestayData();
+
+  // Hàm xử lý đặt phòng và chuyển đến trang chi tiết
+  const handleBookNow = (homestayId, event) => {
+    event.stopPropagation(); // Ngăn chặn sự kiện bubble lên parent
+
+    // Chuyển đến trang chi tiết với ngày mặc định
+    navigate(`/homestay/detail/${homestayId}`);
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -109,6 +119,7 @@ const FeaturedHomestays = () => {
               key={homestay.id}
               variants={cardVariants}
               className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 ease-out transform-gpu border border-gray-100 w-[calc(50%-16px)] sm:w-[calc(33.333%-22px)] md:w-[calc(25%-24px)] lg:w-[calc(20%-26px)] hover:-translate-y-2 cursor-pointer group"
+              onClick={() => navigate(`/homestay/detail/${homestay.id}`)}
               style={{
                 willChange: "transform, opacity",
               }}
@@ -199,7 +210,10 @@ const FeaturedHomestays = () => {
                           {homestay.reviews || 0} đánh giá
                         </p>
                       </div>
-                      <button className="px-2.5 py-1.5 bg-rose-500 text-white rounded text-xs font-medium hover:bg-rose-600 transition-all duration-300 transform-gpu hover:scale-105 shadow-sm group-hover:shadow-md">
+                      <button
+                        onClick={(e) => handleBookNow(homestay.id, e)}
+                        className="px-2.5 py-1.5 bg-rose-500 text-white rounded text-xs font-medium hover:bg-rose-600 transition-all duration-300 transform-gpu hover:scale-105 shadow-sm group-hover:shadow-md"
+                      >
                         Đặt ngay
                       </button>
                     </div>

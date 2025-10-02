@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocationData } from "../../hooks/useLocation";
+import { normalizeString } from "../../utils/string";
 
 /**
  * Component gợi ý tìm kiếm địa điểm
@@ -8,21 +9,34 @@ import { useLocationData } from "../../hooks/useLocation";
  * - onChange: hàm gọi khi chọn hoặc nhập
  * - placeholder: placeholder cho input
  * - debounceTime: thời gian debounce trước khi gọi API (ms)
+ * - onLocationMatch: callback khi tìm thấy địa điểm khớp với tên đã nhập
  */
 const LocationSearchSuggestion = ({
   value,
   onChange,
   placeholder = "Bạn muốn đi đâu?",
   debounceTime = 300,
+  onLocationMatch,
 }) => {
   const [inputValue, setInputValue] = useState(value || "");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef(null);
   const debounceTimerRef = useRef(null);
+  const justSelectedRef = useRef(false);
 
   // Sử dụng hook useLocationData để tìm kiếm
-  const { searchByPrefix, searchResults, loadingSearch, errorSearch } =
-    useLocationData();
+  const {
+    searchByPrefix,
+    searchResults,
+    loadingSearch,
+    errorSearch,
+    allLocations,
+  } = useLocationData();
+  // Ghost suggestion
+  const firstSuggestion =
+    showSuggestions && searchResults.length > 0
+      ? searchResults[0].tenKv || searchResults[0].name || ""
+      : "";
 
   // Xử lý nhập
   const handleInputChange = (e) => {
@@ -43,21 +57,90 @@ const LocationSearchSuggestion = ({
     }, debounceTime);
   };
 
+  // Xử lý Tab hoặc → để fill gợi ý đầu tiên
+  const handleKeyDown = (e) => {
+    if ((e.key === "Tab" || e.key === "ArrowRight") && firstSuggestion) {
+      // Nếu inputValue là prefix của gợi ý đầu tiên thì fill luôn
+      if (
+        firstSuggestion.toLowerCase().startsWith(inputValue.toLowerCase()) &&
+        inputValue !== firstSuggestion
+      ) {
+        e.preventDefault();
+        setInputValue(firstSuggestion);
+        setShowSuggestions(false);
+        if (onChange) onChange(firstSuggestion, searchResults[0]);
+        // Đưa con trỏ về cuối input
+        setTimeout(() => {
+          if (inputRef.current)
+            inputRef.current.setSelectionRange(
+              firstSuggestion.length,
+              firstSuggestion.length
+            );
+        }, 0);
+      }
+    }
+  };
+
   // Xử lý chọn gợi ý
   const handleSelect = (location) => {
     // Lấy giá trị tên địa điểm từ kết quả API
-    const locationName = location.tenKv || location.name || location;
+    const locationName = location.tenKv;
 
     setInputValue(locationName);
     setShowSuggestions(false);
+    justSelectedRef.current = true;
     // Truyền cả tên và đối tượng location để form cha có thể lấy id
     if (onChange) onChange(locationName, location);
     inputRef.current.blur();
   };
 
-  // Ẩn gợi ý khi blur
+  // Ẩn gợi ý khi blur và kiểm tra tìm kiếm chính xác
   const handleBlur = () => {
-    setTimeout(() => setShowSuggestions(false), 100);
+    setTimeout(() => {
+      setShowSuggestions(false);
+      // Nếu vừa chọn từ danh sách thì không làm gì nữa
+      if (justSelectedRef.current) {
+        justSelectedRef.current = false;
+        return;
+      }
+      // Kiểm tra nếu giá trị nhập khớp chính xác hoặc gần đúng với một địa điểm nào đó
+      if (inputValue && inputValue.trim()) {
+        const normalizedInput = normalizeString(inputValue);
+        // Tìm trong kết quả tìm kiếm hiện tại trước
+        let matched = searchResults.find((loc) => {
+          const normalizedTenKv = normalizeString(loc.tenKv);
+          return normalizedTenKv === normalizedInput;
+        });
+        // Nếu không có khớp tuyệt đối, tìm khớp gần đúng (input là một phần tên KV)
+        if (!matched) {
+          matched = searchResults.find((loc) => {
+            const normalizedTenKv = normalizeString(loc.tenKv);
+            return normalizedTenKv.includes(normalizedInput);
+          });
+        }
+        // Nếu vẫn không có, tìm trong toàn bộ danh sách
+        if (!matched) {
+          matched = allLocations.find((loc) => {
+            const normalizedTenKv = normalizeString(loc.tenKv);
+            return normalizedTenKv === normalizedInput;
+          });
+        }
+        if (!matched) {
+          matched = allLocations.find((loc) => {
+            const normalizedTenKv = normalizeString(loc.tenKv);
+            return normalizedTenKv.includes(normalizedInput);
+          });
+        }
+        if (matched) {
+          // Tự động fill lại tên khu vực đúng vào input
+          const locationName = matched.tenKv;
+          setInputValue(locationName);
+          if (onChange) onChange(locationName, matched);
+        } else if (onChange) {
+          onChange(inputValue, undefined);
+        }
+      }
+    }, 100);
   };
 
   // Cập nhật inputValue khi prop value thay đổi từ bên ngoài
@@ -69,16 +152,45 @@ const LocationSearchSuggestion = ({
 
   return (
     <div className="relative">
+      {/* Ghost suggestion overlay */}
+      <div
+        className="absolute left-0 top-0 h-full w-full pointer-events-none select-none flex items-center"
+        style={{ zIndex: 1 }}
+      >
+        {firstSuggestion &&
+          inputValue &&
+          firstSuggestion.toLowerCase().startsWith(inputValue.toLowerCase()) &&
+          inputValue !== firstSuggestion && (
+            <span
+              className="pl-10 pr-4 py-3 text-gray-400 bg-transparent font-normal"
+              style={{
+                position: "absolute",
+                left: 0,
+                top: "-5.2px",
+                lineHeight: "2.25rem",
+                fontSize: "1rem",
+                fontFamily: "inherit",
+                pointerEvents: "none",
+                whiteSpace: "pre",
+              }}
+            >
+              <span style={{ visibility: "hidden" }}>{inputValue}</span>
+              {firstSuggestion.slice(inputValue.length)}
+            </span>
+          )}
+      </div>
       <input
         ref={inputRef}
         type="text"
-        className="w-full pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-700 shadow-sm transition-all duration-150"
+        className="w-full pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-700 shadow-sm transition-all duration-150 bg-transparent"
         placeholder={placeholder}
         value={inputValue}
         onChange={handleInputChange}
         onFocus={() => setShowSuggestions(true)}
         onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
         autoComplete="off"
+        style={{ position: "relative", zIndex: 2, background: "transparent" }}
       />
 
       {/* Hiển thị biểu tượng loading khi đang tìm kiếm */}
