@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getImageUrl } from "../../utils/imageUrl";
 import useUser from "../../hooks/useUser";
-import { formatDate } from "../../utils/date";
+import { formatDateDisplay } from "../../utils/date";
 import LoadingSpinner from "../common/LoadingSpinner";
 
 const UserInfo = () => {
@@ -223,7 +223,7 @@ const UserInfo = () => {
             <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
               <div className="flex items-center">
                 <span className="font-semibold mr-2">Thành viên từ:</span>
-                <span>{formatDate(user.createdAt)}</span>
+                <span>{formatDateDisplay(user.createdAt)}</span>
               </div>
               <div className="flex items-center">
                 <span className="font-semibold mr-2">Giới tính:</span>
