@@ -104,12 +104,12 @@ const request = async (endpoint, options = {}) => {
         return { success: false };
       }
       let res = await fetchWithAuth(endpoint, options, accessToken);
-      if (res.status === 401) {
+      if (res.status === 403) {
         const refreshToken = getRefreshToken();
         if (refreshToken) {
           if (!isRefreshing) {
             isRefreshing = true;
-            console.log("refreshing token...");
+            // console.log("refreshing token...");
             refreshPromise = fetchWithTimeout(
               `${BASE_URL}/api/auth/refresh-token`,
               {
@@ -140,7 +140,7 @@ const request = async (endpoint, options = {}) => {
           }
           // Retry request với accessToken mới
           res = await fetchWithAuth(endpoint, options, newAccessToken);
-          if (res.status === 401) {
+          if (res.status === 403) {
             return handleAuthError();
           }
         } else {
