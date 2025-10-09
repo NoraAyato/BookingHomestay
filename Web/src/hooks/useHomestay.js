@@ -90,6 +90,7 @@ export function useHomestayData() {
     setLoadingSearch(true);
     setErrorSearch(null);
     try {
+      console.log("Searching homestays with params:", params);
       const response = await searchHomestays(params);
       console.log("All homestays:", response);
       if (response.success && Array.isArray(response.data.items)) {

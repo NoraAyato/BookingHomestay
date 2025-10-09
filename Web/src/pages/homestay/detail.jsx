@@ -3,6 +3,7 @@ import {
   useParams,
   Link,
   useLocation as useRouterLocation,
+  useNavigate,
 } from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import ImageGallery from "../../components/common/ImageGallery";
@@ -10,14 +11,21 @@ import Breadcrumb from "../../components/common/Breadcrumb";
 import RoomsList from "../../components/homestay/RoomsList";
 import ReviewsList from "../../components/homestay/ReviewsList";
 import LocationMap from "../../components/homestay/LocationMap";
+import { showToast } from "../../components/common/Toast";
 import { useHomestayData } from "../../hooks/useHomestay";
 import { renderDescription } from "../../utils/string";
 import { getImageUrl } from "../../utils/imageUrl";
 import { formatPrice } from "../../utils/price";
-import { formatCheckInCheckoOutDate } from "../../utils/date";
+import {
+  formatCheckInCheckoOutDate,
+  isValidCheckInDate,
+  isValidCheckOutDate,
+  getDaysBetween,
+} from "../../utils/date";
 const HomestayDetail = () => {
   const { id } = useParams();
   const routerLocation = useRouterLocation();
+  const navigate = useNavigate();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const getInitialDates = () => {
     const params = new URLSearchParams(routerLocation.search);
@@ -33,6 +41,44 @@ const HomestayDetail = () => {
   const [selectedDates, setSelectedDates] = useState(getInitialDates);
   const [totalNights, setTotalNights] = useState(0);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [isDateValid, setIsDateValid] = useState(true);
+
+  // Validation function cho dates
+  const validateDates = (checkIn, checkOut) => {
+    if (!checkIn || !checkOut) {
+      return {
+        isValid: false,
+        message: "Vui lòng chọn ngày nhận phòng và trả phòng",
+      };
+    }
+
+    // Validate ngày nhận không quá 30 ngày từ hôm nay
+    if (!isValidCheckInDate(checkIn)) {
+      return {
+        isValid: false,
+        message: "Ngày nhận phòng không được quá 30 ngày từ hôm nay",
+      };
+    }
+
+    // Validate ngày trả phải sau ngày nhận
+    if (!isValidCheckOutDate(checkIn, checkOut)) {
+      return {
+        isValid: false,
+        message: "Ngày trả phòng phải sau ngày nhận phòng",
+      };
+    }
+
+    // Validate khoảng cách không quá 30 ngày
+    const diff = getDaysBetween(checkIn, checkOut);
+    if (diff > 30) {
+      return {
+        isValid: false,
+        message: "Thời gian lưu trú không được quá 30 ngày",
+      };
+    }
+
+    return { isValid: true, message: "" };
+  };
 
   const {
     homestayDetail,
@@ -63,7 +109,16 @@ const HomestayDetail = () => {
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       setTotalNights(diffDays > 0 ? diffDays : 0);
 
-      // Fetch available rooms if homestay is loaded
+      // Validate dates before fetching rooms
+      const validation = validateDates(newDates.checkIn, newDates.checkOut);
+      setIsDateValid(validation.isValid);
+
+      if (!validation.isValid) {
+        showToast("warning", validation.message);
+        return;
+      }
+
+      // Fetch available rooms if homestay is loaded and dates are valid
       if (homestayDetail) {
         fetchAvailableRooms({
           homestayId: homestayDetail.id,
@@ -73,6 +128,7 @@ const HomestayDetail = () => {
       }
     } else {
       setTotalNights(0);
+      setIsDateValid(false);
     }
   }, [routerLocation.search, homestayDetail]);
 
@@ -85,6 +141,19 @@ const HomestayDetail = () => {
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       setTotalNights(diffDays > 0 ? diffDays : 0);
 
+      // Validate dates before fetching rooms
+      const validation = validateDates(
+        selectedDates.checkIn,
+        selectedDates.checkOut
+      );
+      setIsDateValid(validation.isValid);
+
+      if (!validation.isValid) {
+        showToast("warning", validation.message);
+        return;
+      }
+
+      // Fetch available rooms if homestay is loaded and dates are valid
       if (homestayDetail) {
         fetchAvailableRooms({
           homestayId: homestayDetail.id,
@@ -94,6 +163,7 @@ const HomestayDetail = () => {
       }
     } else {
       setTotalNights(0);
+      setIsDateValid(false);
     }
   }, [selectedDates.checkIn, selectedDates.checkOut, homestayDetail]);
 
@@ -109,6 +179,18 @@ const HomestayDetail = () => {
     const today = new Date();
     today.setDate(today.getDate() + 30);
     return today.toISOString().split("T")[0];
+  };
+
+  // Helper để lấy ngày tối đa cho phép trả phòng (30 ngày từ ngày nhận phòng)
+  const getMaxCheckOutDate = () => {
+    if (!selectedDates.checkIn) {
+      const today = new Date();
+      today.setDate(today.getDate() + 30);
+      return today.toISOString().split("T")[0];
+    }
+    const checkInDate = new Date(selectedDates.checkIn);
+    checkInDate.setDate(checkInDate.getDate() + 30);
+    return checkInDate.toISOString().split("T")[0];
   };
 
   const handleDateChange = (e) => {
@@ -135,40 +217,36 @@ const HomestayDetail = () => {
 
     // Check if room is selected
     if (!selectedRoom) {
-      alert("Vui lòng chọn phòng trước khi đặt");
+      showToast("error", "Vui lòng chọn phòng trước khi đặt");
       return;
     }
 
     // Check if dates are selected
     if (!selectedDates.checkIn || !selectedDates.checkOut) {
-      alert("Vui lòng chọn ngày nhận phòng và trả phòng");
+      showToast("error", "Vui lòng chọn ngày nhận phòng và trả phòng");
       return;
     }
 
-    // Prepare booking data
-    const bookingData = {
+    // Check if dates are valid
+    if (!isDateValid) {
+      showToast("error", "Ngày nhận phòng hoặc trả phòng không hợp lệ");
+      return;
+    }
+
+    // Prepare booking data to pass to booking page
+    const bookingParams = new URLSearchParams({
       homestayId: id,
       roomId: selectedRoom.id,
-      roomName: selectedRoom.name,
+      roomName: encodeURIComponent(selectedRoom.name),
       checkIn: selectedDates.checkIn,
       checkOut: selectedDates.checkOut,
-      nights: totalNights,
-      pricePerNight: selectedRoom.discountPrice || selectedRoom.price,
-      totalPrice:
-        totalNights * (selectedRoom.discountPrice || selectedRoom.price),
-      serviceFee:
-        totalNights * (selectedRoom.discountPrice || selectedRoom.price) * 0.1,
-      grandTotal:
-        totalNights * (selectedRoom.discountPrice || selectedRoom.price) * 1.1,
-    };
+      pricePerNight: (
+        selectedRoom.discountPrice || selectedRoom.price
+      ).toString(),
+    });
 
-    alert(
-      `Đặt phòng thành công!\nPhòng: ${selectedRoom.name}\nNgày: ${
-        selectedDates.checkIn
-      } - ${selectedDates.checkOut}\nTổng tiền: ${formatPrice(
-        bookingData.grandTotal
-      )}đ`
-    );
+    // Navigate to booking page
+    navigate(`/booking?${bookingParams.toString()}`);
   };
 
   if (loadingDetail) {
@@ -677,21 +755,34 @@ const HomestayDetail = () => {
                         selectedDates.checkIn ||
                         new Date().toISOString().split("T")[0]
                       }
+                      max={getMaxCheckOutDate()}
                     />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-rose-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-rose-700 transition-colors"
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+                    !selectedDates.checkIn ||
+                    !selectedDates.checkOut ||
+                    !selectedRoom ||
+                    !isDateValid
+                      ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                      : "bg-rose-600 text-white hover:bg-rose-700"
+                  }`}
                   disabled={
                     !selectedDates.checkIn ||
                     !selectedDates.checkOut ||
-                    !selectedRoom
+                    !selectedRoom ||
+                    !isDateValid
                   }
                   onClick={handleBookingSubmit}
                 >
-                  {!selectedRoom ? "Vui lòng chọn phòng" : "Đặt phòng"}
+                  {!selectedRoom
+                    ? "Vui lòng chọn phòng"
+                    : !isDateValid
+                    ? "Ngày không hợp lệ"
+                    : "Đặt phòng"}
                 </button>
               </form>
 

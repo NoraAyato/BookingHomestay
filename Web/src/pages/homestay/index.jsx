@@ -6,33 +6,60 @@ import HomestayList from "../../components/homestay/HomestayList";
 import SearchSection from "../../components/homestay/SearchSection";
 import { useHomestayData } from "../../hooks/useHomestay";
 import { useDebounce } from "../../hooks/useDebounce";
+import { useAmenities } from "../../hooks/useAmenities";
 import { formatPrice } from "../../utils/price";
+import {
+  isValidCheckInDate,
+  isValidCheckOutDate,
+  getDaysBetween,
+  getLocalDate,
+} from "../../utils/date";
 const HomestayIndex = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Hàm lấy local date yyyy-mm-dd
-  const getLocalDate = (offset = 0) => {
-    const d = new Date();
-    d.setDate(d.getDate() + offset);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+  // Lấy giá trị từ URL nếu có, nếu không thì dùng giá trị mặc định
+  const getInitialSearchParams = () => {
+    const params = new URLSearchParams(location.search);
+    const hasParams = params.toString().length > 0;
+
+    if (!hasParams) {
+      // Nếu không có tham số trong URL, sử dụng giá trị mặc định
+      return {
+        location: "",
+        locationId: "",
+        checkIn: getLocalDate(0),
+        checkOut: getLocalDate(1),
+        minPrice: 100000,
+        maxPrice: 5000000,
+        amenities: [],
+        page: 1,
+        limit: 12,
+      };
+    }
+
+    // Nếu có tham số trong URL, lấy từ URL
+    const initialParams = {
+      location: params.get("location") || "",
+      locationId: params.get("locationId") || "",
+      checkIn: params.get("checkIn") || getLocalDate(0),
+      checkOut: params.get("checkOut") || getLocalDate(1),
+      minPrice: params.get("minPrice")
+        ? parseInt(params.get("minPrice"))
+        : 100000,
+      maxPrice: params.get("maxPrice")
+        ? parseInt(params.get("maxPrice"))
+        : 5000000,
+      amenities: params.getAll("amenities") || [],
+      page: params.get("page") ? parseInt(params.get("page")) : 1,
+      limit: 12,
+    };
+
+    return initialParams;
   };
 
   // State for search parameters and results
-  const [searchParams, setSearchParams] = useState({
-    location: "",
-    locationId: "",
-    checkIn: getLocalDate(0),
-    checkOut: getLocalDate(1),
-    minPrice: 100000,
-    maxPrice: 5000000,
-    amenities: [],
-    page: 1,
-    limit: 12,
-  });
+  const [searchParams, setSearchParams] = useState(getInitialSearchParams());
 
   // Debounced search params để giảm thiểu số lần gọi API khi người dùng đang thay đổi tham số
   const debouncedSearchParams = useDebounce(searchParams, 500);
@@ -40,57 +67,60 @@ const HomestayIndex = () => {
   // Hàm kiểm tra xem có thể tìm kiếm với tham số hiện tại hay không
   const canSearch = (params) => {
     // Kiểm tra cả checkIn và checkOut phải tồn tại và không phải chuỗi rỗng
-    return (
-      params.checkIn &&
-      params.checkIn.trim() !== "" &&
-      params.checkOut &&
-      params.checkOut.trim() !== ""
-    );
+    if (
+      !params.checkIn ||
+      params.checkIn.trim() === "" ||
+      !params.checkOut ||
+      params.checkOut.trim() === ""
+    ) {
+      return false;
+    }
+
+    // Validate ngày nhận không quá 30 ngày từ hôm nay
+    if (!isValidCheckInDate(params.checkIn)) {
+      return false;
+    }
+
+    // Validate ngày trả phải sau ngày nhận
+    if (!isValidCheckOutDate(params.checkIn, params.checkOut)) {
+      return false;
+    }
+
+    // Validate khoảng cách không quá 30 ngày
+    const diff = getDaysBetween(params.checkIn, params.checkOut);
+    if (diff > 30) {
+      return false;
+    }
+
+    return true;
   };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedAmenities, setSelectedAmenities] = useState([]);
-  const [priceRange, setPriceRange] = useState([100000, 5000000]);
+  const [selectedAmenities, setSelectedAmenities] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.getAll("amenities") || [];
+  });
+  const [priceRange, setPriceRange] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    const minPrice = params.get("minPrice")
+      ? parseInt(params.get("minPrice"))
+      : 100000;
+    const maxPrice = params.get("maxPrice")
+      ? parseInt(params.get("maxPrice"))
+      : 5000000;
+    return [minPrice, maxPrice];
+  });
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   const { searchResults, loadingSearch, errorSearch, searchHomestays } =
     useHomestayData();
 
-  // Parse URL query parameters on component mount
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const newSearchParams = { ...searchParams };
-
-    if (params.has("location"))
-      newSearchParams.location = params.get("location");
-    if (params.has("locationId"))
-      newSearchParams.locationId = params.get("locationId");
-    if (params.has("checkIn")) newSearchParams.checkIn = params.get("checkIn");
-    if (params.has("checkOut"))
-      newSearchParams.checkOut = params.get("checkOut");
-    if (params.has("minPrice"))
-      newSearchParams.minPrice = params.get("minPrice");
-    if (params.has("maxPrice"))
-      newSearchParams.maxPrice = params.get("maxPrice");
-    if (params.has("page")) newSearchParams.page = parseInt(params.get("page"));
-    if (params.has("amenities")) {
-      const amenities = params.getAll("amenities");
-      newSearchParams.amenities = amenities;
-      setSelectedAmenities(amenities);
-    }
-
-    setSearchParams(newSearchParams);
-
-    // Update price range if min/max price are in URL
-    if (newSearchParams.minPrice && newSearchParams.maxPrice) {
-      setPriceRange([
-        parseInt(newSearchParams.minPrice),
-        parseInt(newSearchParams.maxPrice),
-      ]);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]);
+  // Hook để lấy danh sách tiện ích từ API
+  const {
+    amenities,
+    loading: amenitiesLoading,
+    error: amenitiesError,
+  } = useAmenities();
 
   // Fetch homestays based on debounced search parameters
   useEffect(() => {
@@ -140,7 +170,7 @@ const HomestayIndex = () => {
       amenities: selectedAmenities,
     }));
 
-    updateUrlAndRefetch();
+    // updateUrlAndRefetch();
   };
 
   // Reset filters button click
@@ -181,6 +211,8 @@ const HomestayIndex = () => {
     const params = new URLSearchParams();
 
     if (searchParams.location) params.append("location", searchParams.location);
+    if (searchParams.locationId)
+      params.append("locationId", searchParams.locationId);
     if (searchParams.checkIn) params.append("checkIn", searchParams.checkIn);
     if (searchParams.checkOut) params.append("checkOut", searchParams.checkOut);
     if (priceRange[0] !== 100000)
@@ -200,18 +232,6 @@ const HomestayIndex = () => {
       search: params.toString(),
     });
   };
-
-  // List of amenity options
-  const amenityOptions = [
-    { id: "Wifi", label: "Wifi", icon: "fa-wifi" },
-    { id: "Máy lạnh", label: "Máy lạnh", icon: "fa-snowflake" },
-    { id: "Bếp", label: "Bếp", icon: "fa-utensils" },
-    { id: "Máy giặt", label: "Máy giặt", icon: "fa-tshirt" },
-    { id: "TV", label: "TV", icon: "fa-tv" },
-    { id: "Hồ bơi", label: "Hồ bơi", icon: "fa-swimming-pool" },
-    { id: "Bãi đậu xe", label: "Bãi đậu xe", icon: "fa-parking" },
-    { id: "Bồn tắm", label: "Bồn tắm", icon: "fa-bath" },
-  ];
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -279,27 +299,34 @@ const HomestayIndex = () => {
               {/* Amenities filter */}
               <div className="space-y-2">
                 <h3 className="font-medium text-gray-700">Tiện nghi</h3>
-                <div className="space-y-2">
-                  {amenityOptions.map((amenity) => (
-                    <label
-                      key={amenity.id}
-                      className="flex items-start gap-2 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        className="mt-1 h-4 w-4 text-rose-600 rounded focus:ring-rose-500"
-                        checked={selectedAmenities.includes(amenity.id)}
-                        onChange={() => handleAmenityChange(amenity.id)}
-                      />
-                      <div className="flex items-center">
-                        <i
-                          className={`fas ${amenity.icon} text-gray-500 mr-2 w-5`}
-                        ></i>
-                        <span className="text-gray-700">{amenity.label}</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
+                {amenitiesLoading ? (
+                  <div className="text-gray-500 text-sm">
+                    Đang tải tiện ích...
+                  </div>
+                ) : amenitiesError ? (
+                  <div className="text-red-500 text-sm">
+                    Lỗi: {amenitiesError}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {amenities.map((amenity) => (
+                      <label
+                        key={amenity.id}
+                        className="flex items-start gap-2 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 text-rose-600 rounded focus:ring-rose-500"
+                          checked={selectedAmenities.includes(amenity.id)}
+                          onChange={() => handleAmenityChange(amenity.id)}
+                        />
+                        <div className="flex items-center">
+                          <span className="text-gray-700">{amenity.name}</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col gap-2">
