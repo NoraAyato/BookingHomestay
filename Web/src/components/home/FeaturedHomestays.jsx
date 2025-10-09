@@ -226,7 +226,9 @@ const FeaturedHomestays = () => {
 
         <div className="text-center mt-8">
           <button className="px-6 py-2.5 bg-white text-rose-600 border border-rose-600 rounded-md text-sm font-medium hover:bg-rose-50 hover:border-rose-700 hover:text-rose-700 transition-all duration-300 transform-gpu hover:-translate-y-0.5 shadow-sm">
-            Xem thêm homestay
+            <a href="/homestay" className="block w-full h-full">
+              Xem thêm homestay
+            </a>
           </button>
         </div>
       </div>
