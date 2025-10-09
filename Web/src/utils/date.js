@@ -101,3 +101,13 @@ export const isValidCheckOutDate = (checkInDate, checkOutDate) => {
 
   return checkOut > checkIn && checkOut <= maxCheckOut;
 };
+
+// Hàm lấy local date yyyy-mm-dd
+export const getLocalDate = (offset = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
