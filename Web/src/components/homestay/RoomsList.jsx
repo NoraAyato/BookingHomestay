@@ -16,10 +16,10 @@ const RoomsList = ({ rooms, onSelectRoom, selectedRoom }) => {
         {currentRooms.map((room) => (
           <div
             key={room.id}
-            className={`border rounded-lg overflow-hidden transition-all duration-300 cursor-pointer relative ${
+            className={`border rounded-lg overflow-hidden cursor-pointer relative transition-colors duration-200 ${
               selectedRoom && selectedRoom.id === room.id
-                ? "border-2 border-blue-500 shadow-xl bg-gradient-to-r from-blue-50 to-indigo-50"
-                : "hover:shadow-md hover:border-gray-300"
+                ? "border-2 border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg"
+                : "hover:border-gray-300 hover:bg-gray-50"
             }`}
             onClick={() => {
               if (onSelectRoom) {
