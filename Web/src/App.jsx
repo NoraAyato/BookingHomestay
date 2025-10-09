@@ -15,6 +15,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { AuthPopupProvider } from "./contexts/AuthPopupProvider";
 import UserPage from "./pages/user";
 import NewsPage from "./pages/news";
+import BookingPage from "./pages/booking";
 import NewsDetailPage from "./pages/news/NewsDetail";
 import AboutUsPage from "./pages/aboutus";
 import HomestayIndex from "./pages/homestay";
@@ -81,6 +82,14 @@ function App() {
               }
             />
 
+            <Route
+              path="/booking"
+              element={
+                <ProtectedRoute>
+                  <BookingPage />
+                </ProtectedRoute>
+              }
+            />
             {/* News Routes */}
             <Route path="/news" element={<NewsPage />} />
             <Route path="/news/:id" element={<NewsDetailPage />} />
