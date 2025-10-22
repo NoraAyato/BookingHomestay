@@ -19,6 +19,9 @@ public class DichVu {
     @Column(name = "ten_dv", nullable = false, columnDefinition = "nvarchar(100)")
     private String tenDV;
 
+    @Column(name = "mo_ta", columnDefinition = "nvarchar(255)")
+    private String moTa;
+
     @Column(name = "don_gia", nullable = false)
     private BigDecimal donGia;
 
