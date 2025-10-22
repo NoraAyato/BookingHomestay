@@ -30,7 +30,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || (path.startsWith("/api/promotions") && !path.equals("/api/promotions/my-promotion"))
                 || path.startsWith("/api/notification/public")
                 || path.startsWith("/api/news")
-                || path.startsWith("/avatars");
+                || path.startsWith("/avatars") ||
+                path.startsWith("/api/amenities");
     }
 
     @Override
