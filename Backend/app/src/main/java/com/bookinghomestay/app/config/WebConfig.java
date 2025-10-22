@@ -6,7 +6,7 @@ import org.springframework.http.CacheControl;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-public class WebMvcConfig implements WebMvcConfigurer {
+public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
