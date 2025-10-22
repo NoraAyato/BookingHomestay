@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.api.controller.news;
 
-import com.bookinghomestay.app.api.dto.ApiResponse;
+import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.api.dto.tintuc.NewsDetailResponseDto;
 import com.bookinghomestay.app.api.dto.tintuc.NewsResponseDto;
 import com.bookinghomestay.app.application.news.query.GetAllNewsQueryHandler;
