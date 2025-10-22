@@ -14,6 +14,7 @@ import com.bookinghomestay.app.domain.service.UserService;
 public class UpdateUserProfileCommandHandler {
 
         private final IUserRepository userRepository;
+        private final UserService userService;
 
         public void handle(UpdateUserProfileCommand command) {
                 try {
@@ -21,7 +22,7 @@ public class UpdateUserProfileCommandHandler {
                                         .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng !"));
                         user.setFirstName(command.getFirstName());
                         user.setLastName(command.getLastName());
-                        user.setUserName(UserService
+                        user.setUserName(userService
                                         .removeDiacritics(command.getFirstName() + " " + command.getLastName()));
                         user.setPhoneNumber(command.getPhoneNumber());
                         user.setGender(command.isGender());
