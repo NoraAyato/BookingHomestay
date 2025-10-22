@@ -10,6 +10,9 @@ import com.bookinghomestay.app.domain.exception.BusinessException;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +23,7 @@ public class GetHomestayDichVuQueryHandler {
         private final HomestayService homestayDomainService;
 
         @Transactional
-        public HomestayDichVuResponseDto handle(GetHomestayDichVuQuery query) {
+        public List<HomestayDichVuResponseDto> handle(GetHomestayDichVuQuery query) {
                 Homestay homestay = homestayRepository.findById(query.getHomestayId())
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "Không tìm thấy homestay với mã: " + query.getHomestayId()));
@@ -28,7 +31,9 @@ public class GetHomestayDichVuQueryHandler {
                 if (!homestayDomainService.validateHomestay(homestay)) {
                         throw new BusinessException("Homestay không hợp lệ hoặc thiếu thông tin bắt buộc");
                 }
-
-                return HomestayMapper.toHomestayDichVuResponseDto(homestay);
+                List<HomestayDichVuResponseDto> dichVuList = homestay.getDichVus().stream()
+                                .map(dv -> HomestayMapper.toServiceDto(dv))
+                                .toList();
+                return dichVuList;
         }
 }

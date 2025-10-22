@@ -13,8 +13,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoomAvailabilityDto {
-    private String maPhong;
-    private String tenPhong;
-    private BigDecimal giaTien;
-
+    private String id;
+    private String description;
+    private String name;
+    private BigDecimal price;
+    private BigDecimal discountPrice;
+    private String roomType;
+    private int maxOccupancy;
+    private List<String> images;
+    private List<String> amenities;
+    private boolean available;
 }
