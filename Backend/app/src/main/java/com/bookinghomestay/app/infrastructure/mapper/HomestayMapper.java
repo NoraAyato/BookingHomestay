@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.bookinghomestay.app.api.dto.homestay.HomestayResponseDto;
+import com.bookinghomestay.app.api.dto.homestay.HomestaySearchResponse;
 import com.bookinghomestay.app.api.dto.homestay.HomestayDetailResponseDto;
 import com.bookinghomestay.app.api.dto.homestay.HomestayDichVuResponseDto;
 import com.bookinghomestay.app.api.dto.homestay.HomestayImageResponseDto;
@@ -11,6 +12,7 @@ import com.bookinghomestay.app.api.dto.homestay.HomestayTienNghiResponseDto;
 import com.bookinghomestay.app.api.dto.homestay.HomestayTop5ResponeDto;
 import com.bookinghomestay.app.api.dto.homestay.RoomAvailabilityDto;
 import com.bookinghomestay.app.api.dto.homestay.RoomImagesDto;
+import com.bookinghomestay.app.api.dto.users.HostDetailResponseDto;
 import com.bookinghomestay.app.domain.model.ChinhSach;
 import com.bookinghomestay.app.domain.model.DanhGia;
 import com.bookinghomestay.app.domain.model.DichVu;
@@ -26,40 +28,56 @@ public class HomestayMapper {
          * Chuyển đổi từ entity Homestay sang HomestayResponseDto
          */
         public static HomestayResponseDto toHomestayResponseDto(Homestay homestay) {
-                return new HomestayResponseDto(
-                                homestay.getIdHomestay(),
-                                homestay.getTenHomestay(),
-                                homestay.getHinhAnh(),
-                                homestay.getPricePerNight(),
-                                homestay.getDiaChi(),
-                                homestay.getHang());
+                return new HomestayResponseDto();
+        }
+
+        public static HomestaySearchResponse toHomestaySearchResponse(Homestay homestay,
+                        List<String> amenities, BigDecimal price, BigDecimal discountPrice, double rating,
+                        boolean isNew, boolean isPopular) {
+                HomestaySearchResponse response = new HomestaySearchResponse();
+                response.setId(homestay.getIdHomestay());
+                response.setTitle(homestay.getTenHomestay());
+                response.setDescription(homestay.getGioiThieu());
+                response.setLocation(homestay.getDiaChi() + ", " + homestay.getKhuVuc().getTenKv());
+                response.setAddress(homestay.getDiaChi());
+                response.setPrice(price != null ? price : BigDecimal.ZERO);
+                response.setImage(homestay.getHinhAnh());
+                response.setAmenities(amenities);
+                response.setDiscountPrice(discountPrice);
+                response.setRating(rating);
+                response.setNew(isNew);
+                response.setPopular(isPopular);
+                return response;
+
         }
 
         /**
          * Chuyển đổi từ entity Homestay sang HomestayDetailResponseDto
          */
         public static HomestayDetailResponseDto toHomestayDetailResponseDto(
-                        Homestay homestay, int tongDanhGia, double diemTrungBinh) {
+                        Homestay homestay, int totalReviews, double rating, BigDecimal price,
+                        BigDecimal bestDiscountPrice, List<String> amenities, List<String> images, boolean isNew,
+                        boolean isFeatured, HostDetailResponseDto host) {
 
                 ChinhSach chinhSach = homestay.getChinhSachs().stream().findFirst()
                                 .orElseThrow(() -> new RuntimeException("Không có chính sách cho homestay"));
 
                 return HomestayDetailResponseDto.builder()
                                 .id(homestay.getIdHomestay())
-                                .tenHomestay(homestay.getTenHomestay())
-                                .diaChi(homestay.getDiaChi())
-                                .gioiThieu(homestay.getGioiThieu())
-                                .tongDanhGia(tongDanhGia)
-                                .diemHaiLongTrungBinh(diemTrungBinh)
-                                .giaTien(homestay.getPricePerNight())
-                                .hang(homestay.getHang() != null ? homestay.getHang() : BigDecimal.ZERO)
-                                .chinhSach(
-                                                HomestayDetailResponseDto.ChinhSachDto.builder()
-                                                                .nhanPhong(chinhSach.getNhanPhong())
-                                                                .traPhong(chinhSach.getTraPhong())
-                                                                .huyPhong(chinhSach.getHuyPhong())
-                                                                .buaAn(chinhSach.getBuaAn())
-                                                                .build())
+                                .title(homestay.getTenHomestay())
+                                .description(homestay.getGioiThieu())
+                                .location(homestay.getDiaChi() + ", " + homestay.getKhuVuc().getTenKv())
+                                .address(homestay.getDiaChi())
+                                .price(price != null ? price.toString() : "0")
+                                .reviews(totalReviews)
+                                .rating(rating)
+                                .images(images)
+                                .amenities(amenities)
+                                .isFeatured(isFeatured)
+                                .isNew(isNew)
+                                .host(host)
+                                .discountPrice(bestDiscountPrice != null ? bestDiscountPrice.toString() : "0")
+                                .policies(PoliciesMapper.toPoliciesResponseDto(chinhSach))
                                 .build();
         }
 
@@ -83,7 +101,8 @@ public class HomestayMapper {
                 dto.setId(homestay.getIdHomestay());
                 dto.setTitle(homestay.getTenHomestay());
                 dto.setLocation(homestay.getDiaChi() + "," + homestay.getKhuVuc().getTenKv());
-                dto.setPrice(homestay.getPricePerNight() != null ? homestay.getPricePerNight().doubleValue() : null);
+                dto.setPrice(0.0); // homestay.getPricePerNight() != null ?
+                // homestay.getPricePerNight() : BigDecimal.ZERO);
                 dto.setImage(homestay.getHinhAnh());
 
                 List<DanhGia> danhGias = homestay.getDanhGias();
@@ -124,23 +143,13 @@ public class HomestayMapper {
         }
 
         /**
-         * Chuyển đổi từ entity Homestay sang HomestayDichVuResponseDto
-         */
-        public static HomestayDichVuResponseDto toHomestayDichVuResponseDto(Homestay homestay) {
-                List<HomestayDichVuResponseDto.DichVuDto> dichVuDtos = homestay.getDichVus().stream()
-                                .map(dv -> toDichVuDto(dv))
-                                .collect(Collectors.toList());
-
-                return new HomestayDichVuResponseDto(homestay.getIdHomestay(), dichVuDtos);
-        }
-
-        /**
          * Chuyển đổi từ entity DichVu sang DichVuDto
          */
-        public static HomestayDichVuResponseDto.DichVuDto toDichVuDto(DichVu dichVu) {
-                return new HomestayDichVuResponseDto.DichVuDto(
+        public static HomestayDichVuResponseDto toServiceDto(DichVu dichVu) {
+                return new HomestayDichVuResponseDto(
                                 dichVu.getMaDV(),
                                 dichVu.getTenDV(),
+                                dichVu.getMoTa(),
                                 dichVu.getDonGia(),
                                 dichVu.getHinhAnh());
         }
@@ -148,11 +157,8 @@ public class HomestayMapper {
         /**
          * Chuyển đổi từ entity Phong sang RoomAvailabilityDto
          */
-        public static RoomAvailabilityDto toRoomAvailabilityDto(Phong phong) {
-                return new RoomAvailabilityDto(
-                                phong.getMaPhong(),
-                                phong.getTenPhong(),
-                                phong.getDonGia());
+        public static RoomAvailabilityDto toRoomAvailabilityDto(Phong phong, BigDecimal discountPrice) {
+                return new RoomAvailabilityDto();
         }
 
         /**

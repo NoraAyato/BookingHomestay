@@ -3,6 +3,7 @@ package com.bookinghomestay.app.infrastructure.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.bookinghomestay.app.api.dto.promotion.AvailablePromotionResponseDto;
 import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 
@@ -24,6 +25,18 @@ public class PromotionMapper {
                 khuyenMai.getTrangThai(),
                 khuyenMai.getSoLuong(),
                 khuyenMai.getNgayTao());
+    }
+
+    public static AvailablePromotionResponseDto toAvailableDto(KhuyenMai khuyenMai, String title) {
+        return new AvailablePromotionResponseDto(
+                khuyenMai.getMaKM(),
+                title,
+                khuyenMai.getNoiDung(),
+                khuyenMai.getLoaiChietKhau(),
+                khuyenMai.getChietKhau().doubleValue(),
+                khuyenMai.getMaKM(),
+                khuyenMai.getHinhAnh(),
+                khuyenMai.getToiThieu());
     }
 
     public static List<PromotionResponeDto> toDtoList(List<KhuyenMai> khuyenMais) {

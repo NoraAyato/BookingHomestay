@@ -20,7 +20,7 @@ public class KhuyenMaiRepositoryImpl implements IKhuyenMaiRepository {
 
     @Override
     public List<KhuyenMai> getAdminKm() {
-        return jpaKhuyenMaiRepository.getAdminPromotions();
+        return jpaKhuyenMaiRepository.findAll();
     }
 
     @Override
@@ -55,6 +55,11 @@ public class KhuyenMaiRepositoryImpl implements IKhuyenMaiRepository {
     @Override
     public List<KhuyenMai> getAllPromotionsForRoom(String maPhong) {
         return jpaKhuyenMaiRepository.getAllPromotionsForRoom(maPhong);
+    }
+
+    @Override
+    public List<KhuyenMai> getAllAvailableKhuyenMai() {
+        return jpaKhuyenMaiRepository.getAllAvailableKhuyenMai();
     }
 
 }

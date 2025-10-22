@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface IHomestayRepository {
     List<Homestay> getAll();
 
+    List<Homestay> getAllActiveHomestay();
+
     List<Homestay> getTopRated();
 
     Optional<Homestay> findById(String id);

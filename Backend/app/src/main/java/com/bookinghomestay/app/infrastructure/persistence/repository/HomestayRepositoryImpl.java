@@ -50,4 +50,9 @@ public class HomestayRepositoryImpl implements IHomestayRepository {
     public Optional<RoomDetailResponseDTO> findPhongDetailById(String maPhong) {
         return jpaPhongRepository.findRoomDetailsByMaPhong(maPhong);
     }
+
+    @Override
+    public List<Homestay> getAllActiveHomestay() {
+        return jpaRepo.findAllActiveWithActiveRooms();
+    }
 }

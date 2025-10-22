@@ -7,8 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface JpaKhuyenMaiRepository extends JpaRepository<KhuyenMai, String> {
+
     @Query("SELECT k FROM KhuyenMai k WHERE k.apDungChoTatCaPhong = true AND k.ngayKetThuc > CURRENT_TIMESTAMP")
-    List<KhuyenMai> getAdminPromotions();
+    List<KhuyenMai> getAllAvailableKhuyenMai();
 
     @Query("""
             SELECT DISTINCT km FROM KhuyenMai km
