@@ -53,6 +53,9 @@ public class KhuyenMai {
     @Column(name = "so_luong")
     private BigDecimal soLuong;
 
+    @Column(name = "toi_thieu", length = 50)
+    private BigDecimal toiThieu;
+
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao = LocalDateTime.now();
 

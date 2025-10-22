@@ -4,9 +4,12 @@ import com.bookinghomestay.app.api.dto.booking.MyBookingListResponseDto;
 import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.api.dto.common.PageResponse;
 import com.bookinghomestay.app.api.dto.users.UpdateProfileRequestDto;
+import com.bookinghomestay.app.api.dto.users.UserFavoriteHomestayResponseDto;
 import com.bookinghomestay.app.api.dto.users.UserInfoResponeDto;
 import com.bookinghomestay.app.application.booking.query.GetBookingListQuery;
 import com.bookinghomestay.app.application.booking.query.GetMyBookingListQueryHandler;
+import com.bookinghomestay.app.application.users.command.AddFavoriteHomestayCommand;
+import com.bookinghomestay.app.application.users.command.AddFavoriteHomestayCommandHandler;
 import com.bookinghomestay.app.application.users.command.UpdateRecieveEmailCommand;
 import com.bookinghomestay.app.application.users.command.UpdateUserProfileCommand;
 import com.bookinghomestay.app.application.users.command.UpdateUserProfileCommandHandler;
@@ -14,6 +17,8 @@ import com.bookinghomestay.app.application.users.command.UpdateUserRecieveEmailH
 import com.bookinghomestay.app.application.users.command.UploadUserImgCommandHandler;
 import com.bookinghomestay.app.application.users.command.UploadUserPictureCommand;
 import com.bookinghomestay.app.application.users.query.GetCurrentUserQueryHandler;
+import com.bookinghomestay.app.application.users.query.GetFavoriteHomestayQuery;
+import com.bookinghomestay.app.application.users.query.GetUserFavoriteHomestayQueryHandler;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
 import jakarta.validation.Valid;
@@ -26,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("/api/users")
@@ -37,6 +43,8 @@ public class UserController {
     private final UploadUserImgCommandHandler uploadUserImgCommandHandler;
     private final GetMyBookingListQueryHandler getBookingListQueryHandler;
     private final UpdateUserRecieveEmailHandler updateUserRecieveEmailHandler;
+    private final GetUserFavoriteHomestayQueryHandler getUserFavoriteHomestayQueryHandler;
+    private final AddFavoriteHomestayCommandHandler addFavoriteHomestayCommandHandler;
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserInfoResponeDto>> getCurrentUser() {
@@ -80,5 +88,26 @@ public class UserController {
         String userId = SecurityUtils.getCurrentUserId();
         uploadUserImgCommandHandler.handle(new UploadUserPictureCommand(userId, file));
         return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật ảnh đại diện thành công !", null));
+    }
+
+    @PostMapping("/me/add-favorite-homestay")
+    public ResponseEntity<ApiResponse<Void>> addFavorite(@RequestParam String homestayId) {
+        String userId = SecurityUtils.getCurrentUserId();
+        String result = addFavoriteHomestayCommandHandler.handle(new AddFavoriteHomestayCommand(userId, homestayId));
+        return ResponseEntity.ok(new ApiResponse<>(true, result, null));
+    }
+
+    @GetMapping("/me/my-favorites")
+    public ResponseEntity<ApiResponse<PageResponse<UserFavoriteHomestayResponseDto>>> getMyFavorites(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "4") int limit) {
+        String userId = SecurityUtils.getCurrentUserId();
+        PageResponse<UserFavoriteHomestayResponseDto> entity = getUserFavoriteHomestayQueryHandler
+                .handle(new GetFavoriteHomestayQuery(userId, page, limit));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách yêu thích thành công !", entity));
+    }
+    @GetMapping("/me/test")
+    public ResponseEntity<ApiResponse<String>> test() {
+        return ResponseEntity.ok(new ApiResponse<>(true, "Test thành công !", "Hello World"));
     }
 }

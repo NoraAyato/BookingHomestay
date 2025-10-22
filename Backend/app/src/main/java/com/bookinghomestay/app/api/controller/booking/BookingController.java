@@ -57,7 +57,7 @@ public class BookingController {
 
         String bookingId = bookingCommandHandler.handle(command);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Đặt phòng thành công", bookingId));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Tạo đơn đặt phòng thành công", bookingId));
     }
 
     @PostMapping("/confirm")

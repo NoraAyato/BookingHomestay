@@ -1,6 +1,10 @@
 package com.bookinghomestay.app.api.dto.homestay;
 
 import java.math.BigDecimal;
+import java.util.List;
+
+import com.bookinghomestay.app.api.dto.policies.PoliciesResponseDto;
+import com.bookinghomestay.app.api.dto.users.HostDetailResponseDto;
 
 import lombok.*;
 
@@ -10,23 +14,19 @@ import lombok.*;
 @Builder
 public class HomestayDetailResponseDto {
     private String id;
-    private String tenHomestay;
-    private String diaChi;
-    private String gioiThieu;
-    private BigDecimal giaTien;
-    private BigDecimal hang;
-    private ChinhSachDto chinhSach;
-    private int tongDanhGia;
-    private double diemHaiLongTrungBinh;
+    private String title;
+    private String description;
+    private String location;
+    private String address;
+    private String price;
+    private String discountPrice;
+    private double rating;
+    private int reviews;
+    private List<String> images;
+    private List<String> amenities;
+    private PoliciesResponseDto policies;
+    private HostDetailResponseDto host;
+    private boolean isNew;
+    private boolean isFeatured;
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class ChinhSachDto {
-        private String nhanPhong;
-        private String traPhong;
-        private String huyPhong;
-        private String buaAn;
-    }
 }

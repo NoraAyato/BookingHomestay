@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/promotions/**").permitAll()
                         .requestMatchers("/api/notification/public").permitAll()
                         .requestMatchers("/api/news/**").permitAll()
+                        .requestMatchers("/api/amenities").permitAll()
                         .requestMatchers("/api/promotions/my-promotion").authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

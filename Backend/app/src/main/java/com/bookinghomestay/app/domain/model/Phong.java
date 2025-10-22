@@ -62,15 +62,4 @@ public class Phong {
     // Quan hệ 1-n với KhuyenMaiPhong
     @OneToMany(mappedBy = "phong", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KhuyenMaiPhong> khuyenMaiPhongs = new ArrayList<>();
-
-    public Phong(String maPhong, String tenPhong, String trangThai, BigDecimal donGia,
-            BigDecimal donGiaTheoGio, Integer soNguoi, String tour360) {
-        this.maPhong = maPhong;
-        this.tenPhong = tenPhong;
-        this.trangThai = trangThai;
-        this.donGia = donGia;
-        this.donGiaTheoGio = donGiaTheoGio;
-        this.soNguoi = soNguoi;
-        this.tour360 = tour360;
-    }
 }

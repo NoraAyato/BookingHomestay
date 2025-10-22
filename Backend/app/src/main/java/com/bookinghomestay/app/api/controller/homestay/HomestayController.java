@@ -1,5 +1,6 @@
 package com.bookinghomestay.app.api.controller.homestay;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bookinghomestay.app.api.dto.common.ApiResponse;
+import com.bookinghomestay.app.api.dto.common.PageResponse;
 import com.bookinghomestay.app.api.dto.homestay.*;
 import com.bookinghomestay.app.application.danhgia.query.GetHomestayReviewsQuery;
 import com.bookinghomestay.app.application.danhgia.query.GetHomestayReviewsQueryHandler;
@@ -24,8 +26,11 @@ import com.bookinghomestay.app.application.homestay.query.GetHomestayImagesQuery
 import com.bookinghomestay.app.application.homestay.query.GetHomestayImagesQueryHandler;
 import com.bookinghomestay.app.application.homestay.query.GetHomestayTienNghiQuery;
 import com.bookinghomestay.app.application.homestay.query.GetHomestayTienNghiQueryHandler;
+import com.bookinghomestay.app.application.homestay.query.GetRoomAvailabilityQuery;
 import com.bookinghomestay.app.application.homestay.query.GetRoomAvailabilityQueryHandler;
 import com.bookinghomestay.app.application.homestay.query.GetRoomImagesQueryHandler;
+import com.bookinghomestay.app.application.homestay.query.GetSearchHomestayQuery;
+import com.bookinghomestay.app.application.homestay.query.GetSearchHomestayQueryHandler;
 import com.bookinghomestay.app.application.homestay.query.GetTopHomestayQueryHandler;
 
 import lombok.RequiredArgsConstructor;
@@ -46,11 +51,26 @@ public class HomestayController {
     private final GetRoomImagesQueryHandler getRoomImagesQueryHandler;
     private final GetRoomDetailQueryHandler getRoomDetailQueryHandler;
     private final GetHomestayDichVuQueryHandler getHomestayDichVuQueryHandler;
+    private final GetSearchHomestayQueryHandler getSearchHomestayQueryHandler;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<HomestayResponseDto>>> getAll() {
         List<HomestayResponseDto> homestays = getAllHandler.handle();
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách homestay thành công", homestays));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<PageResponse<HomestaySearchResponse>>> search(
+            @RequestParam(required = false) String locationId,
+            @RequestParam LocalDate checkIn,
+            @RequestParam LocalDate checkOut,
+            @RequestParam(required = false) List<String> amenities,
+            @RequestParam(required = false) int minPrice,
+            @RequestParam(required = false) int maxPrice, @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "16") int limit) {
+        PageResponse<HomestaySearchResponse> results = getSearchHomestayQueryHandler.handle(new GetSearchHomestayQuery(
+                locationId, checkIn, checkOut, amenities, minPrice, maxPrice, page, limit));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy kết quả tìm kiếm thành công", results));
     }
 
     @GetMapping("/top")
@@ -93,9 +113,10 @@ public class HomestayController {
     @GetMapping("/{homestayId}/available-rooms")
     public ResponseEntity<ApiResponse<List<RoomAvailabilityDto>>> getAvailableRooms(
             @PathVariable String homestayId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayDen,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayDi) {
-        List<RoomAvailabilityDto> rooms = getRoomAvailabilityQueryHandler.handle(homestayId, ngayDen, ngayDi);
+            @RequestParam LocalDate ngayDen,
+            @RequestParam LocalDate ngayDi) {
+        List<RoomAvailabilityDto> rooms = getRoomAvailabilityQueryHandler
+                .handle(new GetRoomAvailabilityQuery(homestayId, ngayDen, ngayDi));
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách phòng khả dụng thành công", rooms));
     }
 
@@ -111,9 +132,11 @@ public class HomestayController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy chi tiết phòng thành công", dto));
     }
 
-    @GetMapping("/{homestayId}/dichvu")
-    public ResponseEntity<ApiResponse<HomestayDichVuResponseDto>> getDichVuByHomestay(@PathVariable String homestayId) {
-        HomestayDichVuResponseDto dto = getHomestayDichVuQueryHandler.handle(new GetHomestayDichVuQuery(homestayId));
+    @GetMapping("/{homestayId}/services")
+    public ResponseEntity<ApiResponse<List<HomestayDichVuResponseDto>>> getDichVuByHomestay(
+            @PathVariable String homestayId) {
+        List<HomestayDichVuResponseDto> dto = getHomestayDichVuQueryHandler
+                .handle(new GetHomestayDichVuQuery(homestayId));
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy dịch vụ homestay thành công", dto));
     }
 

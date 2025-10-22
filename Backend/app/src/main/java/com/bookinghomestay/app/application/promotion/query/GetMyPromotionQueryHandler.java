@@ -7,12 +7,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.stereotype.Service;
 
+import com.bookinghomestay.app.api.dto.promotion.AvailablePromotionResponseDto;
 import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
 import com.bookinghomestay.app.domain.exception.BusinessException;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.domain.repository.IKhuyenMaiRepository;
-
+import com.bookinghomestay.app.domain.service.PromotionService;
 import com.bookinghomestay.app.infrastructure.mapper.PromotionMapper;
 import com.bookinghomestay.app.domain.exception.BusinessException;
 
@@ -24,8 +25,9 @@ public class GetMyPromotionQueryHandler {
 
     private final IKhuyenMaiRepository khuyenMaiRepository;
     private final IBookingRepository bookingRepository;
+    private final PromotionService promotionService;
 
-    public List<PromotionResponeDto> handle(GetMyPromotionQuery query) {
+    public List<AvailablePromotionResponseDto> handle(GetMyPromotionQuery query) {
         boolean isNewCustomer = isNewCustomer(query.getUserId());
         var booking = bookingRepository.findById(query.getMaPDPhong());
         AtomicReference<String> maPhongRef = new AtomicReference<>("");
@@ -49,9 +51,10 @@ public class GetMyPromotionQueryHandler {
                 .filter(km -> km.getSoDemToiThieu() == null ||
                         ChronoUnit.DAYS.between(query.getNgayDen(), query.getNgayDi()) >= km.getSoDemToiThieu())
                 .filter(km -> !km.isChiApDungChoKhachMoi() || isNewCustomer)
+                .map(km -> PromotionMapper.toAvailableDto(km, promotionService.getPromotionTitle(km)))
 
                 .toList();
-        return PromotionMapper.toDtoList(validPromos);
+        return validPromos;
     }
 
     private boolean isNewCustomer(String userId) {

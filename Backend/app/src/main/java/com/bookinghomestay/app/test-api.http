@@ -2,12 +2,19 @@
 GET http://localhost:8080/api/homestays/HS01/reviews?haiLongRange=3-5&reviewerType=others&currentUserId=U123
 Accept: application/json
 ### Get user by ID
-GET http://localhost:8080/api/users/41583ddf-6014-4fb5-92ef-934e9ef7f725
-Accept: application/json
+POST http://localhost:8080/api/chat/messages
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjEwNjA1NTksImV4cCI6MTc2MTA2MDYxOX0.jvVz2U8HbhckA1Ph7YtlRz5lsOOYpwvuyosAMhcEkBE
+Content-Type: application/json
+
+{
+  "conversationId": "77810d8c-889f-4764-adf2-260a63b6cf6a_7ce48730-56b4-44c5-a14b-29b4734d9830_490c49f8-239e-4a49-bec3-09b2ba7ff3d4",
+  "content": "abdads"
+}
+
 
 ### Lấy danh sách thông báo của user hiện tại (đã đăng nhập)
-GET http://localhost:8080/api/notification/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQxMjQ5MjYsImV4cCI6MTc1NDEyODUyNn0.Jh4MNvgT48u7kyLN9wfnocIDbgBV4TtQRkIxIurS3fQ
+GET http://localhost:8080/api/users/me/my-favorites
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjA0MzEyMzgsImV4cCI6MTc2MDQzMTI5OH0.CYvv-BPGv-eIk4IGqcz11zlW9tDP3ir2JHroaD4bflE
 Content-Type: application/json
 
 ### Lấy danh sách booking của người dùng hiện tại
@@ -21,16 +28,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtY
 Content-Type: application/json
 
 ### Hủy đặt phòng
-POST http://localhost:8080/api/Booking/cancel
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQ4MjQ0OTIsImV4cCI6MTc1NDgyODA5Mn0.k8611Uw5_l0kcnp9chxtq0TxP0Mnjj-hO9hazsmSENM
+POST http://localhost:8080/api/users/me/add-favorite-homestay?homestayId=490c49f8-239e-4a49-bec3-09b2ba7ff3d4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjA0MzExODEsImV4cCI6MTc2MDQzMTI0MX0.wDj9NHlVUY1eaBgVZpyWnxAbV4dQByNC-HnX6vtKYZE
 Content-Type: application/json
 
-{
-  "maPDPhong": "8036f306-2baf-4d09-a551-0991e0ec4043",
-  "lyDoHuy": "Thay đổi kế hoạch du lịch",
-  "tenNganHang": "VietcomBank",
-  "soTaiKhoan": "9876543210"
-}
 
 ### Hủy đặt phòng (không có thông tin hoàn tiền)
 POST http://localhost:8080/api/Booking/cancel
@@ -43,14 +44,15 @@ Content-Type: application/json
 }
 
 ### Test: Lấy tất cả ảnh của homestay
-GET http://localhost:8080/api/homestays/490c49f8-239e-4a49-bec3-09b2ba7ff3d4/dichvu
+GET http://localhost:8080/api/homestays/490c49f8-239e-4a49-bec3-09b2ba7ff3d4/services
 Accept: application/json
 ### Get current user info
 GET http://localhost:8080/api/users/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTM5Njc5MDAsImV4cCI6MTc1Mzk3MTUwMH0.bVoN_AwVLrnfJ3_KZlje3Dm12UFZKzTbR3n8voMdMwg
 Content-Type: application/json
 ### Lấy thông tin chi tiết Homestay (bao gồm chính sách, tiện ích, đánh giá...)
-GET http://localhost:8080/api/homestays/490c49f8-239e-4a49-bec3-09b2ba7ff3d4
+### Test lấy danh sách phòng khả dụng theo homestayId
+GET http://localhost:8080/api/homestays/490c49f8-239e-4a49-bec3-09b2ba7ff3d4/available-rooms?ngayDen=2025-09-25&ngayDi=2025-09-27
 Accept: application/json
 ### Get room images by mã phòng
 GET http://localhost:8080/api/homestays/rooms/7f46de5f165f4000bb86/detail
@@ -89,7 +91,7 @@ Accept: application/json
 
 {
   "email": "diamondboyvn@gmail.com",
-  "password": "Noragami21@!!",
+  "password": "Noragami21",
   "rememberMe" : false
 }
 ### reg user
@@ -178,3 +180,14 @@ Accept: application/json
   "ngayDen": "2025-08-15",
   "ngayDi": "2025-08-20"
 }
+
+### Tìm kiếm homestay
+GET http://localhost:8080/api/homestays/search
+    ?locationId=KV010
+    &checkIn=2025-09-20
+    &checkOut=2025-09-22
+    &minPrice=100000
+    &maxPrice=5000000
+    &page=1
+    &limit=12
+Accept: application/json

@@ -9,6 +9,8 @@ import com.bookinghomestay.app.domain.model.KhuyenMai;
 public interface IKhuyenMaiRepository {
     List<KhuyenMai> getAdminKm();
 
+    List<KhuyenMai> getAllAvailableKhuyenMai();
+
     Optional<KhuyenMai> getKhuyenMaiById(String id);
 
     KhuyenMai createKhuyenMai(KhuyenMai khuyenMai);
