@@ -34,3 +34,6 @@ build/
 
 # Firebase secret key
 src/main/resources/firebase/serviceAccountKey.json
+
+# Uploaded files
+img/uploads/
