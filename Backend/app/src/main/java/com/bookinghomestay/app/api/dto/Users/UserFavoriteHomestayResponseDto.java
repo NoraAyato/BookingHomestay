@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class UserFavoriteHomestayResponseDto {
-    private String id;
+    private String idHomestay;
     private String name;
     private String location;
     private BigDecimal price;
