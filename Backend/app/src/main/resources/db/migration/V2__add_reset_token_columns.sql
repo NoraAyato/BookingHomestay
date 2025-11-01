@@ -1,1 +1,1 @@
-select * from khuyen_mai;
+select * from users
