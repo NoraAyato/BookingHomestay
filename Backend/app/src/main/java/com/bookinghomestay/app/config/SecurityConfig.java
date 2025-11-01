@@ -41,11 +41,18 @@ public class SecurityConfig {
                         .requestMatchers("/avatars/**").permitAll()
                         .requestMatchers("/api/search/**").permitAll()
                         .requestMatchers("/api/locations/**").permitAll()
-                        .requestMatchers("/api/promotions/**").permitAll()
                         .requestMatchers("/api/notification/public").permitAll()
                         .requestMatchers("/api/news/**").permitAll()
                         .requestMatchers("/api/amenities").permitAll()
-                        .requestMatchers("/api/promotions/my-promotion").authenticated()
+                        .requestMatchers("/ws/**").permitAll()
+                        // MoMo payment endpoints
+                        .requestMatchers("/api/payment/momo/callback").permitAll() // MoMo IPN callback (không cần auth)
+                        .requestMatchers("/api/payment/momo/return").permitAll() // User return URL (không cần auth)
+                        .requestMatchers("/api/payment/momo/confirm").permitAll() // Manual confirm (không cần auth - vì
+                                                                                  // từ return URL)
+                        .requestMatchers("/api/payment/momo/create").authenticated() // Tạo payment (cần auth)
+                        .requestMatchers("/api/payment/momo/confirm").authenticated() // Xác nhận payment manual (cần
+                                                                                      // auth)
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

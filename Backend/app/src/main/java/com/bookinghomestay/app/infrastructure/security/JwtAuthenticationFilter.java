@@ -27,11 +27,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/img")
                 || path.startsWith("/api/search")
                 || path.startsWith("/api/locations")
-                || (path.startsWith("/api/promotions") && !path.equals("/api/promotions/my-promotion"))
                 || path.startsWith("/api/notification/public")
                 || path.startsWith("/api/news")
-                || path.startsWith("/avatars") ||
-                path.startsWith("/api/amenities");
+                || path.startsWith("/avatars")
+                || path.startsWith("/api/amenities")
+                || path.startsWith("/ws");
     }
 
     @Override

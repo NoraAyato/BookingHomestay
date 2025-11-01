@@ -11,7 +11,7 @@ import java.util.UUID;
 @Component
 public class JwtTokenProvider {
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long expiration = 60000; // 3600000
+    private final long expiration = 3600000; // 3600000
     private final long refreshTokenExpiration = 3 * 24 * 60 * 60 * 1000L;
     private final Key keyHS512 = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
