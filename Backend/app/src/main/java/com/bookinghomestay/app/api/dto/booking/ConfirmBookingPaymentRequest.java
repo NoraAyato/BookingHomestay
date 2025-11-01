@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class ConfirmBookingPaymentRequest {
-    private String maPDPhong;
+    private String bookingId;
     private List<String> serviceIds;
-    private String promotionId;
+    private List<String> roomIds;
 }

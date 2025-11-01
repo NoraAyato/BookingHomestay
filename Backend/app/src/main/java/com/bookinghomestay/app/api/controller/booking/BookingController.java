@@ -10,14 +10,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+import com.bookinghomestay.app.api.dto.booking.BookingAddPromotionRequest;
 import com.bookinghomestay.app.api.dto.booking.BookingDetailResponseDto;
 import com.bookinghomestay.app.api.dto.booking.BookingPaymentResponseDto;
+import com.bookinghomestay.app.api.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.api.dto.booking.ConfirmBookingPaymentRequest;
 import com.bookinghomestay.app.api.dto.booking.CreateBookingRequest;
 import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.api.dto.booking.ConfirmPaymentRequest;
 
 import com.bookinghomestay.app.api.dto.booking.CancelBookingRequest;
+import com.bookinghomestay.app.application.booking.command.BookingAddPromotionCommand;
+import com.bookinghomestay.app.application.booking.command.BookingAddPromotionHandler;
 import com.bookinghomestay.app.application.booking.command.BookingPaymentCommand;
 import com.bookinghomestay.app.application.booking.command.BookingPaymentCommandHandler;
 import com.bookinghomestay.app.application.booking.command.CancelBookingCommand;
@@ -31,7 +35,6 @@ import com.bookinghomestay.app.application.booking.query.GetBookingDetailQueryHa
 
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
-
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -41,8 +44,7 @@ public class BookingController {
     private final CreateBookingCommandHandler bookingCommandHandler;
     private final ConfirmBookingCommandHandler confirmBookingCommandHandler;
     private final GetBookingDetailQueryHandler getBookingDetailQueryHandler;
-    private final BookingPaymentCommandHandler bookingPaymentCommandHandler;
-    
+    private final BookingAddPromotionHandler bookingAddPromotionHandler;
     private final CancelBookingCommandHandler cancelBookingCommandHandler;
 
     @PostMapping
@@ -61,41 +63,38 @@ public class BookingController {
     }
 
     @PostMapping("/confirm")
-    public ResponseEntity<ApiResponse<BookingPaymentResponseDto>> confirmBooking(
+    public ResponseEntity<ApiResponse<String>> confirmBooking(
             @Valid @RequestBody ConfirmBookingPaymentRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         ConfirmBookingCommand command = new ConfirmBookingCommand(userId,
-                request.getMaPDPhong(),
-                request.getServiceIds(),
-                request.getPromotionId());
+                request.getBookingId(),
+                request.getRoomIds(),
+                request.getServiceIds());
 
-        BookingPaymentResponseDto responseDto = confirmBookingCommandHandler.handle(command);
+        String bookingId = confirmBookingCommandHandler.handle(command);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Xác nhận đặt phòng thành công", responseDto));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Xác nhận đặt phòng thành công", bookingId));
     }
 
-    @GetMapping("/{bookingId}/detail")
-    public ResponseEntity<ApiResponse<BookingDetailResponseDto>> getBookingDetail(@PathVariable String bookingId) {
-        BookingDetailResponseDto dto = getBookingDetailQueryHandler.handle(new GetBookingDetailQuery(bookingId));
+    @GetMapping("/detail/{bookingId}")
+    public ResponseEntity<ApiResponse<BookingResponseDto>> getBookingDetail(@PathVariable String bookingId) {
+        BookingResponseDto dto = getBookingDetailQueryHandler.handle(new GetBookingDetailQuery(bookingId));
         if (dto == null) {
             return ResponseEntity.ok(new ApiResponse<>(false, "Không tìm thấy đơn đặt phòng", null));
         }
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy chi tiết đơn đặt phòng thành công", dto));
     }
 
-    @PostMapping("/payment")
-    public ResponseEntity<ApiResponse<Void>> payBooking(@Valid @RequestBody ConfirmPaymentRequest request) {
+    @PostMapping("/addPromotion/{bookingId}")
+    public ResponseEntity<ApiResponse<Void>> addPromotion(@PathVariable String bookingId,
+            @Valid @RequestBody BookingAddPromotionRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
-        BookingPaymentCommand command = new BookingPaymentCommand(request.getMaPDPhong(),
-                request.getSoTien(),
-                request.getPhuongThuc(), userId);
-
-        bookingPaymentCommandHandler.handle(command);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Thanh toán thành công", null));
+        BookingAddPromotionCommand command = new BookingAddPromotionCommand(bookingId, request.getPromotionCode(),
+                userId);
+        bookingAddPromotionHandler.handle(command);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Thêm khuyến mãi thành công", null));
     }
-
-    
 
     @PostMapping("/cancel")
     public ResponseEntity<ApiResponse<Void>> cancelBooking(@Valid @RequestBody CancelBookingRequest request) {

@@ -7,6 +7,8 @@ import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.PhieuHuyPhong;
 
+import lombok.AllArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -16,43 +18,81 @@ import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
+import com.bookinghomestay.app.domain.factory.CancellationFactory;
+import com.bookinghomestay.app.domain.factory.InvoiceFactory;
+import com.bookinghomestay.app.domain.factory.ServiceDetailFactory;
+
+@AllArgsConstructor
 @Service
 public class BookingService {
+    private final InvoiceFactory invoiceFactory;
+    private final CancellationFactory cancellationFactory;
+    private final ServiceDetailFactory serviceDetailFactory;
+
     /**
-     * Tính tổng tiền của booking
+     * Tính tổng tiền phòng của booking (không bao gồm dịch vụ)
+     * 
+     * @param booking Phiếu đặt phòng
+     * @return Tổng tiền phòng
+     */
+    public BigDecimal calculateRoomPrice(PhieuDatPhong booking) {
+        if (booking.getChiTietDatPhongs() == null || booking.getChiTietDatPhongs().isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        return booking.getChiTietDatPhongs().stream()
+                .map(ctdp -> {
+                    long nights = ChronoUnit.DAYS.between(
+                            ctdp.getNgayDen().toLocalDate(),
+                            ctdp.getNgayDi().toLocalDate());
+                    return ctdp.getPhong().getDonGia().multiply(BigDecimal.valueOf(nights));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /**
+     * Tính tổng tiền dịch vụ của booking
+     * 
+     * @param booking Phiếu đặt phòng
+     * @return Tổng tiền dịch vụ
+     */
+    public BigDecimal calculateServicePrice(PhieuDatPhong booking) {
+        if (booking.getChiTietDatPhongs() == null || booking.getChiTietDatPhongs().isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        return booking.getChiTietDatPhongs().stream()
+                .map(ctdp -> {
+                    long nights = ChronoUnit.DAYS.between(
+                            ctdp.getNgayDen().toLocalDate(),
+                            ctdp.getNgayDi().toLocalDate());
+                    BigDecimal serviceTotalForRoom = ctdp.getChiTietDichVus().stream()
+                            .map(ctdv -> ctdv.getDichVu().getDonGia())
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    return serviceTotalForRoom.multiply(BigDecimal.valueOf(nights));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /**
+     * Tính tổng tiền của booking (phòng + dịch vụ)
      */
     public BigDecimal calculateTotalAmount(PhieuDatPhong booking) {
         if (booking.getHoadon() != null) {
             return booking.getHoadon().getTongTien();
         }
-        if (booking.getChiTietDatPhongs() == null || booking.getChiTietDatPhongs().isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-        var chiTiet = booking.getChiTietDatPhongs();
-        BigDecimal tongTienPhong = BigDecimal.ZERO;
-        BigDecimal tongTienDichVu = BigDecimal.ZERO;
-        BigDecimal tongTien = BigDecimal.ZERO;
-        long soNgayLuuTru = chiTiet.stream()
-                .mapToLong(ct -> ChronoUnit.DAYS.between(
-                        ct.getNgayDen().toLocalDate(),
-                        ct.getNgayDi().toLocalDate()))
-                .sum();
-        for (var item : chiTiet) {
-            var phong = item.getPhong();
-            if (phong != null && phong.getDonGia() != null) {
-                tongTienPhong = tongTienPhong.add(phong.getDonGia().multiply(BigDecimal.valueOf(soNgayLuuTru)));
-            }
-            var dichVu = item.getChiTietDichVus();
-            if (dichVu != null) {
-                for (var dv : dichVu) {
-                    tongTienDichVu = tongTienDichVu.add(
-                            dv.getDichVu().getDonGia().multiply(BigDecimal.valueOf(soNgayLuuTru)));
-                }
-            }
-            tongTien = tongTienPhong.add(tongTienDichVu);
-        }
 
-        return tongTien;
+        BigDecimal roomPrice = calculateRoomPrice(booking);
+        BigDecimal servicePrice = calculateServicePrice(booking);
+
+        return roomPrice.add(servicePrice);
+    }
+
+    public int countCompletedBookingsByUser(String userId) {
+        int count = 0;
+        // Giả sử có một phương thức trong repository để đếm số booking đã hoàn thành
+        // count = bookingRepository.countByUserIdAndStatus(userId, "Completed");
+        return count;
     }
 
     /**
@@ -129,17 +169,7 @@ public class BookingService {
      */
     public PhieuHuyPhong createCancellationForm(PhieuDatPhong booking, String lyDoHuy, String tenNganHang,
             String soTaiKhoan) {
-        PhieuHuyPhong phieuHuy = new PhieuHuyPhong();
-        phieuHuy.setMaPHP(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
-        phieuHuy.setLyDo(lyDoHuy);
-        phieuHuy.setNgayHuy(LocalDateTime.now());
-        phieuHuy.setNguoiHuy(booking.getNguoiDung().getUserId());
-        phieuHuy.setTrangThai("Processed");
-        phieuHuy.setTenNganHang(tenNganHang);
-        phieuHuy.setSoTaiKhoan(soTaiKhoan);
-        phieuHuy.setPhieuDatPhong(booking);
-
-        return phieuHuy;
+        return cancellationFactory.createCancellationForm(booking, lyDoHuy, tenNganHang, soTaiKhoan);
     }
 
     /**
@@ -164,31 +194,14 @@ public class BookingService {
      * Tạo chi tiết dịch vụ cho booking
      */
     public ChiTietDichVu createServiceDetail(String bookingId, String roomId, DichVu service) {
-        ChiTietDichVu chiTietDichVu = new ChiTietDichVu();
-        chiTietDichVu.setMaPDPhong(bookingId);
-        chiTietDichVu.setMaPhong(roomId);
-        chiTietDichVu.setMaDV(service.getMaDV());
-        chiTietDichVu.setSoLuong(BigDecimal.ONE);
-        chiTietDichVu.setNgaySuDung(LocalDateTime.now().toLocalDate());
-        chiTietDichVu.setDichVu(service);
-
-        return chiTietDichVu;
+        return serviceDetailFactory.createServiceDetail(bookingId, roomId, service);
     }
 
     /**
      * Tạo hóa đơn mới cho booking
      */
     public HoaDon createInvoice(PhieuDatPhong booking, BigDecimal totalAmount, KhuyenMai khuyenMai) {
-        HoaDon hoaDon = new HoaDon();
-        hoaDon.setMaHD(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
-        hoaDon.setNgayLap(LocalDateTime.now());
-        hoaDon.setTongTien(totalAmount);
-        hoaDon.setThue(totalAmount.multiply(new BigDecimal("0.0")));
-        hoaDon.setTrangThai("Pending");
-        hoaDon.setKhuyenMai(khuyenMai);
-        hoaDon.setPhieudatphong(booking);
-
-        return hoaDon;
+        return invoiceFactory.createInvoice(booking, totalAmount, khuyenMai);
     }
 
     /**
@@ -214,14 +227,7 @@ public class BookingService {
      */
     public BigDecimal calculateTotalAmountWithPromotion(PhieuDatPhong booking, KhuyenMai promotion) {
         // Tính tiền phòng
-        BigDecimal roomPrice = booking.getChiTietDatPhongs().stream()
-                .map(ctdp -> {
-                    long nights = ChronoUnit.DAYS.between(
-                            ctdp.getNgayDen().toLocalDate(),
-                            ctdp.getNgayDi().toLocalDate());
-                    return ctdp.getPhong().getDonGia().multiply(BigDecimal.valueOf(nights));
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal roomPrice = calculateRoomPrice(booking);
 
         // Áp dụng khuyến mãi nếu có
         if (promotion != null) {
@@ -229,17 +235,7 @@ public class BookingService {
         }
 
         // Tính tiền dịch vụ (không giảm giá)
-        BigDecimal servicePrice = booking.getChiTietDatPhongs().stream()
-                .map(ctdp -> {
-                    long nights = ChronoUnit.DAYS.between(
-                            ctdp.getNgayDen().toLocalDate(),
-                            ctdp.getNgayDi().toLocalDate());
-                    BigDecimal serviceTotalForRoom = ctdp.getChiTietDichVus().stream()
-                            .map(ctdv -> ctdv.getDichVu().getDonGia())
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    return serviceTotalForRoom.multiply(BigDecimal.valueOf(nights));
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal servicePrice = calculateServicePrice(booking);
 
         // Tổng cộng
         BigDecimal total = roomPrice.add(servicePrice);
@@ -247,16 +243,35 @@ public class BookingService {
     }
 
     /**
+     * Tính 15% tổng tiền phòng của booking (dùng cho đặt cọc hoặc phí hủy)
+     * 
+     * @param booking Phiếu đặt phòng
+     * @return 15% tổng tiền phòng (chưa bao gồm dịch vụ)
+     */
+    public BigDecimal calculateRoomDepositAmount(PhieuDatPhong booking) {
+        // Tính tổng tiền phòng
+        BigDecimal totalRoomPrice = calculateRoomPrice(booking);
+
+        // Tính 15%
+        BigDecimal depositPercentage = new BigDecimal("0.15");
+        return totalRoomPrice.multiply(depositPercentage).setScale(0, java.math.RoundingMode.HALF_UP);
+    }
+
+    /**
      * Kiểm tra tính hợp lệ của thanh toán
      */
     public void validatePayment(PhieuDatPhong booking, BigDecimal amountPaid) {
         if (booking.getHoadon() == null) {
-            throw new IllegalStateException("Invoice not found for booking");
+            throw new IllegalStateException("Phiếu đặt này không có hóa đơn");
         }
 
-        BigDecimal invoiceAmount = booking.getHoadon().getTongTien();
-        if (amountPaid.compareTo(invoiceAmount) != 0) {
-            throw new IllegalStateException("Payment amount does not match invoice total");
+        BigDecimal depositAmount = calculateRoomDepositAmount(booking);
+
+        // So sánh BigDecimal phải dùng compareTo(), không dùng == hoặc !=
+        if (amountPaid.compareTo(depositAmount) != 0) {
+            throw new IllegalStateException(
+                    String.format("Số tiền thanh toán không khớp với tiền đặt cọc (15%%). Cần: %s VNĐ, Nhận: %s VNĐ",
+                            depositAmount, amountPaid));
         }
     }
 }

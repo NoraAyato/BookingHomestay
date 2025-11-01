@@ -7,8 +7,11 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class BookingPaymentResponseDto {
-    private String maPDPhong;
-    private String maHD;
+    private String bookingId;
+    private String invId;
+    private String homestayName;
+    private String checkInDate;
+    private String checkOutDate;
     private BigDecimal totalAmount;
     private String status;
 }

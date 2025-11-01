@@ -8,21 +8,20 @@ import java.util.List;
 
 @Getter
 @Setter
-public class MyBookingListResponseDto {
-    private String id;
-    private String bookingDate;
+public class BookingResponseDto {
+    private String bookingId;
+    private String homestayName;
+    private String invId;
     private BigDecimal totalPrice;
     private String status;
     private List<Room> rooms;
+    private String checkIn;
+    private String checkOut;
+    private String location;
 
     @Getter
     @Setter
     public static class Room {
-        private String id;
-        private String homestay;
-        private String location;
-        private String checkIn;
-        private String checkOut;
         private BigDecimal price;
         private String image;
         private String roomType;
@@ -31,7 +30,6 @@ public class MyBookingListResponseDto {
         @Getter
         @Setter
         public static class Service {
-            private String id;
             private String name;
             private BigDecimal price;
         }

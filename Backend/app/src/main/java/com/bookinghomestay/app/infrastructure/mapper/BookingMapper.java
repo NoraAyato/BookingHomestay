@@ -1,8 +1,8 @@
 package com.bookinghomestay.app.infrastructure.mapper;
 
 import com.bookinghomestay.app.api.dto.booking.BookingDetailResponseDto;
-import com.bookinghomestay.app.api.dto.booking.MyBookingListResponseDto;
 import com.bookinghomestay.app.api.dto.booking.BookingPaymentResponseDto;
+import com.bookinghomestay.app.api.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.domain.model.HoaDon;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 
@@ -12,35 +12,36 @@ import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 public class BookingMapper {
-    public static MyBookingListResponseDto toMyBookingListResponseDto(PhieuDatPhong booking,
+    public static BookingResponseDto toBookingResponseDto(PhieuDatPhong booking,
             BigDecimal tongTien) {
-        MyBookingListResponseDto dto = new MyBookingListResponseDto();
-        dto.setId(booking.getMaPDPhong());
-        dto.setBookingDate(booking.getNgayLap().toString());
+        BookingResponseDto dto = new BookingResponseDto();
+        HoaDon hoaDon = booking.getHoadon();
+        if (hoaDon != null) {
+            dto.setInvId(hoaDon.getMaHD());
+        }
+        dto.setBookingId(booking.getMaPDPhong());
+        dto.setHomestayName(booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getTenHomestay());
         dto.setTotalPrice(tongTien);
         dto.setStatus(booking.getTrangThai());
         dto.setRooms(new ArrayList<>());
+        dto.setLocation(booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getDiaChi() + ", "
+                + booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getKhuVuc().getTenKv());
+        dto.setCheckIn(booking.getChiTietDatPhongs().get(0).getNgayDen().toLocalDate().toString());
+        dto.setCheckOut(booking.getChiTietDatPhongs().get(0).getNgayDi().toLocalDate().toString());
         if (booking.getChiTietDatPhongs() != null && !booking.getChiTietDatPhongs().isEmpty()) {
             var chiTiet = booking.getChiTietDatPhongs();
             for (var item : chiTiet) {
-                var room = new MyBookingListResponseDto.Room();
-                room.setId(item.getMaPDPhong());
-                room.setCheckIn(item.getNgayDen().toLocalDate().toString());
-                room.setCheckOut(item.getNgayDi().toLocalDate().toString());
-                room.setHomestay(item.getPhong().getHomestay().getTenHomestay());
-                room.setLocation(item.getPhong().getHomestay().getDiaChi() + ", "
-                        + item.getPhong().getHomestay().getKhuVuc().getTenKv());
+                var room = new BookingResponseDto.Room();
                 room.setPrice(item.getPhong().getDonGia());
                 room.setImage(item.getPhong().getHinhAnhPhongs().stream()
                         .filter(h -> h.isLaAnhChinh())
                         .findFirst()
                         .map(h -> h.getUrlAnh())
                         .orElse(""));
-                room.setRoomType(item.getPhong().getLoaiPhong().getTenLoai());
+                room.setRoomType(item.getPhong().getTenPhong() + " - " + item.getPhong().getLoaiPhong().getTenLoai());
                 room.setServices(item.getChiTietDichVus().stream()
                         .map(dv -> {
-                            var service = new MyBookingListResponseDto.Room.Service();
-                            service.setId(dv.getDichVu().getMaDV());
+                            var service = new BookingResponseDto.Room.Service();
                             service.setName(dv.getDichVu().getTenDV());
                             service.setPrice(dv.getDichVu().getDonGia());
                             return service;
@@ -113,17 +114,14 @@ public class BookingMapper {
         return dto;
     }
 
-    public static BookingPaymentResponseDto toBookingPaymentResponseDto(PhieuDatPhong booking) {
-        if (booking == null || booking.getHoadon() == null) {
-            return null;
-        }
+    // public static BookingResponseDto toBookingPaymentResponseDto(PhieuDatPhong
+    // booking) {
+    // if (booking == null || booking.getHoadon() == null) {
+    // return null;
+    // }
 
-        HoaDon hoaDon = booking.getHoadon();
+    // HoaDon hoaDon = booking.getHoadon();
 
-        return new BookingPaymentResponseDto(
-                booking.getMaPDPhong(),
-                hoaDon.getMaHD(),
-                hoaDon.getTongTien(),
-                hoaDon.getTrangThai());
-    }
+    // return null;
+    // }
 }
