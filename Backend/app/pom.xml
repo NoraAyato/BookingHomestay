@@ -137,6 +137,11 @@
 			<version>8.11.0</version> <!-- hoặc đồng bộ với version Elasticsearch server -->
 	    </dependency>
 		
+		<!-- WebSocket Support -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
 
 	</dependencies>
 
