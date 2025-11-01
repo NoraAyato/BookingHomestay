@@ -36,7 +36,8 @@ public class PromotionMapper {
                 khuyenMai.getChietKhau().doubleValue(),
                 khuyenMai.getMaKM(),
                 khuyenMai.getHinhAnh(),
-                khuyenMai.getToiThieu());
+                khuyenMai.getToiThieu(),
+                khuyenMai.getNgayKetThuc().toString());
     }
 
     public static List<PromotionResponeDto> toDtoList(List<KhuyenMai> khuyenMais) {

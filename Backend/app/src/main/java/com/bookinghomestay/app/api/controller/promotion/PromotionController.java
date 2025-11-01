@@ -13,15 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.api.dto.promotion.AvailablePromotionResponseDto;
-import com.bookinghomestay.app.api.dto.promotion.GetMyPromotionRequestDto;
 import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
 import com.bookinghomestay.app.application.promotion.query.GetAdminKhuyenMaiQueryHandle;
 import com.bookinghomestay.app.application.promotion.query.GetKhuyenMaiQueryHandler;
 import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQuery;
 import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQueryHandler;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
-
-import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
@@ -54,13 +51,11 @@ public class PromotionController {
 
         @GetMapping("/available-promotions")
         public ResponseEntity<ApiResponse<List<AvailablePromotionResponseDto>>> getUserPromotions(
-                        @Valid @RequestParam GetMyPromotionRequestDto request) {
+                        @RequestParam(required = false) String maPDPhong) {
                 String userId = SecurityUtils.getCurrentUserId();
 
                 GetMyPromotionQuery query = new GetMyPromotionQuery(
-                                request.getMaPDPhong(),
-                                request.getNgayDen(),
-                                request.getNgayDi(),
+                                maPDPhong,
                                 userId);
 
                 List<AvailablePromotionResponseDto> promotions = getMyPromotionQueryHandler.handle(query);
