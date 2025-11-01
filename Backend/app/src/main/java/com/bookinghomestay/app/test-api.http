@@ -1,14 +1,15 @@
 ### Get user by ID
-GET http://localhost:8080/api/homestays/HS01/reviews?haiLongRange=3-5&reviewerType=others&currentUserId=U123
-Accept: application/json
+GET http://localhost:8080/api/Booking/detail/BK-fa68b7c9ebbb4ff6b892
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjEyMzI2NzIsImV4cCI6MTc2MTIzNjI3Mn0.SpxJifb_AgB96NA5B30ife2u0FB0tvFWScZjyS7oL4Y
+Content-Type: application/json
 ### Get user by ID
 POST http://localhost:8080/api/chat/messages
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjEwNjA1NTksImV4cCI6MTc2MTA2MDYxOX0.jvVz2U8HbhckA1Ph7YtlRz5lsOOYpwvuyosAMhcEkBE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjEwOTg2ODMsImV4cCI6MTc2MTA5ODc0M30.Qo7ICMgcVk_wyLf_BamR_L675MGIgOQhXIoIZktQx_c
 Content-Type: application/json
 
 {
   "conversationId": "77810d8c-889f-4764-adf2-260a63b6cf6a_7ce48730-56b4-44c5-a14b-29b4734d9830_490c49f8-239e-4a49-bec3-09b2ba7ff3d4",
-  "content": "abdads"
+  "content": "ko nge"
 }
 
 
@@ -18,8 +19,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtY
 Content-Type: application/json
 
 ### Lấy danh sách booking của người dùng hiện tại
-GET http://localhost:8080/api/Booking/my-bookings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQxMjQ5MjYsImV4cCI6MTc1NDEyODUyNn0.Jh4MNvgT48u7kyLN9wfnocIDbgBV4TtQRkIxIurS3fQ
+GET http://localhost:8080/api/users/me/my-bookings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjE5MjU5ODksImV4cCI6MTc2MTkyOTU4OX0.EF8a-WWs77AeKDYsMmdxO_Ntf5aivOQm7XE96ZQnoDE
 Content-Type: application/json
 
 ### Lấy chi tiết booking
@@ -163,24 +164,21 @@ Content-Type: application/json
 
 
 ### Tạo booking mới
-GET http://localhost:8080/api/Booking/my-bookings
+GET http://localhost:8080/api/notifications
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQ4MDk3MzMsImV4cCI6MTc1NDgxMzMzM30.rDWIXofCN6FSBaU8YWK76Oz6Wvt8lNU6NjWzvRodtXo
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjE5MDMxMDAsImV4cCI6MTc2MTkwNjcwMH0.C7YxziP0XwiVd2etRoN7go-lIT4Z7Fe_c6Gwxi73kUg
 
 
 ### Lấy danh sách khuyến mãi của tôi (my-promotion)
-POST http://localhost:8080/api/promotions/my-promotion
+GET http://localhost:8080/api/promotions/available-promotions?maPDPhong=BK-39e169f7b6fe4424afb4
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NTQ3NTgzMjQsImV4cCI6MTc1NDc2MTkyNH0.NOwB-Lf-AVcrPSgMR8FZMzOQthTrHhyAlzS08vN0-TU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjEzMTk2MzEsImV4cCI6MTc2MTMyMzIzMX0.d5lznMjH4FtIkPgccgWJoJvHKxagMJfDwOXWMdn6xXk
 Accept: application/json
 
-
-{
-  "maPhong": "7f46de5f165f4000bb86",
-  "ngayDen": "2025-08-15",
-  "ngayDi": "2025-08-20"
-}
-
+### Lấy danh sách khuyến mãi khả dụng cho user hiện tại
+GET http://localhost:8080/api/promotions/available-promotions?maPDPhong=BK-39e169f7b6fe4424afb4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjEzMjI3MTQsImV4cCI6MTc2MTMyNjMxNH0.hVdPaqneLjCpjrzw7f337XUnT7NZiEu-NNni7mYV158
+Content-Type: application/json
 ### Tìm kiếm homestay
 GET http://localhost:8080/api/homestays/search
     ?locationId=KV010
@@ -191,3 +189,29 @@ GET http://localhost:8080/api/homestays/search
     &page=1
     &limit=12
 Accept: application/json
+
+
+### Test gửi thông báo đến 1 user cụ thể (LƯU DB + WEBSOCKET)
+POST http://localhost:8080/api/test-websocket/send-to-user
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjE5MjMzMjksImV4cCI6MTc2MTkyNjkyOX0.5aGTb4djPTFFNMWFPq_JSY2Yl4QfeX-I9wgjYfwTxWQ
+Content-Type: application/json
+
+{
+  "userId": "7ce48730-56b4-44c5-a14b-29b4734d9830",
+  "title": "Test Notification",
+  "content": "This is a test message 2"
+}
+
+### Test broadcast thông báo đến tất cả user (LƯU DB + WEBSOCKET)
+POST http://localhost:8080/api/test-websocket/broadcast
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjE5MjI2MzgsImV4cCI6MTc2MTkyNjIzOH0.nJK3YaIFeKn33hDlYxA0I21SHLRZJARtwaJSC75QgjM
+Content-Type: application/json
+
+{
+  "title": "System Announcement",
+  "content": "Server maintenance in 10 minutes"
+}
+
+### Test lấy số thông báo chưa đọc từ DB
+GET http://localhost:8080/api/test-websocket/unread-count?userId=7ce48730-56b4-44c5-a14b-29b4734d9830
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3Y2U0ODczMC01NmI0LTQ0YzUtYTE0Yi0yOWI0NzM0ZDk4MzAiLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3NjE5MjI2MzgsImV4cCI6MTc2MTkyNjIzOH0.nJK3YaIFeKn33hDlYxA0I21SHLRZJARtwaJSC75QgjM
