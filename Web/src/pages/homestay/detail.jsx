@@ -11,8 +11,12 @@ import Breadcrumb from "../../components/common/Breadcrumb";
 import RoomsList from "../../components/homestay/RoomsList";
 import ReviewsList from "../../components/homestay/ReviewsList";
 import LocationMap from "../../components/homestay/LocationMap";
+import PoliciesSection from "../../components/homestay/PoliciesSection";
+import ChatButton from "../../components/chat/ChatButton";
 import { showToast } from "../../components/common/Toast";
 import { useHomestayData } from "../../hooks/useHomestay";
+import { useBookings } from "../../hooks/useBookings";
+import useUser from "../../hooks/useUser";
 import { renderDescription } from "../../utils/string";
 import { getImageUrl } from "../../utils/imageUrl";
 import { formatPrice } from "../../utils/price";
@@ -90,6 +94,9 @@ const HomestayDetail = () => {
     errorRooms,
     fetchAvailableRooms,
   } = useHomestayData();
+
+  const { loading: bookingLoading, createNewBooking } = useBookings();
+  const { addFavorite } = useUser();
   useEffect(() => {
     // Fetch homestay detail khi id thay đổi
     fetchHomestayDetail(id);
@@ -212,7 +219,7 @@ const HomestayDetail = () => {
   };
 
   // Handle booking form submission
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
 
     // Check if room is selected
@@ -233,20 +240,33 @@ const HomestayDetail = () => {
       return;
     }
 
-    // Prepare booking data to pass to booking page
-    const bookingParams = new URLSearchParams({
-      homestayId: id,
-      roomId: selectedRoom.id,
-      roomName: encodeURIComponent(selectedRoom.name),
-      checkIn: selectedDates.checkIn,
-      checkOut: selectedDates.checkOut,
-      pricePerNight: (
-        selectedRoom.discountPrice || selectedRoom.price
-      ).toString(),
-    });
+    try {
+      // Gọi API create booking với parameters
+      const response = await createNewBooking(
+        selectedRoom.id,
+        selectedDates.checkIn,
+        selectedDates.checkOut
+      );
 
-    // Navigate to booking page
-    navigate(`/booking?${bookingParams.toString()}`);
+      // Nếu thành công, điều hướng tới trang booking
+      if (response.success) {
+        const bookingParams = new URLSearchParams({
+          homestayId: id,
+          bookingId: response.data,
+          roomId: selectedRoom.id,
+          roomName: encodeURIComponent(selectedRoom.name),
+          checkIn: selectedDates.checkIn,
+          checkOut: selectedDates.checkOut,
+          pricePerNight: (
+            selectedRoom.discountPrice || selectedRoom.price
+          ).toString(),
+        });
+
+        navigate(`/booking?${bookingParams.toString()}`);
+      }
+    } catch (error) {
+      console.error("Booking error:", error);
+    }
   };
 
   if (loadingDetail) {
@@ -294,7 +314,7 @@ const HomestayDetail = () => {
     host,
     tags,
   } = homestay;
-
+  console.log(host);
   // Calculate display price based on homestay price or selected room price
   const displayPrice = selectedRoom
     ? selectedRoom.discountPrice || selectedRoom.price
@@ -377,7 +397,10 @@ const HomestayDetail = () => {
               </svg>
               Chia sẻ
             </button>
-            <button className="flex items-center text-gray-600 hover:text-gray-900">
+            <button
+              onClick={() => addFavorite(id)}
+              className="flex items-center text-gray-600 hover:text-gray-900"
+            >
               <svg
                 className="w-5 h-5 mr-1"
                 fill="none"
@@ -489,50 +512,7 @@ const HomestayDetail = () => {
               )}
             </div>
             {/* Policies section */}
-            {homestay.policies && (
-              <div className="border-b pb-6 mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Chính sách đặt phòng
-                </h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-800 mb-1">
-                        Thời gian nhận/trả phòng
-                      </h3>
-                      <div className="flex flex-col text-gray-700 space-y-1">
-                        <div className="flex items-center">
-                          <i className="fas fa-sign-in-alt text-rose-500 w-6"></i>
-                          <span>
-                            Nhận phòng: từ {homestay.policies.checkIn}
-                          </span>
-                        </div>
-                        <div className="flex items-center">
-                          <i className="fas fa-sign-out-alt text-rose-500 w-6"></i>
-                          <span>
-                            Trả phòng: trước {homestay.policies.checkOut}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-800 mb-1">
-                        Chính sách hủy phòng
-                      </h3>
-                      <div className="text-gray-700">
-                        <div className="flex items-start">
-                          <i className="fas fa-calendar-alt text-rose-500 mt-1 mr-2"></i>
-                          <span>{homestay.policies.cancellation}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            <PoliciesSection policies={homestay.policies} />
             {/* Location section */}
             <LocationMap address={address} title={title} />
             {/* Reviews section */}
@@ -608,9 +588,12 @@ const HomestayDetail = () => {
                     tại homestay của tôi. Tôi luôn cố gắng cung cấp trải nghiệm
                     tốt nhất cho khách hàng và sẵn sàng hỗ trợ bạn 24/7.
                   </p>
-                  <button className="mt-4 px-4 py-2 border border-gray-900 rounded-md font-medium hover:bg-gray-50">
-                    Liên hệ chủ nhà
-                  </button>
+                  <ChatButton
+                    hostId={host.hostId}
+                    homestayId={id}
+                    hostName={host.hostName}
+                    hostAvatar={host.avatar}
+                  />
                 </div>
               </div>
             </div>
@@ -766,7 +749,8 @@ const HomestayDetail = () => {
                     !selectedDates.checkIn ||
                     !selectedDates.checkOut ||
                     !selectedRoom ||
-                    !isDateValid
+                    !isDateValid ||
+                    bookingLoading
                       ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                       : "bg-rose-600 text-white hover:bg-rose-700"
                   }`}
@@ -774,15 +758,42 @@ const HomestayDetail = () => {
                     !selectedDates.checkIn ||
                     !selectedDates.checkOut ||
                     !selectedRoom ||
-                    !isDateValid
+                    !isDateValid ||
+                    bookingLoading
                   }
                   onClick={handleBookingSubmit}
                 >
-                  {!selectedRoom
-                    ? "Vui lòng chọn phòng"
-                    : !isDateValid
-                    ? "Ngày không hợp lệ"
-                    : "Đặt phòng"}
+                  {bookingLoading ? (
+                    <div className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Đang xử lý...
+                    </div>
+                  ) : !selectedRoom ? (
+                    "Vui lòng chọn phòng"
+                  ) : !isDateValid ? (
+                    "Ngày không hợp lệ"
+                  ) : (
+                    "Đặt phòng"
+                  )}
                 </button>
               </form>
 

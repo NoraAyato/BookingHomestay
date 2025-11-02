@@ -5,12 +5,15 @@ import UserInfo from "../../components/user/UserInfo";
 import UserBookings from "../../components/user/UserBookings";
 import UserFavorites from "../../components/user/UserFavorites";
 import UserPromotions from "../../components/user/UserPromotions";
+import useUser from "../../hooks/useUser";
+
 const UserPage = () => {
   const location = useLocation();
   const bookingTabRef = useRef(null);
   const promotionsTabRef = useRef(null);
   const [activeTab, setActiveTab] = useState("bookings");
   const [expandedBookings, setExpandedBookings] = useState({});
+  const { favorites, getUserFavorites, addFavorite, loading } = useUser();
 
   const toggleBookingDetails = (bookingId) => {
     setExpandedBookings((prev) => ({
@@ -50,26 +53,12 @@ const UserPage = () => {
     }
   }, [location.pathname]);
 
-  const favorites = [
-    {
-      id: "FAV001",
-      name: "Villa Biển Nha Trang",
-      location: "Nha Trang, Khánh Hòa",
-      price: "1,800,000",
-      rating: 4.9,
-      image:
-        "http://localhost:8080/img/uploads/Homestays/96ae073e-35d4-4a3f-85f6-aed6c7f4896c.jpg",
-    },
-    {
-      id: "FAV002",
-      name: "Homestay Phố Cổ Hội An",
-      location: "Hội An, Quảng Nam",
-      price: "1,200,000",
-      rating: 4.7,
-      image:
-        "http://localhost:8080/img/uploads/Homestays/96ae073e-35d4-4a3f-85f6-aed6c7f4896c.jpg",
-    },
-  ];
+  // Load favorites when tab is active
+  useEffect(() => {
+    if (activeTab === "favorites") {
+      getUserFavorites();
+    }
+  }, [activeTab]);
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-rose-50/20 via-white to-cyan-50/30 py-8">
@@ -185,7 +174,13 @@ const UserPage = () => {
               toggleBookingDetails={toggleBookingDetails}
             />
           )}
-          {activeTab === "favorites" && <UserFavorites favorites={favorites} />}
+          {activeTab === "favorites" && (
+            <UserFavorites
+              favorites={favorites}
+              addFavorite={addFavorite}
+              loading={loading}
+            />
+          )}
           {activeTab === "promotions" && <UserPromotions />}
         </motion.div>
       </div>
