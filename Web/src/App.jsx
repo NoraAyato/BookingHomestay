@@ -16,10 +16,13 @@ import { AuthPopupProvider } from "./contexts/AuthPopupProvider";
 import UserPage from "./pages/user";
 import NewsPage from "./pages/news";
 import BookingPage from "./pages/booking";
+import PaymentPage from "./pages/booking/payment";
+import PaymentConfirmation from "./pages/booking/confirmation";
 import NewsDetailPage from "./pages/news/NewsDetail";
 import AboutUsPage from "./pages/aboutus";
 import HomestayIndex from "./pages/homestay";
 import HomestayDetail from "./pages/homestay/detail";
+import MessengerButton from "./components/chat/MessengerButton";
 
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 function App() {
@@ -90,6 +93,22 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/booking/payment"
+              element={
+                <ProtectedRoute>
+                  <PaymentPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/booking/confirm"
+              element={
+                <ProtectedRoute>
+                  <PaymentConfirmation />
+                </ProtectedRoute>
+              }
+            />
             {/* News Routes */}
             <Route path="/news" element={<NewsPage />} />
             <Route path="/news/:id" element={<NewsDetailPage />} />
@@ -103,6 +122,7 @@ function App() {
           </Routes>
         </div>
         {!hideLayout && <Footer />}
+        {!hideLayout && <MessengerButton />}
       </div>
     );
   }
