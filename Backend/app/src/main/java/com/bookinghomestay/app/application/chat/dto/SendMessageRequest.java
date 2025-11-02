@@ -1,6 +1,9 @@
 package com.bookinghomestay.app.application.chat.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Request để gửi message
@@ -12,6 +15,9 @@ import lombok.Data;
  * 4. Update lastMessage trong conversation
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SendMessageRequest {
     private String conversationId;
     private String senderId;

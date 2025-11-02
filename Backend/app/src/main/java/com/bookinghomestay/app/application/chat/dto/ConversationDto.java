@@ -27,5 +27,6 @@ public class ConversationDto {
     private String lastMessage;
     private Long lastMessageAt;
     private String lastSenderId;
-    private Integer unreadCount; // Số tin nhắn chưa đọc
+    private Integer unreadCountForUser; // Số tin nhắn Host gửi mà User chưa đọc
+    private Integer unreadCountForHost; // Số tin nhắn User gửi mà Host chưa đọc
 }
