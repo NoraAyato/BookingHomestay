@@ -87,7 +87,7 @@ public class MoMoPaymentService implements PaymentService {
 
         } catch (Exception e) {
             log.error("Error creating MoMo payment request", e);
-            throw new RuntimeException("Failed to create MoMo payment request", e);
+            throw new RuntimeException("Failed to create MoMo payment request: " + e.getMessage(), e);
         }
     }
 

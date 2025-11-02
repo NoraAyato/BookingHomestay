@@ -28,7 +28,6 @@ public class CancelBookingCommandHandler {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy phiếu đặt phòng"));
 
-        // Kiểm tra người hủy có phải người đặt không
         if (!bookingDomainService.canCancelBooking(booking, command.getUserId())) {
             throw new BusinessException(
                     "Bạn không có quyền hủy phiếu đặt phòng này");
@@ -47,7 +46,6 @@ public class CancelBookingCommandHandler {
                             + soGioChoPhepHuy + " giờ trước thời gian nhận phòng");
         }
 
-        // Tạo phiếu hủy phòng
         PhieuHuyPhong phieuHuy = bookingDomainService.createCancellationForm(
                 booking,
                 command.getLyDoHuy(),
@@ -63,7 +61,5 @@ public class CancelBookingCommandHandler {
         // Lưu phiếu hủy phòng và cập nhật phiếu đặt phòng
         bookingRepository.saveCancelledBooking(phieuHuy);
         bookingRepository.save(booking);
-
-        log.info("Đã hủy phiếu đặt phòng {}, lý do: {}", booking.getMaPDPhong(), command.getLyDoHuy());
     }
 }
