@@ -1,5 +1,6 @@
 package com.bookinghomestay.app.application.booking.query;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,15 @@ public class GetMyBookingListQueryHandler {
                 .limit(query.getLimit())
                 .map(booking -> {
                     var tongTien = bookingDomainService.calculateTotalAmount(booking);
-                    return BookingMapper.toBookingResponseDto(booking, tongTien);
+                    if (booking.getTrangThai().equals("Booked")) {
+                        var paidPrice = bookingDomainService.calculateRoomDepositAmount(booking);
+                        BigDecimal haveToPayPrice = tongTien.subtract(paidPrice != null ? paidPrice : BigDecimal.ZERO);
+                        return BookingMapper.toBookingResponseDto(booking, tongTien, haveToPayPrice);
+                    } else if (booking.getTrangThai().equals("Pending")) {
+                        var paidPrice = bookingDomainService.calculateRoomDepositAmount(booking);
+                        return BookingMapper.toBookingResponseDto(booking, tongTien, paidPrice);
+                    }
+                    return BookingMapper.toBookingResponseDto(booking, tongTien, null);
                 })
                 .collect(Collectors.toList());
 

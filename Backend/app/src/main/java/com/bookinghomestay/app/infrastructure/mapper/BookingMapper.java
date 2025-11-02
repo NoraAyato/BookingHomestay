@@ -13,11 +13,17 @@ import java.util.ArrayList;
 
 public class BookingMapper {
     public static BookingResponseDto toBookingResponseDto(PhieuDatPhong booking,
-            BigDecimal tongTien) {
+            BigDecimal tongTien, BigDecimal haveToPayPrice) {
         BookingResponseDto dto = new BookingResponseDto();
         HoaDon hoaDon = booking.getHoadon();
         if (hoaDon != null) {
             dto.setInvId(hoaDon.getMaHD());
+            if (hoaDon.getKhuyenMai() != null) {
+                dto.setPromotionId(hoaDon.getKhuyenMai().getMaKM());
+            }
+        }
+        if (haveToPayPrice != null) {
+            dto.setHaveToPayPrice(haveToPayPrice);
         }
         dto.setBookingId(booking.getMaPDPhong());
         dto.setHomestayName(booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getTenHomestay());

@@ -18,7 +18,9 @@ public class BookingResponseDto {
     private String checkIn;
     private String checkOut;
     private String location;
-
+    private BigDecimal haveToPayPrice;
+    private String promotionId;
+    private boolean isCancelable;
     @Getter
     @Setter
     public static class Room {

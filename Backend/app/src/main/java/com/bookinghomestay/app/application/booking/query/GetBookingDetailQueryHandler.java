@@ -27,6 +27,6 @@ public class GetBookingDetailQueryHandler {
         }
         PhieuDatPhong booking = bookingOpt.get();
         BigDecimal tongTien = bookingDomainService.calculateTotalAmount(booking);
-        return BookingMapper.toBookingResponseDto(booking, tongTien);
+        return BookingMapper.toBookingResponseDto(booking, tongTien, null);
     }
 }
