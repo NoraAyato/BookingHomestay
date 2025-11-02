@@ -3,7 +3,7 @@ package com.bookinghomestay.app.infrastructure.mapper;
 import java.math.BigDecimal;
 import java.util.stream.Collectors;
 
-import com.bookinghomestay.app.api.dto.homestay.RoomAvailabilityDto;
+import com.bookinghomestay.app.application.homestay.dto.RoomAvailabilityDto;
 import com.bookinghomestay.app.domain.model.HinhAnhPhong;
 import com.bookinghomestay.app.domain.model.Phong;
 

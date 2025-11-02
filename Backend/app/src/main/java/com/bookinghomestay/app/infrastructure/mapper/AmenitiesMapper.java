@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.infrastructure.mapper;
 
-import com.bookinghomestay.app.api.dto.amenities.AmenitiesResponseDto;
+import com.bookinghomestay.app.application.amenities.dto.amenities.AmenitiesResponseDto;
 import com.bookinghomestay.app.domain.model.TienNghi;
 
 public class AmenitiesMapper {

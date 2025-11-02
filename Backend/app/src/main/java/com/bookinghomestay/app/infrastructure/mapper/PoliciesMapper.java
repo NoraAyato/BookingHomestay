@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.infrastructure.mapper;
 
-import com.bookinghomestay.app.api.dto.policies.PoliciesResponseDto;
+import com.bookinghomestay.app.application.policies.dto.PoliciesResponseDto;
 import com.bookinghomestay.app.domain.model.ChinhSach;
 
 public class PoliciesMapper {

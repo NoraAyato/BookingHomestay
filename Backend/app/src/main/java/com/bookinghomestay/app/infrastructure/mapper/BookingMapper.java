@@ -1,8 +1,8 @@
 package com.bookinghomestay.app.infrastructure.mapper;
 
-import com.bookinghomestay.app.api.dto.booking.BookingDetailResponseDto;
-import com.bookinghomestay.app.api.dto.booking.BookingPaymentResponseDto;
-import com.bookinghomestay.app.api.dto.booking.BookingResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingDetailResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingPaymentResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.domain.model.HoaDon;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 
