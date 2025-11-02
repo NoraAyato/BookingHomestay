@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.infrastructure.mapper;
 
-import com.bookinghomestay.app.api.dto.notification.NotificationDto;
+import com.bookinghomestay.app.application.notification.dto.NotificationDto;
 import com.bookinghomestay.app.domain.model.Notification;
 import com.bookinghomestay.app.domain.model.UserNotification;
 import org.springframework.stereotype.Component;

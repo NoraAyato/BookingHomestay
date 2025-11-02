@@ -11,8 +11,9 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.bookinghomestay.app.api.constant.Messages;
-import com.bookinghomestay.app.api.dto.auth.AuthResponseDto;
+
+import com.bookinghomestay.app.application.auth.dto.auth.AuthResponseDto;
+import com.bookinghomestay.app.common.constant.Messages;
 
 import java.util.Optional;
 

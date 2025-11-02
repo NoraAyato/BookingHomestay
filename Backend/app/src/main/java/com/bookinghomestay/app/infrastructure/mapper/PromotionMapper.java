@@ -3,8 +3,8 @@ package com.bookinghomestay.app.infrastructure.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.bookinghomestay.app.api.dto.promotion.AvailablePromotionResponseDto;
-import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
+import com.bookinghomestay.app.application.promotion.dto.AvailablePromotionResponseDto;
+import com.bookinghomestay.app.application.promotion.dto.PromotionResponeDto;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 
 public class PromotionMapper {

@@ -1,8 +1,8 @@
 package com.bookinghomestay.app.api.controller.chat;
 
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.application.chat.ChatService;
 import com.bookinghomestay.app.application.chat.dto.*;
+import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.infrastructure.firebase.FirebaseAuthService;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 import com.google.firebase.auth.FirebaseAuthException;

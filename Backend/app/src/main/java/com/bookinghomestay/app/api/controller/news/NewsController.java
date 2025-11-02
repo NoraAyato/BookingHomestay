@@ -1,11 +1,11 @@
 package com.bookinghomestay.app.api.controller.news;
 
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
-import com.bookinghomestay.app.api.dto.tintuc.NewsDetailResponseDto;
-import com.bookinghomestay.app.api.dto.tintuc.NewsResponseDto;
+import com.bookinghomestay.app.application.news.dto.NewsDetailResponseDto;
+import com.bookinghomestay.app.application.news.dto.NewsResponseDto;
 import com.bookinghomestay.app.application.news.query.GetAllNewsQueryHandler;
 import com.bookinghomestay.app.application.news.query.GetNewsDetailQuery;
 import com.bookinghomestay.app.application.news.query.GetNewsDetailQueryHandler;
+import com.bookinghomestay.app.common.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

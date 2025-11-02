@@ -7,8 +7,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.stereotype.Service;
 
-import com.bookinghomestay.app.api.dto.promotion.AvailablePromotionResponseDto;
-import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
+import com.bookinghomestay.app.application.promotion.dto.AvailablePromotionResponseDto;
+import com.bookinghomestay.app.application.promotion.dto.PromotionResponeDto;
 import com.bookinghomestay.app.domain.exception.BusinessException;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;

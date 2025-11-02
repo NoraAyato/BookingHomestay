@@ -1,11 +1,6 @@
 package com.bookinghomestay.app.api.controller.user;
 
-import com.bookinghomestay.app.api.dto.booking.BookingResponseDto;
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
-import com.bookinghomestay.app.api.dto.common.PageResponse;
-import com.bookinghomestay.app.api.dto.users.UpdateProfileRequestDto;
-import com.bookinghomestay.app.api.dto.users.UserFavoriteHomestayResponseDto;
-import com.bookinghomestay.app.api.dto.users.UserInfoResponeDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.application.booking.query.GetBookingListQuery;
 import com.bookinghomestay.app.application.booking.query.GetMyBookingListQueryHandler;
 import com.bookinghomestay.app.application.users.command.AddFavoriteHomestayCommand;
@@ -16,9 +11,14 @@ import com.bookinghomestay.app.application.users.command.UpdateUserProfileComman
 import com.bookinghomestay.app.application.users.command.UpdateUserRecieveEmailHandler;
 import com.bookinghomestay.app.application.users.command.UploadUserImgCommandHandler;
 import com.bookinghomestay.app.application.users.command.UploadUserPictureCommand;
+import com.bookinghomestay.app.application.users.dto.UpdateProfileRequestDto;
+import com.bookinghomestay.app.application.users.dto.UserFavoriteHomestayResponseDto;
+import com.bookinghomestay.app.application.users.dto.UserInfoResponeDto;
 import com.bookinghomestay.app.application.users.query.GetCurrentUserQueryHandler;
 import com.bookinghomestay.app.application.users.query.GetFavoriteHomestayQuery;
 import com.bookinghomestay.app.application.users.query.GetUserFavoriteHomestayQueryHandler;
+import com.bookinghomestay.app.common.response.ApiResponse;
+import com.bookinghomestay.app.common.response.PageResponse;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
 import jakarta.validation.Valid;

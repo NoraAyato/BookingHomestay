@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.bookinghomestay.app.api.dto.common.PageResponse;
-import com.bookinghomestay.app.api.dto.users.UserFavoriteHomestayResponseDto;
+import com.bookinghomestay.app.application.users.dto.UserFavoriteHomestayResponseDto;
+import com.bookinghomestay.app.common.response.PageResponse;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.model.UserFavorite;

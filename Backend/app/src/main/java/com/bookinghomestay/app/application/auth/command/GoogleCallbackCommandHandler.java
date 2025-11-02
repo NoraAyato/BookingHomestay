@@ -1,7 +1,7 @@
 package com.bookinghomestay.app.application.auth.command;
 
-import com.bookinghomestay.app.api.constant.Messages;
-import com.bookinghomestay.app.api.dto.auth.AuthResponseDto;
+import com.bookinghomestay.app.application.auth.dto.auth.AuthResponseDto;
+import com.bookinghomestay.app.common.constant.Messages;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.model.UserLogin;
 import com.bookinghomestay.app.domain.repository.IUserLoginRepository;

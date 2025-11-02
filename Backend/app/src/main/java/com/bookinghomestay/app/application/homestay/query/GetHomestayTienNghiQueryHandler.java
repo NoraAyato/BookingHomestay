@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.application.homestay.query;
 
-import com.bookinghomestay.app.api.dto.homestay.HomestayTienNghiResponseDto;
+import com.bookinghomestay.app.application.homestay.dto.HomestayTienNghiResponseDto;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
 import com.bookinghomestay.app.domain.service.HomestayService;

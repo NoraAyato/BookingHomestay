@@ -1,10 +1,10 @@
 package com.bookinghomestay.app.application.users.query;
 
-import com.bookinghomestay.app.api.dto.users.UserInfoResponeDto;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.infrastructure.mapper.UserMapper;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
+import com.bookinghomestay.app.application.users.dto.UserInfoResponeDto;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

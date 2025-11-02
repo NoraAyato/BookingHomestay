@@ -2,9 +2,9 @@ package com.bookinghomestay.app.infrastructure.mapper;
 
 import java.math.BigDecimal;
 
-import com.bookinghomestay.app.api.dto.users.HostDetailResponseDto;
-import com.bookinghomestay.app.api.dto.users.UserFavoriteHomestayResponseDto;
-import com.bookinghomestay.app.api.dto.users.UserInfoResponeDto;
+import com.bookinghomestay.app.application.users.dto.HostDetailResponseDto;
+import com.bookinghomestay.app.application.users.dto.UserFavoriteHomestayResponseDto;
+import com.bookinghomestay.app.application.users.dto.UserInfoResponeDto;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.model.User;
 

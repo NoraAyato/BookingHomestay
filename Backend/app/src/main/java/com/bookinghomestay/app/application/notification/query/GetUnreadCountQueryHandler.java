@@ -1,9 +1,10 @@
 package com.bookinghomestay.app.application.notification.query;
 
-import com.bookinghomestay.app.infrastructure.persistence.repository.JpaNoficationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaNoficationRepository;
 
 /**
  * Query handler for getting unread notification count for a user

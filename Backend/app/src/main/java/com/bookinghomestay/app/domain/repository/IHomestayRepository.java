@@ -3,7 +3,7 @@ package com.bookinghomestay.app.domain.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.bookinghomestay.app.api.dto.homestay.RoomDetailResponseDTO;
+import com.bookinghomestay.app.application.homestay.dto.RoomDetailResponseDTO;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.model.Phong;
 

@@ -1,10 +1,10 @@
 package com.bookinghomestay.app.api.controller.notification;
 
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
-import com.bookinghomestay.app.api.dto.notification.NotificationDto;
-import com.bookinghomestay.app.api.dto.notification.SendNotificationRequest;
 import com.bookinghomestay.app.application.notification.command.*;
+import com.bookinghomestay.app.application.notification.dto.NotificationDto;
+import com.bookinghomestay.app.application.notification.dto.SendNotificationRequest;
 import com.bookinghomestay.app.application.notification.query.*;
+import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
