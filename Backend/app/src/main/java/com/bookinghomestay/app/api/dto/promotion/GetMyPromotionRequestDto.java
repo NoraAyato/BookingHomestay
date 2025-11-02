@@ -7,6 +7,4 @@ import lombok.Data;
 @Data
 public class GetMyPromotionRequestDto {
     private String maPDPhong;
-    private LocalDate ngayDen;
-    private LocalDate ngayDi;
 }

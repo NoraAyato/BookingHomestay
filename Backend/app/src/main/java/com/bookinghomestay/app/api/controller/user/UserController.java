@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.api.controller.user;
 
-import com.bookinghomestay.app.api.dto.booking.MyBookingListResponseDto;
+import com.bookinghomestay.app.api.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.api.dto.common.PageResponse;
 import com.bookinghomestay.app.api.dto.users.UpdateProfileRequestDto;
@@ -28,10 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("/api/users")
@@ -74,11 +70,11 @@ public class UserController {
     }
 
     @GetMapping("/me/my-bookings")
-    public ResponseEntity<ApiResponse<PageResponse<MyBookingListResponseDto>>> getMyBookings(
+    public ResponseEntity<ApiResponse<PageResponse<BookingResponseDto>>> getMyBookings(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) {
         String userId = SecurityUtils.getCurrentUserId();
-        PageResponse<MyBookingListResponseDto> pageResponse = getBookingListQueryHandler
+        PageResponse<BookingResponseDto> pageResponse = getBookingListQueryHandler
                 .handle(new GetBookingListQuery(userId, page, limit));
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách đặt phòng thành công !", pageResponse));
     }

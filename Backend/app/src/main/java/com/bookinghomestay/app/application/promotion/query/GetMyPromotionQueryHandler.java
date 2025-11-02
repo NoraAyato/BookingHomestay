@@ -13,7 +13,9 @@ import com.bookinghomestay.app.domain.exception.BusinessException;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.domain.repository.IKhuyenMaiRepository;
+import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.domain.service.PromotionService;
+import com.bookinghomestay.app.domain.service.UserService;
 import com.bookinghomestay.app.infrastructure.mapper.PromotionMapper;
 import com.bookinghomestay.app.domain.exception.BusinessException;
 
@@ -26,38 +28,38 @@ public class GetMyPromotionQueryHandler {
     private final IKhuyenMaiRepository khuyenMaiRepository;
     private final IBookingRepository bookingRepository;
     private final PromotionService promotionService;
+    private final IUserRepository userRepository;
+    private final UserService userService;
 
     public List<AvailablePromotionResponseDto> handle(GetMyPromotionQuery query) {
-        boolean isNewCustomer = isNewCustomer(query.getUserId());
-        var booking = bookingRepository.findById(query.getMaPDPhong());
-        AtomicReference<String> maPhongRef = new AtomicReference<>("");
-        booking.ifPresent(b -> {
-            if (b.getChiTietDatPhongs().get(0).getMaPhong() != null) {
-                maPhongRef.set(b.getChiTietDatPhongs().get(0).getMaPhong());
-            } else {
-                throw new BusinessException("Phiếu đặt phòng không chứa mã phòng hợp lệ");
-            }
-        });
-        String maPhong = maPhongRef.get();
 
+        var user = userRepository.findById(query.getUserId())
+                .orElseThrow(() -> new BusinessException(query.getUserId()));
+
+        boolean isNewCustomer = userService.countBookingComplete(user) > 0 ? false : true;
+        var booking = bookingRepository.findById(query.getMaPDPhong());
+
+        String maPhong = "";
+        if (booking.isPresent()) {
+            maPhong = booking.get().getChiTietDatPhongs().get(0).getMaPhong();
+        }
+        var ngayDen = booking.get().getChiTietDatPhongs().get(0).getNgayDen().toLocalDate();
+        var ngayDi = booking.get().getChiTietDatPhongs().get(0).getNgayDi().toLocalDate();
         List<KhuyenMai> allPromos = khuyenMaiRepository.getAllPromotionsForRoom(maPhong);
         if (allPromos.isEmpty()) {
             allPromos = khuyenMaiRepository.getAdminKm();
         }
         var validPromos = allPromos.stream()
                 .filter(km -> !LocalDate.now().isAfter(km.getNgayKetThuc().toLocalDate()))
+                .filter(km -> !LocalDate.now().isBefore(km.getNgayBatDau().toLocalDate()))
                 .filter(km -> km.getSoNgayDatTruoc() == null ||
-                        ChronoUnit.DAYS.between(LocalDate.now(), query.getNgayDen()) >= km.getSoNgayDatTruoc())
+                        ChronoUnit.DAYS.between(LocalDate.now(), ngayDen) >= km.getSoNgayDatTruoc())
                 .filter(km -> km.getSoDemToiThieu() == null ||
-                        ChronoUnit.DAYS.between(query.getNgayDen(), query.getNgayDi()) >= km.getSoDemToiThieu())
+                        ChronoUnit.DAYS.between(ngayDen, ngayDi) >= km.getSoDemToiThieu())
                 .filter(km -> !km.isChiApDungChoKhachMoi() || isNewCustomer)
                 .map(km -> PromotionMapper.toAvailableDto(km, promotionService.getPromotionTitle(km)))
-
                 .toList();
         return validPromos;
     }
 
-    private boolean isNewCustomer(String userId) {
-        return bookingRepository.countByUserIdAndTrangThai(userId, "Completed") > 0 ? false : true;
-    }
 }

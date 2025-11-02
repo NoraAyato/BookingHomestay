@@ -16,4 +16,5 @@ public class AvailablePromotionResponseDto {
     private String code;
     private String image;
     private BigDecimal minSpend;
+    private String expiryDate;
 }

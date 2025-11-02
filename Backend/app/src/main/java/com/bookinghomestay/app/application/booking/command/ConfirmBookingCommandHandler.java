@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bookinghomestay.app.api.dto.booking.BookingPaymentResponseDto;
+import com.bookinghomestay.app.api.dto.booking.BookingResponseDto;
+import com.bookinghomestay.app.domain.factory.BookingFactory;
+import com.bookinghomestay.app.domain.model.ChiTietDatPhong;
 import com.bookinghomestay.app.domain.model.ChiTietDichVu;
 import com.bookinghomestay.app.domain.model.DichVu;
 import com.bookinghomestay.app.domain.model.HoaDon;
@@ -30,12 +33,12 @@ public class ConfirmBookingCommandHandler {
 
     private final IBookingRepository bookingRepository;
     private final IServiceRepository serviceRepository;
-    private final IKhuyenMaiRepository promotionRepository;
     private final PendingRoomService pendingRoomService;
     private final BookingService bookingDomainService;
+    private final BookingFactory bookingFactory;
 
     @Transactional
-    public BookingPaymentResponseDto handle(ConfirmBookingCommand command) {
+    public String handle(ConfirmBookingCommand command) {
         try {
             // Lấy booking từ repository
             var bookingOpt = bookingRepository.findById(command.getMaPDPhong());
@@ -47,22 +50,27 @@ public class ConfirmBookingCommandHandler {
             // Kiểm tra tính hợp lệ của booking
             bookingDomainService.validateBookingConfirmation(booking);
             var firstRoomDetail = booking.getChiTietDatPhongs().get(0);
-
+            if (command.getRoomIds() != null && !command.getRoomIds().isEmpty()) {
+                booking = bookingFactory.addRoom(booking, command.getRoomIds());
+            }
             // Thêm dịch vụ nếu có
             if (command.getServiceIds() != null && !command.getServiceIds().isEmpty()) {
                 for (String serviceId : command.getServiceIds()) {
                     Optional<DichVu> serviceOpt = serviceRepository.findServiceById(serviceId);
                     if (serviceOpt.isPresent()) {
                         DichVu service = serviceOpt.get();
-                        ChiTietDichVu chiTietDichVu = bookingDomainService.createServiceDetail(
-                                booking.getMaPDPhong(),
-                                firstRoomDetail.getMaPhong(),
-                                service);
-                        booking.getChiTietDatPhongs().get(0).getChiTietDichVus().add(chiTietDichVu);
-                        log.info("Added ChiTietDichVu for service ID: {} to booking: {}", serviceId,
-                                booking.getMaPDPhong());
-                    } else {
-                        log.warn("Service not found for ID: {}", serviceId);
+                        booking.getChiTietDatPhongs().forEach(cdphong -> {
+                            // ✅ Khởi tạo list nếu null
+                            if (cdphong.getChiTietDichVus() == null) {
+                                cdphong.setChiTietDichVus(new java.util.ArrayList<>());
+                            }
+
+                            ChiTietDichVu chiTietDichVu = bookingDomainService.createServiceDetail(
+                                    cdphong.getMaPDPhong(),
+                                    cdphong.getMaPhong(),
+                                    service);
+                            cdphong.getChiTietDichVus().add(chiTietDichVu);
+                        });
                     }
                 }
             }
@@ -70,19 +78,8 @@ public class ConfirmBookingCommandHandler {
             // Lưu booking với dịch vụ mới
             bookingRepository.save(booking);
 
-            // Tạo hóa đơn
-            KhuyenMai khuyenMai = null;
-            if (command.getPromotionId() != null) {
-                Optional<KhuyenMai> promotionOpt = promotionRepository.getKhuyenMaiById(command.getPromotionId());
-                if (promotionOpt.isPresent()) {
-                    khuyenMai = promotionOpt.get();
-                } else {
-                    throw new IllegalArgumentException("Promotion not found");
-                }
-            }
-
-            BigDecimal total = bookingDomainService.calculateTotalAmountWithPromotion(booking, khuyenMai);
-            HoaDon hoaDon = bookingDomainService.createInvoice(booking, total, khuyenMai);
+            BigDecimal total = bookingDomainService.calculateTotalAmountWithPromotion(booking, null);
+            HoaDon hoaDon = bookingDomainService.createInvoice(booking, total, null);
             booking.setHoadon(hoaDon);
 
             // Giữ phòng tạm thời
@@ -101,7 +98,7 @@ public class ConfirmBookingCommandHandler {
             bookingRepository.save(booking);
 
             // Trả về response
-            return BookingMapper.toBookingPaymentResponseDto(booking);
+            return booking.getMaPDPhong();
 
         } catch (Exception e) {
             log.error("Error confirming booking: {}", e.getMessage(), e);

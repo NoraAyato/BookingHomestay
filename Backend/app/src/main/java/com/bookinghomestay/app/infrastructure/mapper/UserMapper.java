@@ -42,7 +42,7 @@ public class UserMapper {
     public static UserFavoriteHomestayResponseDto toFavoriteHomestayResponseDto(Homestay homestay, double rating,
             BigDecimal price) {
         UserFavoriteHomestayResponseDto dto = new UserFavoriteHomestayResponseDto();
-        dto.setId(homestay.getIdHomestay());
+        dto.setIdHomestay(homestay.getIdHomestay());
         dto.setName(homestay.getTenHomestay());
         dto.setLocation(homestay.getDiaChi() + ", " + homestay.getKhuVuc().getTenKv());
         dto.setPrice(price);

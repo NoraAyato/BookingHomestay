@@ -9,7 +9,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class GetMyPromotionQuery {
     private String maPDPhong;
-    private LocalDate ngayDen;
-    private LocalDate ngayDi;
     private String userId;
 }

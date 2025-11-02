@@ -2,14 +2,118 @@ package com.bookinghomestay.app.domain.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.bookinghomestay.app.domain.exception.BusinessException;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
+import com.bookinghomestay.app.domain.model.User;
 
 @Service
 public class PromotionService {
+
+    public boolean isPromotionAvailableForUser(
+            KhuyenMai khuyenMai,
+            User user,
+            String maPhong,
+            LocalDateTime ngayDen,
+            LocalDateTime ngayDi,
+            BigDecimal tongGiaTri,
+            int soBookingDaHoanThanh) {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1. Kiểm tra trạng thái khuyến mãi
+        if (!"Hoạt động".equals(khuyenMai.getTrangThai())) {
+            System.out.println("Trạng thái khuyến mãi không hoạt động");
+            throw new BusinessException("Trạng thái khuyến mãi không hoạt động");
+        }
+
+        // 2. Kiểm tra thời gian khuyến mãi
+        if (now.isBefore(khuyenMai.getNgayBatDau()) || now.isAfter(khuyenMai.getNgayKetThuc())) {
+            System.out.println("Thời gian khuyến mãi không hợp lệ");
+            throw new BusinessException("Thời gian khuyến mãi không hợp lệ");
+        }
+
+        // 3. Kiểm tra số lượng khuyến mãi còn lại
+        if (khuyenMai.getSoLuong() != null && khuyenMai.getSoLuong().compareTo(BigDecimal.ZERO) <= 0) {
+            System.out.println("Số lượng khuyến mãi còn lại không hợp lệ");
+            throw new BusinessException("Số lượng khuyến mãi còn lại không hợp lệ");
+        }
+
+        // 4. Kiểm tra khách mới
+        if (khuyenMai.isChiApDungChoKhachMoi() && soBookingDaHoanThanh > 0) {
+            System.out.println("Khuyến mãi chỉ áp dụng cho khách mới");
+            throw new BusinessException("Khuyến mãi chỉ áp dụng cho khách mới");
+        }
+
+        // 5. Kiểm tra số đêm tối thiểu
+        if (khuyenMai.getSoDemToiThieu() != null) {
+            long soDem = ChronoUnit.DAYS.between(ngayDen.toLocalDate(), ngayDi.toLocalDate());
+            if (soDem < khuyenMai.getSoDemToiThieu()) {
+                System.out.println("Số đêm tối thiểu không đủ");
+                throw new BusinessException("Số đêm tối thiểu không đủ");
+            }
+        }
+
+        // 6. Kiểm tra đặt trước X ngày
+        if (khuyenMai.getSoNgayDatTruoc() != null) {
+            long soNgayDatTruoc = ChronoUnit.DAYS.between(LocalDate.now(), ngayDen.toLocalDate());
+            if (soNgayDatTruoc < khuyenMai.getSoNgayDatTruoc()) {
+                System.out.println("Số ngày đặt trước không đủ");
+                throw new BusinessException("Số ngày đặt trước không đủ");
+            }
+        }
+
+        // 7. Kiểm tra giá trị tối thiểu
+        if (khuyenMai.getToiThieu() != null && tongGiaTri.compareTo(khuyenMai.getToiThieu()) < 0) {
+            System.out.println("Tổng giá trị không đạt mức tối thiểu");
+            throw new BusinessException("Tổng giá trị không đạt mức tối thiểu: " + tongGiaTri.toString());
+        }
+
+        // 8. Kiểm tra phòng áp dụng
+        if (!khuyenMai.isApDungChoTatCaPhong()) {
+            // Nếu không áp dụng cho tất cả phòng, kiểm tra phòng cụ thể
+            if (khuyenMai.getKhuyenMaiPhongs() == null || khuyenMai.getKhuyenMaiPhongs().isEmpty()) {
+                System.out.println("Không có phòng áp dụng cho khuyến mãi");
+                throw new BusinessException("Không có phòng áp dụng cho khuyến mãi");
+            }
+
+            boolean phongHopLe = khuyenMai.getKhuyenMaiPhongs().stream()
+                    .anyMatch(kmp -> kmp.getPhong() != null && kmp.getPhong().getMaPhong().equals(maPhong));
+
+            if (!phongHopLe) {
+                System.out.println("Phòng không hợp lệ cho khuyến mãi");
+                throw new BusinessException("Phòng không hợp lệ cho khuyến mãi");
+            }
+        }
+
+        // Tất cả điều kiện đều thỏa mãn
+        return true;
+    }
+
+    /**
+     * Lấy danh sách khuyến mãi khả dụng cho user
+     */
+    public List<KhuyenMai> getAvailablePromotionsForUser(
+            List<KhuyenMai> allPromotions,
+            User user,
+            String maPhong,
+            LocalDateTime ngayDen,
+            LocalDateTime ngayDi,
+            BigDecimal tongGiaTri,
+            int soBookingDaHoanThanh) {
+
+        return allPromotions.stream()
+                .filter(km -> isPromotionAvailableForUser(
+                        km, user, maPhong, ngayDen, ngayDi, tongGiaTri, soBookingDaHoanThanh))
+                .toList();
+    }
+
     public BigDecimal getBestDiscountedPrice(BigDecimal originalPrice, List<KhuyenMai> khuyenMais) {
         return khuyenMais.stream().filter(km -> km.isApDungChoTatCaPhong())
                 .map(km -> {
@@ -35,7 +139,7 @@ public class PromotionService {
 
     public String getPromotionTitle(KhuyenMai khuyenMai) {
         String title = "Giảm ";
-        if (khuyenMai.getLoaiChietKhau().equals("percentage")) {
+        if (khuyenMai.getLoaiChietKhau().equals("Percentage")) {
             title += khuyenMai.getChietKhau().setScale(0, RoundingMode.HALF_UP).toString() + "%";
         } else {
             title += String.format("%,.0f", khuyenMai.getChietKhau()) + " VND";

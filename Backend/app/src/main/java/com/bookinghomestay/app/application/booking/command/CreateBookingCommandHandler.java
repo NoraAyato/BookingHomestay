@@ -6,7 +6,7 @@ import com.bookinghomestay.app.domain.repository.IPhongRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
-import com.bookinghomestay.app.application.booking.factory.BookingFactory;
+import com.bookinghomestay.app.domain.factory.BookingFactory;
 import com.bookinghomestay.app.domain.exception.BusinessException;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +21,7 @@ public class CreateBookingCommandHandler {
     private final IBookingRepository bookingRepository;
     private final IPhongRepository phongRepository;
     private final IUserRepository userRepository;
+    private final BookingFactory bookingFactory;
 
     @Transactional
     public String handle(CreateBookingCommand command) {
@@ -56,12 +57,12 @@ public class CreateBookingCommandHandler {
         }
         var user = userOptional.get();
 
-        PhieuDatPhong booking = BookingFactory.createBooking(
+        PhieuDatPhong booking = bookingFactory.createBooking(
                 user,
                 phong,
                 command.getNgayDen().toLocalDate(),
-                command.getNgayDi().toLocalDate());
-
+                command.getNgayDi().toLocalDate(),
+                "Pending");
         bookingRepository.save(booking);
 
         return booking.getMaPDPhong();

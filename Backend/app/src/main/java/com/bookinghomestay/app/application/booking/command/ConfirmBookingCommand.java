@@ -9,7 +9,7 @@ import lombok.Data;
 public class ConfirmBookingCommand {
     private final String userId;
     private final String maPDPhong;
+    private final List<String> roomIds;
     private final List<String> serviceIds;
-    private final String promotionId;
 
 }
