@@ -6,6 +6,7 @@ import {
   sendMessage as sendMessageApi,
   createOrGetConversation,
   listenToUserPresence,
+  markConversationAsRead,
 } from "../api/chat";
 
 /**
@@ -90,12 +91,28 @@ export const useMessages = (conversationId) => {
     [conversationId]
   );
 
+  const markAsRead = useCallback(async () => {
+    if (!conversationId) {
+      return { success: false, message: "Invalid conversation" };
+    }
+
+    try {
+      const response = await markConversationAsRead(conversationId);
+      console.log("Marked conversation as read:", response);
+      return response;
+    } catch (err) {
+      setError(err.message);
+      return { success: false, message: err.message };
+    }
+  }, [conversationId]);
+
   return {
     messages,
     loading,
     error,
     sending,
     sendMessage,
+    markAsRead,
   };
 };
 
@@ -136,6 +153,7 @@ export const useChatBox = (hostId, homestayId) => {
       const response = await createOrGetConversation(hostId, homestayId);
       if (response.success && response.data?.conversationId) {
         setConversationId(response.data.conversationId);
+        console.log("✅ Conversation initialized:", response);
         return { success: true, conversationId: response.data.conversationId };
       } else {
         setError(response.message);

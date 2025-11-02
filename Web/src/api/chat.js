@@ -101,6 +101,29 @@ export const getMyConversations = async () => {
 };
 
 /**
+ * Đánh dấu conversation đã đọc
+ * POST /api/chat/conversations/{conversationId}/mark-read
+ */
+export const markConversationAsRead = async (conversationId) => {
+  console.log("=== API: markConversationAsRead called ===");
+  console.log("conversationId:", conversationId);
+
+  try {
+    const response = await http.post(
+      `/api/chat/conversations/${conversationId}/mark-read`,
+      {},
+      { requireAuth: true }
+    );
+
+    console.log("=== API: markConversationAsRead response ===", response);
+    return response;
+  } catch (error) {
+    console.error("Error marking conversation as read:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+/**
  * Lắng nghe messages realtime từ Firebase
  * conversationId format: "USER123_HOST456_HS789"
  */
