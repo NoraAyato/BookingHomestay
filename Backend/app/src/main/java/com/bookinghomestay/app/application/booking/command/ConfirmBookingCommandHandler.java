@@ -7,8 +7,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bookinghomestay.app.api.dto.booking.BookingPaymentResponseDto;
-import com.bookinghomestay.app.api.dto.booking.BookingResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingPaymentResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.domain.factory.BookingFactory;
 import com.bookinghomestay.app.domain.model.ChiTietDatPhong;
 import com.bookinghomestay.app.domain.model.ChiTietDichVu;

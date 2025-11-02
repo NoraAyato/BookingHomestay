@@ -3,9 +3,10 @@ package com.bookinghomestay.app.application.chat;
 import com.bookinghomestay.app.application.chat.dto.*;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.model.User;
-import com.bookinghomestay.app.infrastructure.persistence.repository.JpaHomestayRepository;
-import com.bookinghomestay.app.infrastructure.persistence.repository.JpaUserRepository;
 import com.bookinghomestay.app.infrastructure.firebase.FirebaseDatabaseService;
+import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaHomestayRepository;
+import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaUserRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

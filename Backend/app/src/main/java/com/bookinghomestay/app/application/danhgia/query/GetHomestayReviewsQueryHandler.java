@@ -1,7 +1,7 @@
 // GetHomestayReviewsQueryHandler.java
 package com.bookinghomestay.app.application.danhgia.query;
 
-import com.bookinghomestay.app.api.dto.homestay.HomestayReviewResponseDto;
+import com.bookinghomestay.app.application.homestay.dto.HomestayReviewResponseDto;
 import com.bookinghomestay.app.domain.model.ChiTietDatPhong;
 import com.bookinghomestay.app.domain.model.DanhGia;
 import com.bookinghomestay.app.domain.repository.IDanhGiaRepository;

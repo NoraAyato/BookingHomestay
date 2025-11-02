@@ -1,9 +1,9 @@
 package com.bookinghomestay.app.application.notification.command;
 
-import com.bookinghomestay.app.api.dto.notification.NotificationDto;
+import com.bookinghomestay.app.application.notification.dto.NotificationDto;
 import com.bookinghomestay.app.domain.model.UserNotification;
 import com.bookinghomestay.app.infrastructure.mapper.NotificationMapper;
-import com.bookinghomestay.app.infrastructure.persistence.repository.JpaNoficationRepository;
+import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaNoficationRepository;
 import com.bookinghomestay.app.infrastructure.websocket.WebSocketNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

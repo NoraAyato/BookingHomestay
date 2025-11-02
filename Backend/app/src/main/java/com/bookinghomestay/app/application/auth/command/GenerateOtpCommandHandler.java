@@ -1,7 +1,7 @@
 package com.bookinghomestay.app.application.auth.command;
 
-import com.bookinghomestay.app.api.constant.Messages;
-import com.bookinghomestay.app.api.dto.auth.GenerateOtpResponseDto;
+import com.bookinghomestay.app.application.auth.dto.auth.GenerateOtpResponseDto;
+import com.bookinghomestay.app.common.constant.Messages;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.domain.service.EmailService;

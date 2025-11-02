@@ -1,9 +1,9 @@
 package com.bookinghomestay.app.application.homestay.query;
 
-import com.bookinghomestay.app.api.dto.homestay.HomestayImageResponseDto;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
 import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
+import com.bookinghomestay.app.application.homestay.dto.HomestayImageResponseDto;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 
 import jakarta.transaction.Transactional;

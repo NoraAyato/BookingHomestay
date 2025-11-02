@@ -1,7 +1,7 @@
 package com.bookinghomestay.app.application.booking.query;
 
-import com.bookinghomestay.app.api.dto.booking.BookingDetailResponseDto;
-import com.bookinghomestay.app.api.dto.booking.BookingResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingDetailResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;

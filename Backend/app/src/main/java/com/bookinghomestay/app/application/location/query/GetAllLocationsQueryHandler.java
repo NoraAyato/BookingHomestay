@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.application.location.query;
 
-import com.bookinghomestay.app.api.dto.location.LocationResponseDto;
+import com.bookinghomestay.app.application.location.dto.LocationResponseDto;
 import com.bookinghomestay.app.domain.repository.IKhuVucRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

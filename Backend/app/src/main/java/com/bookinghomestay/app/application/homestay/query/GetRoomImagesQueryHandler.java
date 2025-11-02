@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.application.homestay.query;
 
-import com.bookinghomestay.app.api.dto.homestay.RoomImagesDto;
+import com.bookinghomestay.app.application.homestay.dto.RoomImagesDto;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.model.Phong;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;

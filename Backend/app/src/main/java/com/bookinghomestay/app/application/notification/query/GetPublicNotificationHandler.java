@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.bookinghomestay.app.api.dto.notification.NotificationDto;
+import com.bookinghomestay.app.application.notification.dto.NotificationDto;
 import com.bookinghomestay.app.domain.model.Notification;
 import com.bookinghomestay.app.domain.repository.INoficationRepository;
 import com.bookinghomestay.app.infrastructure.mapper.NotificationMapper;

@@ -1,8 +1,8 @@
 // file: GetHomestayDetailQueryHandler.java
 package com.bookinghomestay.app.application.homestay.query;
 
-import com.bookinghomestay.app.api.dto.homestay.HomestayDetailResponseDto;
-import com.bookinghomestay.app.api.dto.users.HostDetailResponseDto;
+import com.bookinghomestay.app.application.homestay.dto.HomestayDetailResponseDto;
+import com.bookinghomestay.app.application.users.dto.HostDetailResponseDto;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.repository.IDanhGiaRepository;
