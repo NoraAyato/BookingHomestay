@@ -7,13 +7,32 @@ services:
     ports:
       - "6379:6379"
 
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb_container
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: chat_db
+    volumes:
+      - mongodb_data:/data/db
+      - ./app/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    restart: unless-stopped
+
   app:
     build:
       context: ./app
     container_name: spring_app
     depends_on:
       - redis
+      - mongodb
     ports:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+
+volumes:
+  mongodb_data:
+    driver: local
