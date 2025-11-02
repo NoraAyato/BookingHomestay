@@ -19,6 +19,8 @@ import {
 } from "../api/auth";
 import { showToast } from "../components/common/Toast";
 import { getAuthReturnPath, removeAuthReturnPath } from "../utils/session";
+import { authenticateSocket, disconnectSocket } from "../api/socket";
+
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -33,6 +35,8 @@ export function AuthProvider({ children }) {
     if (token && user) {
       setToken(token);
       setUser(user);
+      // Authenticate socket khi user đã login
+      authenticateSocket(token);
     }
     setLoading(false);
   }, []);
@@ -111,6 +115,7 @@ export function AuthProvider({ children }) {
     const refreshToken = params.get("refreshToken");
     if (accessToken) {
       setAccessToken(accessToken);
+      console.log("Access Token from Google OAuth:", accessToken);
       if (refreshToken) {
         setRefreshToken(refreshToken);
       }
@@ -218,6 +223,13 @@ export function AuthProvider({ children }) {
     if (getUser.success && getUser.data) {
       setUser(getUser.data);
       setUserInfoLocal(getUser.data);
+
+      // Authenticate socket sau khi login thành công
+      const token = getAccessToken();
+      if (token) {
+        authenticateSocket(token);
+      }
+
       const returnPath = getAuthReturnPath();
       if (returnPath) {
         removeAuthReturnPath();
@@ -236,6 +248,10 @@ export function AuthProvider({ children }) {
     setUser(null);
     removeToken();
     removeUserInfo();
+
+    // Disconnect socket khi logout
+    disconnectSocket();
+
     showToast("success", "Đã đăng xuất");
     setTimeout(() => {
       window.location.href = "/";

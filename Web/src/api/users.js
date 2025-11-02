@@ -27,3 +27,17 @@ export async function setReceiveEmail(isReceiveEmail) {
     requireAuth: true,
   });
 }
+
+export async function addToFavorites(homestayId) {
+  return await http.post(
+    `/api/users/me/add-favorite-homestay?homestayId=${homestayId}`,
+    {
+      requireAuth: true,
+    }
+  );
+}
+export async function getFavorites() {
+  return await http.get(`/api/users/me/my-favorites`, {
+    requireAuth: true,
+  });
+}

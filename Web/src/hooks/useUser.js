@@ -5,6 +5,8 @@ import {
   getCurrentUser,
   getMyBooking,
   setReceiveEmail,
+  getFavorites,
+  addToFavorites,
 } from "../api/users";
 import { showToast } from "../components/common/Toast";
 import {
@@ -24,6 +26,7 @@ export default function useUser() {
   const [bookingsTotal, setBookingsTotal] = useState(0);
   const [bookingsPage, setBookingsPage] = useState(1);
   const [bookingsLimit, setBookingsLimit] = useState(3);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isReceiveEmailStatus, setIsReceiveEmailStatus] = useState(false);
@@ -65,14 +68,14 @@ export default function useUser() {
     try {
       const cacheKey = `userBookings_page_${page}_limit_${limit}`;
       const cachedData = APICache.get(cacheKey);
-      if (cachedData) {
-        setBookings(cachedData.items);
-        setBookingsPage(cachedData.page || page);
-        setBookingsLimit(cachedData.limit || limit);
-        setBookingsTotal(cachedData.total || 0);
-        setLoading(false);
-        return;
-      }
+      // if (cachedData) {
+      //   setBookings(cachedData.items);
+      //   setBookingsPage(cachedData.page || page);
+      //   setBookingsLimit(cachedData.limit || limit);
+      //   setBookingsTotal(cachedData.total || 0);
+      //   setLoading(false);
+      //   return;
+      // }
       const res = await getMyBooking(page, limit);
       if (res.success) {
         setBookings(res.data?.items);
@@ -89,6 +92,74 @@ export default function useUser() {
       setLoading(false);
     }
   };
+
+  const getUserFavorites = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await getFavorites();
+      // console.log("Favorites response:", res);
+      if (res.success) {
+        // Check if data is an array or has items property
+        const favoritesData = Array.isArray(res.data)
+          ? res.data
+          : res.data?.items || [];
+        setFavorites(favoritesData);
+      } else {
+        showErrorToastIfNotAuth(
+          res,
+          "Có lỗi xảy ra khi lấy danh sách yêu thích"
+        );
+        setFavorites([]);
+      }
+      setLoading(false);
+    } catch (err) {
+      setError(err.message || "Có lỗi xảy ra");
+      setLoading(false);
+    }
+  };
+
+  const addFavorite = async (homestayId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await addToFavorites(homestayId);
+      if (handleApiResponse(res, "Đã thêm vào yêu thích", "Có lỗi xảy ra")) {
+        // Refresh lại danh sách favorites sau khi thêm thành công
+        await getUserFavorites();
+        return true;
+      }
+      setLoading(false);
+      return false;
+    } catch (err) {
+      setError(err.message || "Có lỗi xảy ra");
+      showToast("error", err.message || "Có lỗi xảy ra");
+      setLoading(false);
+      return false;
+    }
+  };
+
+  const removeFavorite = async (homestayId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Assuming addToFavorites API works as toggle (add/remove)
+      const res = await addToFavorites(homestayId);
+      if (handleApiResponse(res, "Đã xóa khỏi yêu thích", "Có lỗi xảy ra")) {
+        // Refresh lại danh sách favorites sau khi xóa thành công
+        await getUserFavorites();
+        return true;
+      }
+      setLoading(false);
+      return false;
+    } catch (err) {
+      setError(err.message || "Có lỗi xảy ra");
+      showToast("error", err.message || "Có lỗi xảy ra");
+      setLoading(false);
+      return false;
+    }
+  };
+
   // hàm update avatar user
   const uploadAvatar = async (file) => {
     setLoading(true);
@@ -193,6 +264,10 @@ export default function useUser() {
     bookingsTotal,
     bookingsPage,
     bookingsLimit,
+    favorites,
+    getUserFavorites,
+    addFavorite,
+    removeFavorite,
     setUser,
     updateUserProfile,
     uploadAvatar,
