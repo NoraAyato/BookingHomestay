@@ -32,15 +32,22 @@ public class FirebaseDatabaseService {
      * 
      * @param path Đường dẫn trong Firebase (vd: "conversations/USER_HOST_HS")
      * @param data Map chứa dữ liệu cần ghi
+     * @return CompletableFuture<Void> để có thể đợi operation hoàn thành
      */
-    public void writeData(String path, Map<String, Object> data) {
+    public CompletableFuture<Void> writeData(String path, Map<String, Object> data) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
         try {
-            firebaseDatabase.child(path).setValueAsync(data);
-            log.info("✅ Write to Firebase: {}", path);
+            firebaseDatabase.child(path).setValueAsync(data).addListener(() -> {
+                log.info("✅ Write to Firebase: {}", path);
+                future.complete(null);
+            }, Runnable::run);
         } catch (Exception e) {
             log.error("❌ Failed to write to Firebase: {}", e.getMessage());
-            throw new RuntimeException("Lỗi ghi dữ liệu vào Firebase", e);
+            future.completeExceptionally(new RuntimeException("Lỗi ghi dữ liệu vào Firebase", e));
         }
+
+        return future;
     }
 
     /**
@@ -81,15 +88,22 @@ public class FirebaseDatabaseService {
      * 
      * @param path    Đường dẫn cần update
      * @param updates Map chứa các field cần update
+     * @return CompletableFuture<Void> để có thể đợi operation hoàn thành
      */
-    public void updateData(String path, Map<String, Object> updates) {
+    public CompletableFuture<Void> updateData(String path, Map<String, Object> updates) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
         try {
-            firebaseDatabase.child(path).updateChildrenAsync(updates);
-            log.info("✅ Update Firebase: {}", path);
+            firebaseDatabase.child(path).updateChildrenAsync(updates).addListener(() -> {
+                log.info("✅ Update Firebase: {}", path);
+                future.complete(null);
+            }, Runnable::run);
         } catch (Exception e) {
             log.error("❌ Failed to update Firebase: {}", e.getMessage());
-            throw new RuntimeException("Lỗi cập nhật dữ liệu Firebase", e);
+            future.completeExceptionally(new RuntimeException("Lỗi cập nhật dữ liệu Firebase", e));
         }
+
+        return future;
     }
 
     /**
