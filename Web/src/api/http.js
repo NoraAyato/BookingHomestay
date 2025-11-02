@@ -26,7 +26,7 @@ function handleAuthError(
       },
     })
   );
-  return { success: false, isAuthError: true }; // Thêm flag để nhận biết auth error
+  return { success: false, isAuthError: true };
 }
 
 // Hàm xử lý lỗi chuẩn hóa trả về cho UI
@@ -91,12 +91,15 @@ const request = async (endpoint, options = {}) => {
     try {
       const accessToken = getAccessToken();
       if (requireAuth && !accessToken) {
+        // Lưu return path với query params để quay lại sau khi login
+        const currentPath = window.location.pathname + window.location.search;
+        setAuthReturnPath(currentPath);
+
         window.dispatchEvent(
           new CustomEvent("AUTH_POPUP_EVENT", {
             detail: {
               type: "openAuthPopup",
               mode: "login",
-              to: "/",
               message: "Bạn cần đăng nhập để tiếp tục !",
             },
           })
@@ -146,7 +149,7 @@ const request = async (endpoint, options = {}) => {
             return handleAuthError();
           }
         } else {
-          return handleAuthError();
+          return await handleError(res);
         }
       }
       if (!res.ok) {

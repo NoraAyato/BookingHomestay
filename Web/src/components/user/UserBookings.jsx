@@ -1,9 +1,9 @@
 import { parseDate, formatDateDisplay } from "../../utils/date";
 import React, { useState, useEffect } from "react";
 import Pagination from "../common/Pagination";
-import { motion } from "framer-motion";
 import useUser from "../../hooks/useUser";
 import { getImageUrl } from "../../utils/imageUrl";
+import { formatPrice } from "../../utils/price";
 
 const UserBookings = () => {
   const {
@@ -13,7 +13,7 @@ const UserBookings = () => {
     bookingsLimit,
     getCurrentUserBooking,
   } = useUser();
-
+  console.log(bookings);
   const [expandedBookings, setExpandedBookings] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(bookingsTotal / bookingsLimit);
@@ -37,10 +37,14 @@ const UserBookings = () => {
   const getStatusStyles = (status) => {
     const viStatus = statusMap[status] || status;
     const statusConfig = {
-      "Đã xác nhận": "bg-emerald-100 text-emerald-800",
-      "Hoàn thành": "bg-blue-100 text-blue-800",
-      "Đang chờ": "bg-amber-100 text-amber-800",
-      "Đã hủy": "bg-rose-100 text-rose-800",
+      "Đã xác nhận":
+        "bg-gradient-to-r from-emerald-100 to-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm",
+      "Hoàn thành":
+        "bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-200 shadow-sm",
+      "Đang chờ":
+        "bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700 border border-amber-200 shadow-sm",
+      "Đã hủy":
+        "bg-gradient-to-r from-rose-100 to-rose-50 text-rose-700 border border-rose-200 shadow-sm",
     };
     return statusConfig[viStatus] || "bg-gray-100 text-gray-800";
   };
@@ -82,394 +86,452 @@ const UserBookings = () => {
         Lịch sử đặt phòng của bạn
       </h3>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {bookings.map((booking, index) => (
-          <motion.div
-            key={booking.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-            className="bg-white rounded-xl shadow-md overflow-hidden"
+          <div
+            key={booking.bookingId}
+            className="bg-white rounded-xl shadow-md border-2 border-gray-100 overflow-hidden"
           >
-            {/* Booking header */}
-            <div className="p-5 bg-gray-50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <div className="flex items-center">
-                  <span className="text-xs font-medium text-gray-500 mr-2">
-                    MÃ ĐẶT PHÒNG:
+            {/* Enhanced Booking header with gradient */}
+            <div className="px-4 py-3 bg-gradient-to-r from-rose-100 via-rose-50 to-blue-100 border-b-2 border-rose-200 flex flex-wrap justify-between items-center gap-2 shadow-sm">
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-1.5">
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <span className="text-xs text-gray-500">
+                    #{booking.bookingId}
                   </span>
-                  <span className="font-semibold text-gray-800">
-                    {booking.id}
-                  </span>
+                  <span className="text-xs text-gray-400">•</span>
+                  <span className="text-xs text-gray-500">{booking.invId}</span>
                 </div>
-                <div className="flex items-center mt-1.5">
-                  <span className="text-xs font-medium text-gray-500 mr-2">
-                    NGÀY ĐẶT:
-                  </span>
-                  <span className="text-gray-700">
-                    {formatDateDisplay(booking.bookingDate)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyles(
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusStyles(
                     booking.status
                   )}`}
                 >
                   {statusMap[booking.status]}
                 </span>
-                <div className="text-right">
-                  <div className="text-xs font-medium text-gray-500">
-                    TỔNG THANH TOÁN
-                  </div>
-                  <div className="font-bold text-rose-600">
-                    {booking.totalPrice.toLocaleString("vi-VN")}đ
-                  </div>
-                </div>
+              </div>
+              <div className="flex items-baseline gap-1.5 bg-white/80 px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
+                <span className="text-xs font-medium text-gray-600">
+                  Tổng tiền:
+                </span>
+                <span className="text-base font-bold text-rose-600">
+                  {formatPrice(booking.totalPrice)}đ
+                </span>
               </div>
             </div>
 
-            {/* Booking content (rooms) */}
-            <div className="p-5">
-              <div className="flex justify-between items-center mb-4">
-                <h4 className="font-semibold text-gray-800">
-                  {booking.rooms[0].homestay}
-                  {booking.rooms.length > 1 &&
-                    ` (${booking.rooms.length} phòng)`}
-                </h4>
+            {/* Compact Content */}
+            <div className="p-2">
+              {/* Homestay Info */}
+              <div className="flex items-start justify-between gap-3 mb-2 pb-2 border-b-2 border-gray-100">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-gray-900 text-base mb-1 truncate flex items-center">
+                    <svg
+                      className="w-4 h-4 mr-1.5 text-rose-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                    </svg>
+                    {booking.homestayName}
+                  </h4>
+                  <div className="flex items-center text-xs text-gray-500">
+                    <svg
+                      className="w-3.5 h-3.5 mr-1 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <span className="truncate">{booking.location}</span>
+                  </div>
+                </div>
                 {booking.rooms.length > 1 && (
                   <button
-                    onClick={() => toggleBookingDetails(booking.id)}
-                    className="text-rose-600 hover:text-rose-700 text-sm font-medium flex items-center"
+                    onClick={() => toggleBookingDetails(booking.bookingId)}
+                    className="text-rose-600 hover:text-rose-700 text-xs font-medium flex items-center gap-1 px-2 py-1 rounded hover:bg-rose-50 transition-colors flex-shrink-0"
                   >
-                    {expandedBookings[booking.id] ? (
-                      <>
-                        <span>Thu gọn</span>
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 15l7-7 7 7"
-                          />
-                        </svg>
-                      </>
-                    ) : (
-                      <>
-                        <span>Xem chi tiết</span>
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      </>
-                    )}
+                    <span>
+                      {expandedBookings[booking.bookingId]
+                        ? "Thu gọn"
+                        : `${booking.rooms.length} phòng`}
+                    </span>
+                    <svg
+                      className={`w-3.5 h-3.5 transition-transform ${
+                        expandedBookings[booking.bookingId] ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </button>
                 )}
               </div>
 
-              {/* First room preview (always visible) */}
-              <div className="flex flex-col md:flex-row gap-4 mb-4 pb-4 border-b border-gray-100">
-                <img
-                  src={getImageUrl(booking.rooms[0].image)}
-                  alt={booking.rooms[0].homestay}
-                  className="w-full md:w-32 h-24 object-cover rounded-lg"
-                />
-                <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h5 className="font-medium text-gray-800">
+              {/* First room preview - Enhanced */}
+              <div className="flex gap-2 mb-2 pb-2 border-b-2 border-gray-100 bg-gradient-to-r from-gray-50 to-transparent p-1.5 rounded-lg">
+                <div className="relative">
+                  <img
+                    src={getImageUrl(booking.rooms[0].image)}
+                    alt={booking.roomType}
+                    className="w-20 h-16 object-cover rounded-lg shadow-md flex-shrink-0 border-2 border-white"
+                  />
+                  <div className="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md">
+                    Phòng 1
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <h5 className="font-medium text-gray-800 text-xs mb-1 truncate">
                         {booking.rooms[0].roomType}
                       </h5>
-                      <p className="text-sm text-gray-600 mb-1 flex items-center">
-                        <svg
-                          className="w-4 h-4 mr-1 text-gray-400"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        {booking.rooms[0].location}
-                      </p>
+                      <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-gray-600 mb-1">
+                        <span className="flex items-center">
+                          <svg
+                            className="w-2.5 h-2.5 mr-0.5 text-blue-500 flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span className="truncate">
+                            {formatDateDisplay(booking.checkIn)}
+                          </span>
+                        </span>
+                        <span className="text-gray-400">→</span>
+                        <span className="flex items-center">
+                          <svg
+                            className="w-2.5 h-2.5 mr-0.5 text-rose-500 flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span className="truncate">
+                            {formatDateDisplay(booking.checkOut)}
+                          </span>
+                        </span>
+                        <span className="flex items-center text-purple-600">
+                          <svg
+                            className="w-2.5 h-2.5 mr-0.5 flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                            />
+                          </svg>
+                          {(() => {
+                            const checkIn = parseDate(booking.checkIn);
+                            const checkOut = parseDate(booking.checkOut);
+                            if (!checkIn || !checkOut) return "- đêm";
+                            const nights = Math.max(
+                              1,
+                              Math.round(
+                                (checkOut - checkIn) / (1000 * 60 * 60 * 24)
+                              )
+                            );
+                            return `${nights} đêm`;
+                          })()}
+                        </span>
+                      </div>
+                      <div className="mt-1">
+                        <div className="text-[9px] font-medium text-gray-600 mb-0.5">
+                          Dịch vụ đã đăng ký:
+                        </div>
+                        {booking.rooms[0].services &&
+                        booking.rooms[0].services.length > 0 ? (
+                          <div className="flex flex-wrap gap-0.5">
+                            {booking.rooms[0].services.map((service, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center px-1.5 py-0.5 rounded bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 text-[9px] leading-tight border border-blue-200 shadow-sm font-medium"
+                              >
+                                <svg
+                                  className="w-2 h-2 mr-0.5 flex-shrink-0"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                <span className="truncate">{service.name}</span>
+                                {service.price && (
+                                  <span className="ml-1 font-bold text-blue-800">
+                                    {formatPrice(service.price)}đ
+                                  </span>
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-[9px] text-gray-400 italic">
+                            Không có dịch vụ nào
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right hidden md:block">
-                      <span className="font-bold text-rose-600">
-                        {booking.rooms[0].price.toLocaleString("vi-VN")}đ
+                    <div className="text-right flex-shrink-0 bg-gradient-to-br from-rose-50 to-rose-100 px-2 py-1.5 rounded-lg border border-rose-200 shadow-sm">
+                      <div className="text-[9px] font-medium text-rose-700 mb-0.5">
+                        Giá phòng
+                      </div>
+                      <span className="font-extrabold text-sm text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-rose-500 whitespace-nowrap">
+                        {formatPrice(booking.rooms[0].price)}đ
                       </span>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-gray-600">
-                    <span className="flex items-center">
-                      <svg
-                        className="w-4 h-4 mr-1 text-gray-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                      </svg>
-                      Check-in: {formatDateDisplay(booking.rooms[0].checkIn)}
-                    </span>
-                    <span className="flex items-center">
-                      <svg
-                        className="w-4 h-4 mr-1 text-gray-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                      </svg>
-                      Check-out: {formatDateDisplay(booking.rooms[0].checkOut)}
-                    </span>
-                    <span className="flex items-center">
-                      <svg
-                        className="w-4 h-4 mr-1 text-gray-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                      </svg>
-                      {(() => {
-                        const checkIn = parseDate(booking.rooms[0].checkIn);
-                        const checkOut = parseDate(booking.rooms[0].checkOut);
-                        if (!checkIn || !checkOut) return "- đêm";
-                        const nights = Math.max(
-                          1,
-                          Math.round(
-                            (checkOut - checkIn) / (1000 * 60 * 60 * 24)
-                          )
-                        );
-                        return `${nights} đêm`;
-                      })()}
-                    </span>
-                    {booking.rooms[0].services &&
-                      booking.rooms[0].services.length > 0 && (
-                        <span className="flex items-center">
-                          <svg
-                            className="w-4 h-4 mr-1 text-gray-400"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5zm2 2v2h2V7H6zm4 0v2h2V7h-2z" />
-                          </svg>
-                          Dịch vụ:{" "}
-                          {booking.rooms[0].services
-                            .map(
-                              (s) =>
-                                `${s.name}${
-                                  s.price
-                                    ? ` (${s.price.toLocaleString(
-                                        "vi-VN"
-                                      )}đ/ngày)`
-                                    : ""
-                                }`
-                            )
-                            .join(", ")}
-                        </span>
-                      )}
-                  </div>
-                </div>
-                <div className="block md:hidden text-right">
-                  <span className="font-bold text-rose-600">
-                    {booking.rooms[0].price}đ
-                  </span>
                 </div>
               </div>
 
-              {/* Expanded view with additional rooms */}
-              {expandedBookings[booking.id] && booking.rooms.length > 1 && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="space-y-4"
-                >
-                  {booking.rooms.slice(1).map((room) => (
-                    <div
-                      key={room.id}
-                      className="flex flex-col md:flex-row gap-4 pb-4 border-b border-gray-100"
-                    >
-                      <img
-                        src={room.image}
-                        alt={room.homestay}
-                        className="w-full md:w-32 h-24 object-cover rounded-lg"
-                      />
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h5 className="font-medium text-gray-800">
-                              {room.roomType}
-                            </h5>
-                            <p className="text-sm text-gray-600 mb-1 flex items-center">
-                              <svg
-                                className="w-4 h-4 mr-1 text-gray-400"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              {room.location}
-                            </p>
-                          </div>
-                          <div className="text-right hidden md:block">
-                            <span className="font-bold text-rose-600">
-                              {room.price}đ
-                            </span>
+              {/* Expanded view with additional rooms - Enhanced */}
+              {expandedBookings[booking.bookingId] &&
+                booking.rooms.length > 1 && (
+                  <div className="space-y-2 bg-gradient-to-b from-blue-50/30 to-transparent p-1.5 rounded-lg">
+                    {booking.rooms.slice(1).map((room, roomIdx) => (
+                      <div
+                        key={roomIdx}
+                        className="flex gap-2 pb-2 border-b-2 border-gray-100 last:border-0 bg-white p-1.5 rounded-lg shadow-sm"
+                      >
+                        <div className="relative">
+                          <img
+                            src={getImageUrl(room.image)}
+                            alt={room.roomType}
+                            className="w-20 h-16 object-cover rounded-lg shadow-md flex-shrink-0 border-2 border-white"
+                          />
+                          <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md">
+                            Phòng {roomIdx + 2}
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-gray-600">
-                          <span className="flex items-center">
-                            <svg
-                              className="w-4 h-4 mr-1 text-gray-400"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                            </svg>
-                            Check-in: {room.checkIn}
-                          </span>
-                          <span className="flex items-center">
-                            <svg
-                              className="w-4 h-4 mr-1 text-gray-400"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                            </svg>
-                            Check-out: {room.checkOut}
-                          </span>
-                          <span className="flex items-center">
-                            <svg
-                              className="w-4 h-4 mr-1 text-gray-400"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                            {(() => {
-                              const checkIn = parseDate(room.checkIn);
-                              const checkOut = parseDate(room.checkOut);
-                              if (!checkIn || !checkOut) return "- đêm";
-                              const nights = Math.max(
-                                1,
-                                Math.round(
-                                  (checkOut - checkIn) / (1000 * 60 * 60 * 24)
-                                )
-                              );
-                              return `${nights} đêm`;
-                            })()}
-                          </span>
-                          {room.services && room.services.length > 0 && (
-                            <span className="flex items-center">
-                              <svg
-                                className="w-4 h-4 mr-1 text-gray-400"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5zm2 2v2h2V7H6zm4 0v2h2V7h-2z" />
-                              </svg>
-                              Dịch vụ:{" "}
-                              {room.services
-                                .map(
-                                  (s) =>
-                                    `${s.name}${
-                                      s.price
-                                        ? ` (${s.price.toLocaleString(
-                                            "vi-VN"
-                                          )}/ngày)`
-                                        : ""
-                                    }`
-                                )
-                                .join(", ")}
-                            </span>
-                          )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-medium text-gray-800 text-xs mb-1 truncate">
+                                {room.roomType}
+                              </h5>
+                              <div className="mt-1">
+                                <div className="text-[9px] font-medium text-gray-600 mb-0.5">
+                                  Dịch vụ đã đăng ký:
+                                </div>
+                                {room.services && room.services.length > 0 ? (
+                                  <div className="flex flex-wrap gap-0.5">
+                                    {room.services.map((service, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="inline-flex items-center px-1.5 py-0.5 rounded bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 text-[9px] leading-tight border border-blue-200 shadow-sm font-medium"
+                                      >
+                                        <svg
+                                          className="w-2 h-2 mr-0.5 flex-shrink-0"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path
+                                            fillRule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clipRule="evenodd"
+                                          />
+                                        </svg>
+                                        <span className="truncate">
+                                          {service.name}
+                                        </span>
+                                        {service.price && (
+                                          <span className="ml-1 font-bold text-blue-800">
+                                            {formatPrice(service.price)}đ
+                                          </span>
+                                        )}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className="text-[9px] text-gray-400 italic">
+                                    Không có dịch vụ nào
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right flex-shrink-0 bg-gradient-to-br from-rose-50 to-rose-100 px-2 py-1.5 rounded-lg border border-rose-200 shadow-sm">
+                              <div className="text-[9px] font-medium text-rose-700 mb-0.5">
+                                Giá phòng
+                              </div>
+                              <span className="font-extrabold text-sm text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-rose-500 whitespace-nowrap">
+                                {formatPrice(room.price)}đ
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="block md:hidden text-right">
-                        <span className="font-bold text-rose-600">
-                          {room.price}đ
+                    ))}
+                  </div>
+                )}
+
+              <div className="mt-2 pt-2 border-t-2 border-gray-100 bg-gradient-to-r from-transparent to-gray-50/50 p-1.5 rounded-lg">
+                {/* Hiển thị tiền cọc cho Pending và tiền còn lại cho Booked */}
+                {booking.status === "Pending" &&
+                  booking.haveToPayPrice !== undefined &&
+                  booking.haveToPayPrice > 0 && (
+                    <div className="mb-2 flex items-center justify-between bg-gradient-to-r from-red-50 to-rose-50 px-3 py-2 rounded-lg border-2 border-red-300 shadow-sm">
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          className="w-3.5 h-3.5 text-red-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                        <span className="text-xs font-semibold text-red-800">
+                          Chưa thanh toán tiền cọc:
                         </span>
                       </div>
+                      <span className="text-base font-extrabold text-red-600">
+                        {formatPrice(booking.haveToPayPrice)}đ
+                      </span>
                     </div>
-                  ))}
-                </motion.div>
-              )}
+                  )}
 
-              {/* Booking actions */}
-              <div className="mt-4 flex flex-wrap gap-3 justify-end">
-                {booking.status === "Đã xác nhận" && (
-                  <>
-                    <button className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium">
+                {booking.status === "Booked" &&
+                  booking.haveToPayPrice !== undefined &&
+                  booking.haveToPayPrice > 0 && (
+                    <div className="mb-2 flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50 px-3 py-2 rounded-lg border-2 border-amber-300 shadow-sm">
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          className="w-3.5 h-3.5 text-amber-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span className="text-xs font-semibold text-amber-800">
+                          Còn phải thanh toán tại homestay:
+                        </span>
+                      </div>
+                      <span className="text-base font-extrabold text-orange-600">
+                        {formatPrice(booking.haveToPayPrice)}đ
+                      </span>
+                    </div>
+                  )}
+
+                <div className="flex flex-wrap gap-1.5 justify-end">
+                  {booking.status === "Booked" && (
+                    <button className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 text-[10px] font-bold shadow-md">
                       Hủy đặt phòng
                     </button>
-                  </>
-                )}
-                {booking.status === "Hoàn thành" && (
-                  <>
-                    <button className="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors text-sm font-medium">
-                      Đánh giá
-                    </button>
-                    <button className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
-                      Đặt lại
-                    </button>
-                  </>
-                )}
-                {booking.status === "Đang chờ" && (
-                  <>
-                    <button className="px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium">
-                      Thanh toán
-                    </button>
-                    <button className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium">
-                      Hủy đặt phòng
-                    </button>
-                  </>
-                )}
+                  )}
+                  {booking.status === "Complete" && (
+                    <>
+                      <button className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:from-amber-600 hover:to-amber-700 text-[10px] font-bold shadow-md">
+                        ⭐ Đánh giá
+                      </button>
+                      <button className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 text-[10px] font-bold shadow-md">
+                        🔄 Đặt lại
+                      </button>
+                    </>
+                  )}
+                  {booking.status === "Pending" && (
+                    <>
+                      <button className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 text-[10px] font-bold shadow-md">
+                        💳 Thanh toán ngay
+                      </button>
+                      <button className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 text-[10px] font-bold shadow-md">
+                        Hủy đặt phòng
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
 
         {bookings.length === 0 && (
-          <div className="bg-gray-50 rounded-xl p-8 text-center">
-            <svg
-              className="w-16 h-16 mx-auto text-gray-300 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-            <p className="text-gray-500 mb-4">Bạn chưa có đơn đặt phòng nào.</p>
-            <button className="px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors inline-flex items-center">
+          <div className="bg-gradient-to-br from-gray-50 via-white to-rose-50 rounded-2xl p-10 text-center border-2 border-gray-100 shadow-lg">
+            <div className="bg-gradient-to-br from-rose-100 to-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
               <svg
-                className="w-4 h-4 mr-2"
+                className="w-10 h-10 text-rose-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <h4 className="text-xl font-bold text-gray-800 mb-2">
+              Chưa có lịch sử đặt phòng
+            </h4>
+            <p className="text-gray-500 mb-4 text-sm max-w-md mx-auto">
+              Bạn chưa có đơn đặt phòng nào. Hãy khám phá và đặt homestay yêu
+              thích của bạn ngay!
+            </p>
+            <button className="px-6 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl hover:from-rose-600 hover:to-rose-700 inline-flex items-center text-sm font-bold shadow-lg">
+              <svg
+                className="w-5 h-5 mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -481,7 +543,7 @@ const UserBookings = () => {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-              Tìm homestay
+              Khám phá homestay
             </button>
           </div>
         )}

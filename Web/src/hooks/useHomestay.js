@@ -4,31 +4,34 @@ import {
   searchHomestays,
   getHomestayById,
   getAvailableRooms,
+  getHomestayServices,
 } from "../api/homestay";
 import { APICache } from "../utils/cache";
 
 const CACHE_KEY_FEATURED = "featured_homestays";
 const CACHE_TTL = 15 * 60 * 1000; // 15 minutes cache
 
-// Hook đa năng cho homestay: featured, all, search, refetch từng loại, chi tiết
 export function useHomestayData() {
   const [featuredHomestays, setFeaturedHomestays] = useState([]);
   const [allHomestays, setAllHomestays] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [homestayDetail, setHomestayDetail] = useState(null);
   const [availableRooms, setAvailableRooms] = useState([]);
+  const [homestayServices, setHomestayServices] = useState([]);
 
   const [loadingFeatured, setLoadingFeatured] = useState(false);
   const [loadingAll, setLoadingAll] = useState(false);
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingRooms, setLoadingRooms] = useState(false);
+  const [loadingServices, setLoadingServices] = useState(false);
 
   const [errorFeatured, setErrorFeatured] = useState(null);
   const [errorAll, setErrorAll] = useState(null);
   const [errorSearch, setErrorSearch] = useState(null);
   const [errorDetail, setErrorDetail] = useState(null);
   const [errorRooms, setErrorRooms] = useState(null);
+  const [errorServices, setErrorServices] = useState(null);
 
   // Lấy featured homestays
   const fetchFeatured = useCallback(async (skipCache = false) => {
@@ -145,6 +148,26 @@ export function useHomestayData() {
     }
   }, []);
 
+  // Lấy danh sách dịch vụ của homestay
+  const fetchHomestayServices = useCallback(async (homestayId) => {
+    setLoadingServices(true);
+    setErrorServices(null);
+    try {
+      const response = await getHomestayServices(homestayId);
+      if (response.success && Array.isArray(response.data)) {
+        setHomestayServices(response.data);
+        console.log("Homestay services:", response.data);
+      } else {
+        throw new Error(response.message || "Không tìm thấy dịch vụ");
+      }
+    } catch (err) {
+      setErrorServices(err.message || "Đã xảy ra lỗi khi lấy dịch vụ");
+      setHomestayServices([]);
+    } finally {
+      setLoadingServices(false);
+    }
+  }, []);
+
   // Refetch từng loại
   const refetchFeatured = useCallback(
     () => fetchFeatured(true),
@@ -167,20 +190,24 @@ export function useHomestayData() {
     searchResults,
     homestayDetail,
     availableRooms,
+    homestayServices,
     loadingFeatured,
     loadingAll,
     loadingSearch,
     loadingDetail,
     loadingRooms,
+    loadingServices,
     errorFeatured,
     errorAll,
     errorSearch,
     errorDetail,
     errorRooms,
+    errorServices,
     refetchFeatured,
     refetchAll,
     searchHomestays: search,
     fetchHomestayDetail,
     fetchAvailableRooms,
+    fetchHomestayServices,
   };
 }

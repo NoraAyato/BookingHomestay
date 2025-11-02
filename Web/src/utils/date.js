@@ -21,7 +21,11 @@ export const formatDateDisplay = (dateString) => {
 };
 
 export const formatCheckInCheckoOutDate = (date) => {
-  return date.toISOString().split("T")[0];
+  // Use local timezone instead of UTC to avoid date shifting
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 export const formatLocal = (date) => {
@@ -50,18 +54,27 @@ export const formatLocal = (date) => {
 export const getMaxCheckInDate = () => {
   const today = new Date();
   today.setDate(today.getDate() + 30);
-  return today.toISOString().split("T")[0];
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 export const getTodayFormatted = () => {
   const today = new Date();
-  return today.toISOString().split("T")[0];
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 export const getTomorrowFormatted = () => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow.toISOString().split("T")[0];
+  const year = tomorrow.getFullYear();
+  const month = String(tomorrow.getMonth() + 1).padStart(2, "0");
+  const day = String(tomorrow.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 export const getMaxCheckOutDate = (checkInDate) => {
@@ -69,7 +82,10 @@ export const getMaxCheckOutDate = (checkInDate) => {
   const checkIn = new Date(checkInDate);
   const maxCheckOut = new Date(checkIn);
   maxCheckOut.setDate(checkIn.getDate() + 30);
-  return maxCheckOut.toISOString().split("T")[0];
+  const year = maxCheckOut.getFullYear();
+  const month = String(maxCheckOut.getMonth() + 1).padStart(2, "0");
+  const day = String(maxCheckOut.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 export const getDaysBetween = (startDate, endDate) => {
@@ -110,4 +126,25 @@ export const getLocalDate = (offset = 0) => {
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+// Convert date string (YYYY-MM-DD) to LocalDateTime format (YYYY-MM-DDTHH:mm:ss)
+export const convertToLocalDateTime = (dateString, timeString = "00:00:00") => {
+  if (!dateString) return null;
+  return `${dateString}T${timeString}`;
+};
+// Helper function để format time
+export const formatNotificationTime = (timestamp) => {
+  const now = new Date();
+  const notifTime = new Date(timestamp);
+  const diffMs = now - notifTime;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Vừa xong";
+  if (diffMins < 60) return `${diffMins} phút trước`;
+  if (diffHours < 24) return `${diffHours} giờ trước`;
+  if (diffDays < 7) return `${diffDays} ngày trước`;
+
+  return notifTime.toLocaleDateString("vi-VN");
 };

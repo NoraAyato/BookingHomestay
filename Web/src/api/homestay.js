@@ -56,3 +56,7 @@ export const getAvailableRooms = (params = {}) => {
     }/available-rooms?${queryParams.toString()}`
   );
 };
+
+export const getHomestayServices = (homestayId) => {
+  return http.get(`/api/homestays/${homestayId}/services`);
+};

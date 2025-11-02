@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { getAccessToken } from "../../utils/session";
 const HeroSection = React.lazy(() =>
   import("../../components/home/HeroSection")
 );
@@ -14,7 +15,7 @@ const Testimonials = React.lazy(() =>
 );
 const Benefits = React.lazy(() => import("../../components/home/Benefits"));
 const Newsletter = React.lazy(() => import("../../components/home/Newsletter"));
-
+console.log("Access Token on Home Page:", getAccessToken());
 const HomePage = () => {
   return (
     <div className="homepage">
