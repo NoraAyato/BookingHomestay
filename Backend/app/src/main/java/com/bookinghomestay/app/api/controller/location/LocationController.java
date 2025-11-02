@@ -1,11 +1,11 @@
 package com.bookinghomestay.app.api.controller.location;
 
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
-import com.bookinghomestay.app.api.dto.location.LocationResponseDto;
-import com.bookinghomestay.app.api.dto.location.LocationSuggestResultDto;
-import com.bookinghomestay.app.api.dto.location.LocationTop5ResponeDto;
+import com.bookinghomestay.app.application.location.dto.LocationResponseDto;
+import com.bookinghomestay.app.application.location.dto.LocationSuggestResultDto;
+import com.bookinghomestay.app.application.location.dto.LocationTop5ResponeDto;
 import com.bookinghomestay.app.application.location.query.GetAllLocationsQueryHandler;
 import com.bookinghomestay.app.application.location.query.GetAllTop5LocationsQueryHandler;
+import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.domain.repository.ISearchHomestayRepository;
 import com.bookinghomestay.app.domain.repository.ISearchLocationRepository;
 import com.bookinghomestay.app.infrastructure.elasticsearch.document.LocationSearchDocument;

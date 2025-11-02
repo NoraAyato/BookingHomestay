@@ -1,9 +1,9 @@
 package com.bookinghomestay.app.api.controller.auth;
 
-import com.bookinghomestay.app.api.constant.Messages;
-import com.bookinghomestay.app.api.dto.auth.*;
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
 import com.bookinghomestay.app.application.auth.command.*;
+import com.bookinghomestay.app.application.auth.dto.auth.*;
+import com.bookinghomestay.app.common.constant.Messages;
+import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
 import jakarta.servlet.http.HttpServletResponse;

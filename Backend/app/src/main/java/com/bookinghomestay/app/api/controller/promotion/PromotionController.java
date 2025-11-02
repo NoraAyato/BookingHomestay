@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
-import com.bookinghomestay.app.api.dto.promotion.AvailablePromotionResponseDto;
-import com.bookinghomestay.app.api.dto.promotion.PromotionResponeDto;
+import com.bookinghomestay.app.application.promotion.dto.AvailablePromotionResponseDto;
+import com.bookinghomestay.app.application.promotion.dto.PromotionResponeDto;
 import com.bookinghomestay.app.application.promotion.query.GetAdminKhuyenMaiQueryHandle;
 import com.bookinghomestay.app.application.promotion.query.GetKhuyenMaiQueryHandler;
 import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQuery;
 import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQueryHandler;
+import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;

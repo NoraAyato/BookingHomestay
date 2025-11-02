@@ -12,11 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
-import com.bookinghomestay.app.api.dto.common.PageResponse;
-import com.bookinghomestay.app.api.dto.homestay.*;
 import com.bookinghomestay.app.application.danhgia.query.GetHomestayReviewsQuery;
 import com.bookinghomestay.app.application.danhgia.query.GetHomestayReviewsQueryHandler;
+import com.bookinghomestay.app.application.homestay.dto.HomestayDetailResponseDto;
+import com.bookinghomestay.app.application.homestay.dto.HomestayDichVuResponseDto;
+import com.bookinghomestay.app.application.homestay.dto.HomestayImageResponseDto;
+import com.bookinghomestay.app.application.homestay.dto.HomestayResponseDto;
+import com.bookinghomestay.app.application.homestay.dto.HomestayReviewResponseDto;
+import com.bookinghomestay.app.application.homestay.dto.HomestaySearchResponse;
+import com.bookinghomestay.app.application.homestay.dto.HomestayTienNghiResponseDto;
+import com.bookinghomestay.app.application.homestay.dto.HomestayTop5ResponeDto;
+import com.bookinghomestay.app.application.homestay.dto.RoomAvailabilityDto;
+import com.bookinghomestay.app.application.homestay.dto.RoomDetailResponseDTO;
+import com.bookinghomestay.app.application.homestay.dto.RoomImagesDto;
 import com.bookinghomestay.app.application.homestay.query.GetAllHomestayQueryHandler;
 import com.bookinghomestay.app.application.homestay.query.GetHomestayDetailQuery;
 import com.bookinghomestay.app.application.homestay.query.GetHomestayDetailQueryHandler;
@@ -32,6 +40,8 @@ import com.bookinghomestay.app.application.homestay.query.GetRoomImagesQueryHand
 import com.bookinghomestay.app.application.homestay.query.GetSearchHomestayQuery;
 import com.bookinghomestay.app.application.homestay.query.GetSearchHomestayQueryHandler;
 import com.bookinghomestay.app.application.homestay.query.GetTopHomestayQueryHandler;
+import com.bookinghomestay.app.common.response.ApiResponse;
+import com.bookinghomestay.app.common.response.PageResponse;
 
 import lombok.RequiredArgsConstructor;
 import com.bookinghomestay.app.application.homestay.query.GetRoomDetailQueryHandler;

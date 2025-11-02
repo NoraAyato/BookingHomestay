@@ -10,16 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
-import com.bookinghomestay.app.api.dto.booking.BookingAddPromotionRequest;
-import com.bookinghomestay.app.api.dto.booking.BookingDetailResponseDto;
-import com.bookinghomestay.app.api.dto.booking.BookingPaymentResponseDto;
-import com.bookinghomestay.app.api.dto.booking.BookingResponseDto;
-import com.bookinghomestay.app.api.dto.booking.ConfirmBookingPaymentRequest;
-import com.bookinghomestay.app.api.dto.booking.CreateBookingRequest;
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
-import com.bookinghomestay.app.api.dto.booking.ConfirmPaymentRequest;
-
-import com.bookinghomestay.app.api.dto.booking.CancelBookingRequest;
 import com.bookinghomestay.app.application.booking.command.BookingAddPromotionCommand;
 import com.bookinghomestay.app.application.booking.command.BookingAddPromotionHandler;
 import com.bookinghomestay.app.application.booking.command.BookingPaymentCommand;
@@ -30,9 +20,17 @@ import com.bookinghomestay.app.application.booking.command.ConfirmBookingCommand
 import com.bookinghomestay.app.application.booking.command.ConfirmBookingCommandHandler;
 import com.bookinghomestay.app.application.booking.command.CreateBookingCommand;
 import com.bookinghomestay.app.application.booking.command.CreateBookingCommandHandler;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingAddPromotionRequest;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingDetailResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingPaymentResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
+import com.bookinghomestay.app.application.booking.dto.booking.CancelBookingRequest;
+import com.bookinghomestay.app.application.booking.dto.booking.ConfirmBookingPaymentRequest;
+import com.bookinghomestay.app.application.booking.dto.booking.ConfirmPaymentRequest;
+import com.bookinghomestay.app.application.booking.dto.booking.CreateBookingRequest;
 import com.bookinghomestay.app.application.booking.query.GetBookingDetailQuery;
 import com.bookinghomestay.app.application.booking.query.GetBookingDetailQueryHandler;
-
+import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;

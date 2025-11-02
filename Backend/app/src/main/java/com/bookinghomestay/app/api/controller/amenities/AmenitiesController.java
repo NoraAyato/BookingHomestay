@@ -3,10 +3,10 @@ package com.bookinghomestay.app.api.controller.amenities;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bookinghomestay.app.api.dto.amenities.AmenitiesResponseDto;
-import com.bookinghomestay.app.api.dto.common.ApiResponse;
-import com.bookinghomestay.app.api.dto.homestay.HomestayResponseDto;
+import com.bookinghomestay.app.application.amenities.dto.amenities.AmenitiesResponseDto;
 import com.bookinghomestay.app.application.amenities.query.QueryAllAmenitiesHandler;
+import com.bookinghomestay.app.application.homestay.dto.HomestayResponseDto;
+import com.bookinghomestay.app.common.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
 
