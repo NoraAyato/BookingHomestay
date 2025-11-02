@@ -38,6 +38,9 @@ public class BookingAddPromotionHandler {
             if (hoaDon == null) {
                 throw new IllegalStateException("Đơn đặt phòng chưa có hóa đơn");
             }
+            if (hoaDon.getKhuyenMai() != null) {
+                throw new IllegalStateException("Đơn đặt phòng đã có khuyến mãi áp dụng");
+            }
             // Tạo hóa đơn
             final KhuyenMai khuyenMai;
             BigDecimal promotionRemainCount = BigDecimal.ZERO;

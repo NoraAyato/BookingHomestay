@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.bookinghomestay.app.domain.exception.BusinessException;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.model.User;
 
@@ -29,25 +30,25 @@ public class PromotionService {
         // 1. Kiểm tra trạng thái khuyến mãi
         if (!"Hoạt động".equals(khuyenMai.getTrangThai())) {
             System.out.println("Trạng thái khuyến mãi không hoạt động");
-            return false;
+            throw new BusinessException("Trạng thái khuyến mãi không hoạt động");
         }
 
         // 2. Kiểm tra thời gian khuyến mãi
         if (now.isBefore(khuyenMai.getNgayBatDau()) || now.isAfter(khuyenMai.getNgayKetThuc())) {
             System.out.println("Thời gian khuyến mãi không hợp lệ");
-            return false;
+            throw new BusinessException("Thời gian khuyến mãi không hợp lệ");
         }
 
         // 3. Kiểm tra số lượng khuyến mãi còn lại
         if (khuyenMai.getSoLuong() != null && khuyenMai.getSoLuong().compareTo(BigDecimal.ZERO) <= 0) {
             System.out.println("Số lượng khuyến mãi còn lại không hợp lệ");
-            return false;
+            throw new BusinessException("Số lượng khuyến mãi còn lại không hợp lệ");
         }
 
         // 4. Kiểm tra khách mới
         if (khuyenMai.isChiApDungChoKhachMoi() && soBookingDaHoanThanh > 0) {
             System.out.println("Khuyến mãi chỉ áp dụng cho khách mới");
-            return false;
+            throw new BusinessException("Khuyến mãi chỉ áp dụng cho khách mới");
         }
 
         // 5. Kiểm tra số đêm tối thiểu
@@ -55,7 +56,7 @@ public class PromotionService {
             long soDem = ChronoUnit.DAYS.between(ngayDen.toLocalDate(), ngayDi.toLocalDate());
             if (soDem < khuyenMai.getSoDemToiThieu()) {
                 System.out.println("Số đêm tối thiểu không đủ");
-                return false;
+                throw new BusinessException("Số đêm tối thiểu không đủ");
             }
         }
 
@@ -64,14 +65,14 @@ public class PromotionService {
             long soNgayDatTruoc = ChronoUnit.DAYS.between(LocalDate.now(), ngayDen.toLocalDate());
             if (soNgayDatTruoc < khuyenMai.getSoNgayDatTruoc()) {
                 System.out.println("Số ngày đặt trước không đủ");
-                return false;
+                throw new BusinessException("Số ngày đặt trước không đủ");
             }
         }
 
         // 7. Kiểm tra giá trị tối thiểu
         if (khuyenMai.getToiThieu() != null && tongGiaTri.compareTo(khuyenMai.getToiThieu()) < 0) {
             System.out.println("Tổng giá trị không đạt mức tối thiểu");
-            return false;
+            throw new BusinessException("Tổng giá trị không đạt mức tối thiểu: " + tongGiaTri.toString());
         }
 
         // 8. Kiểm tra phòng áp dụng
@@ -79,7 +80,7 @@ public class PromotionService {
             // Nếu không áp dụng cho tất cả phòng, kiểm tra phòng cụ thể
             if (khuyenMai.getKhuyenMaiPhongs() == null || khuyenMai.getKhuyenMaiPhongs().isEmpty()) {
                 System.out.println("Không có phòng áp dụng cho khuyến mãi");
-                return false;
+                throw new BusinessException("Không có phòng áp dụng cho khuyến mãi");
             }
 
             boolean phongHopLe = khuyenMai.getKhuyenMaiPhongs().stream()
@@ -87,7 +88,7 @@ public class PromotionService {
 
             if (!phongHopLe) {
                 System.out.println("Phòng không hợp lệ cho khuyến mãi");
-                return false;
+                throw new BusinessException("Phòng không hợp lệ cho khuyến mãi");
             }
         }
 

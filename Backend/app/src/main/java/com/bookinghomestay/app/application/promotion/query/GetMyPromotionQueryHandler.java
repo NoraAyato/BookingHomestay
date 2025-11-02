@@ -58,7 +58,6 @@ public class GetMyPromotionQueryHandler {
                         ChronoUnit.DAYS.between(ngayDen, ngayDi) >= km.getSoDemToiThieu())
                 .filter(km -> !km.isChiApDungChoKhachMoi() || isNewCustomer)
                 .map(km -> PromotionMapper.toAvailableDto(km, promotionService.getPromotionTitle(km)))
-
                 .toList();
         return validPromos;
     }
