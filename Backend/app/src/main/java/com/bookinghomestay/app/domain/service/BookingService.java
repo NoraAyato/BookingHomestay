@@ -39,7 +39,21 @@ public class BookingService {
         if (booking.getChiTietDatPhongs() == null || booking.getChiTietDatPhongs().isEmpty()) {
             return BigDecimal.ZERO;
         }
-
+        KhuyenMai khuyenMai = null;
+        if (booking.getHoadon() != null) {
+            khuyenMai = booking.getHoadon().getKhuyenMai();
+        }
+        if(khuyenMai != null){
+            BigDecimal roomPrice =  booking.getChiTietDatPhongs().stream()
+                .map(ctdp -> {
+                    long nights = ChronoUnit.DAYS.between(
+                            ctdp.getNgayDen().toLocalDate(),
+                            ctdp.getNgayDi().toLocalDate());
+                    return ctdp.getPhong().getDonGia().multiply(BigDecimal.valueOf(nights));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            return applyPromotion(roomPrice, khuyenMai);
+        }
         return booking.getChiTietDatPhongs().stream()
                 .map(ctdp -> {
                     long nights = ChronoUnit.DAYS.between(

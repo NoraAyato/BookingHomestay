@@ -50,7 +50,6 @@ public class ConfirmBookingCommandHandler {
             // Kiểm tra tính hợp lệ của booking
             bookingDomainService.validateBookingConfirmation(booking);
             var firstRoomDetail = booking.getChiTietDatPhongs().get(0);
-            // Cập nhật thêm phòng nếu có
             if (command.getRoomIds() != null && !command.getRoomIds().isEmpty()) {
                 booking = bookingFactory.addRoom(booking, command.getRoomIds());
             }
@@ -61,14 +60,17 @@ public class ConfirmBookingCommandHandler {
                     if (serviceOpt.isPresent()) {
                         DichVu service = serviceOpt.get();
                         booking.getChiTietDatPhongs().forEach(cdphong -> {
+                            // ✅ Khởi tạo list nếu null
+                            if (cdphong.getChiTietDichVus() == null) {
+                                cdphong.setChiTietDichVus(new java.util.ArrayList<>());
+                            }
+
                             ChiTietDichVu chiTietDichVu = bookingDomainService.createServiceDetail(
                                     cdphong.getMaPDPhong(),
                                     cdphong.getMaPhong(),
                                     service);
                             cdphong.getChiTietDichVus().add(chiTietDichVu);
                         });
-                    } else {
-
                     }
                 }
             }
