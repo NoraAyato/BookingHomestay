@@ -1,6 +1,9 @@
 package com.bookinghomestay.app.application.chat.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Request để tạo hoặc lấy conversation
@@ -11,6 +14,9 @@ import lombok.Data;
  * - homestayId: ID của homestay đang chat về
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateConversationRequest {
     private String userId;
     private String hostId;
