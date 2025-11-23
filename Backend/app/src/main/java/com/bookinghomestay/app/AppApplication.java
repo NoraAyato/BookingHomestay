@@ -8,13 +8,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import lombok.RequiredArgsConstructor;
 
+import jakarta.annotation.PostConstruct;
+import java.util.TimeZone;
+
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = "com.bookinghomestay.app.infrastructure.persistence.repository", excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = org.springframework.data.elasticsearch.repository.ElasticsearchRepository.class))
+@EnableJpaRepositories(basePackages = "com.bookinghomestay.app.infrastructure.persistence.repository.jpa")
 @EnableElasticsearchRepositories(basePackages = "com.bookinghomestay.app.infrastructure.elasticsearch.repository")
 @EntityScan(basePackages = "com.bookinghomestay.app.domain.model")
 @RequiredArgsConstructor
@@ -22,6 +24,12 @@ public class AppApplication implements CommandLineRunner {
 
 	private final HomestayIndexingService homestayIndexingService;
 	private final LocationIndexingService locationIndexingService;
+
+	@PostConstruct
+	public void init() {
+		// Set timezone to Vietnam (UTC+7)
+		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AppApplication.class, args);
