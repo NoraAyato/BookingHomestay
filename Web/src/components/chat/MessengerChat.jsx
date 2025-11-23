@@ -182,28 +182,7 @@ const MessengerChat = ({ onClose }) => {
       {/* Content */}
       {!isMinimized && (
         <div className="h-[500px] bg-white">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center h-full">
-              <div className="w-10 h-10 border-3 border-[#2481CC]/30 border-t-[#2481CC] rounded-full animate-spin"></div>
-              <p className="text-gray-500 text-sm mt-3">Đang kết nối...</p>
-            </div>
-          ) : !isFirebaseAuthenticated ? (
-            <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-3">
-                <svg
-                  className="w-8 h-8 text-red-500"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </div>
-              <p className="text-gray-700 font-medium">
-                Không thể kết nối đến máy chủ
-              </p>
-              <p className="text-gray-500 text-sm mt-1">Vui lòng thử lại sau</p>
-            </div>
-          ) : selectedConversation ? (
+          {selectedConversation ? (
             <MessengerChatBox
               conversation={selectedConversation}
               onBack={handleBackToList}
@@ -211,6 +190,7 @@ const MessengerChat = ({ onClose }) => {
           ) : (
             <ConversationsList
               onSelectConversation={handleSelectConversation}
+              isConnecting={loading || !isFirebaseAuthenticated}
             />
           )}
         </div>

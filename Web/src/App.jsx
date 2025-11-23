@@ -5,6 +5,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
   useLocation,
 } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
@@ -23,7 +24,18 @@ import AboutUsPage from "./pages/aboutus";
 import HomestayIndex from "./pages/homestay";
 import HomestayDetail from "./pages/homestay/detail";
 import MessengerButton from "./components/chat/MessengerButton";
+import AIChatButton from "./components/chat/AIChatButton";
 
+// Lazy load admin pages
+const Dashboard = React.lazy(() => import("./pages/admin/Dashboard"));
+const AdminHomestays = React.lazy(() => import("./pages/admin/Homestays"));
+const AdminBookings = React.lazy(() => import("./pages/admin/Bookings"));
+const AdminUsers = React.lazy(() => import("./pages/admin/Users"));
+const AdminLocations = React.lazy(() => import("./pages/admin/Locations"));
+const AdminPromotions = React.lazy(() => import("./pages/admin/Promotions"));
+const AdminNews = React.lazy(() => import("./pages/admin/News"));
+const AdminReviews = React.lazy(() => import("./pages/admin/Reviews"));
+const AdminSettings = React.lazy(() => import("./pages/admin/Settings"));
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 function App() {
   return (
@@ -39,7 +51,9 @@ function App() {
   function AppContent() {
     const location = useLocation();
     const hideLayout =
+      location.pathname.startsWith("/admin") ||
       location.pathname.startsWith("/Admin") ||
+      location.pathname.startsWith("/host") ||
       location.pathname.startsWith("/Host");
     return (
       <div className="bg-gray-50 min-h-screen flex flex-col justify-between">
@@ -119,10 +133,89 @@ function App() {
             {/* Homestay Routes */}
             <Route path="/homestay" element={<HomestayIndex />} />
             <Route path="/homestay/detail/:id" element={<HomestayDetail />} />
+
+            {/* Admin Routes */}
+            <Route
+              path="/admin"
+              element={<Navigate to="/admin/dashboard" replace />}
+            />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Dashboard />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/homestays"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminHomestays />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/bookings"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminBookings />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminUsers />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/locations"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminLocations />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/promotions"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminPromotions />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/news"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminNews />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/reviews"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminReviews />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminSettings />
+                </Suspense>
+              }
+            />
           </Routes>
         </div>
         {!hideLayout && <Footer />}
         {!hideLayout && <MessengerButton />}
+        {!hideLayout && <AIChatButton />}
       </div>
     );
   }

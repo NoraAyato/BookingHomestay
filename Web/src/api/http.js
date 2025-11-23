@@ -87,6 +87,7 @@ const request = async (endpoint, options = {}) => {
   let retryCount = 0;
   let lastError = null;
   const requireAuth = options.requireAuth;
+  const timeout = options.timeout || 15000; // Cho phép custom timeout, mặc định 15s
   while (retryCount <= MAX_RETRY) {
     try {
       const accessToken = getAccessToken();
@@ -106,7 +107,7 @@ const request = async (endpoint, options = {}) => {
         );
         return { success: false };
       }
-      let res = await fetchWithAuth(endpoint, options, accessToken);
+      let res = await fetchWithAuth(endpoint, options, accessToken, timeout);
       if (res.status === 401) {
         const refreshToken = getRefreshToken();
         if (refreshToken) {
