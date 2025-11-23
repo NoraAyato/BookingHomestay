@@ -62,6 +62,7 @@ public class GetSearchHomestayQueryHandler {
                                         BigDecimal discountPriceByAdmin = promotionService.getBestDiscountedPrice(
                                                         minPrice,
                                                         allAvailableKhuyenMai);
+
                                         BigDecimal bestDiscountPrice = discountPrice.compareTo(discountPriceByAdmin) < 0
                                                         ? discountPrice
                                                         : discountPriceByAdmin;
@@ -75,7 +76,7 @@ public class GetSearchHomestayQueryHandler {
                                                         homestay,
                                                         amenities,
                                                         minPrice,
-                                                        percentDiscount,
+                                                        bestDiscountPrice,
                                                         rating,
                                                         isNew,
                                                         isPopular);

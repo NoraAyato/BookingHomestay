@@ -115,6 +115,9 @@ public class PromotionService {
     }
 
     public BigDecimal getBestDiscountedPrice(BigDecimal originalPrice, List<KhuyenMai> khuyenMais) {
+        for (KhuyenMai km : khuyenMais) {
+            System.out.println("Khuyến mãi: " + getPromotionTitle(km));
+        }
         return khuyenMais.stream().filter(km -> km.isApDungChoTatCaPhong())
                 .map(km -> {
                     if (km.getLoaiChietKhau().equals("percentage")) {
@@ -129,6 +132,8 @@ public class PromotionService {
     }
 
     public BigDecimal calculatePercentDiscount(BigDecimal originalPrice, BigDecimal discountPrice) {
+        System.out.println("Original Price: " + originalPrice);
+        System.out.println("Discount Price: " + discountPrice);
         if (discountPrice.compareTo(originalPrice) < 0) {
             return BigDecimal.ONE
                     .subtract(discountPrice.divide(originalPrice, 2, RoundingMode.HALF_UP))

@@ -146,6 +146,13 @@ public class HomestayService {
                 .orElse(BigDecimal.ZERO);
     }
 
+    public BigDecimal caculateMaxRoomPriceByHomestay(Homestay homestay) {
+        return homestay.getPhongs().stream()
+                .map(Phong::getDonGia)
+                .max(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
+    }
+
     public boolean isInPriceRange(Homestay homestay, int minPrice, int maxPrice) {
         BigDecimal minRoomPrice = caculateMinRoomPriceByHomestay(homestay);
         return (minPrice <= 0 || minRoomPrice.compareTo(BigDecimal.valueOf(minPrice)) >= 0) &&
