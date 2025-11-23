@@ -3,11 +3,11 @@ import { useConversations } from "../../hooks/useChat";
 import { getImageUrl } from "../../utils/imageUrl";
 import { useAuth } from "../../hooks/useAuth";
 
-const ConversationsList = ({ onSelectConversation }) => {
+const ConversationsList = ({ onSelectConversation, isConnecting }) => {
   const { user } = useAuth();
   const { conversations, loading, error, reload } = useConversations();
   const [searchQuery, setSearchQuery] = useState("");
-  console.log("Conversations:", conversations);
+  const isLoading = isConnecting || loading;
   // Helper function để lấy thông tin người chat (không phải mình)
   const getOtherParticipant = (conversation) => {
     const isHost = user?.userId === conversation.hostId;
@@ -99,7 +99,7 @@ const ConversationsList = ({ onSelectConversation }) => {
 
       {/* Conversations List */}
       <div className="flex-1 overflow-y-auto">
-        {loading ? (
+        {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="w-10 h-10 border-3 border-[#2481CC]/30 border-t-[#2481CC] rounded-full animate-spin"></div>
             <p className="text-gray-500 text-sm mt-3">Đang tải...</p>

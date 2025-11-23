@@ -21,7 +21,6 @@ export const handleApiResponse = (response, successMessage, errorMessage) => {
     return true;
   } else {
     if (!isAuthError(response)) {
-      console.log("API Error:", response.message);
       showToast("error", response.message || errorMessage);
     }
     return false;

@@ -8,6 +8,59 @@ import {
 import http from "./http";
 
 /**
+ * API A.I chat bot
+ */
+export const chatWithAI = async (message, sessionId = null) => {
+  const response = await http.post(
+    "/api/ai-chat/send",
+    {
+      message,
+      sessionId,
+    },
+    {
+      requireAuth: true,
+      timeout: 60000, // 60 giây cho AI xử lý query phức tạp
+    }
+  );
+  return response;
+};
+
+/**
+ * Lấy tất cả AI chat sessions của user hiện tại
+ * GET /api/ai-chat/sessions
+ */
+export const getAllAIChatSessions = async () => {
+  try {
+    const response = await http.get("/api/ai-chat/sessions", {
+      requireAuth: true,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error getting AI chat sessions:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+/**
+ * Lấy lịch sử chat AI cho một session cụ thể
+ * GET /api/ai-chat/history/{sessionId}
+ */
+export const getAIChatHistory = async (sessionId, page = 0, limit = 20) => {
+  try {
+    const response = await http.get(
+      `/api/ai-chat/history/${sessionId}?&page=${page}&limit=${limit}`,
+      {
+        requireAuth: true,
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Error getting AI chat history:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+/**
  * Lấy Firebase Custom Token từ backend và authenticate với Firebase
  * GET /api/chat/firebase-token
  */
