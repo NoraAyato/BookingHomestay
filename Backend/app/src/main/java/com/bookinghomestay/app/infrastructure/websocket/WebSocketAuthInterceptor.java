@@ -56,7 +56,13 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                         // Set user principal for this WebSocket session
                         accessor.setUser(authentication);
 
-                        log.info("✅ WebSocket authenticated for user: {}", userId);
+                        // Log user info
+                        String roles = userDetails.getAuthorities().stream()
+                                .map(a -> a.getAuthority())
+                                .collect(java.util.stream.Collectors.joining(", "));
+
+                        log.info("✅ WebSocket authenticated for user: {} | username: {} | roles: {}",
+                                userId, userDetails.getUsername(), roles);
                     } else {
                         log.warn("❌ Invalid JWT token for WebSocket connection");
                         throw new IllegalArgumentException("Invalid JWT token");
@@ -68,6 +74,39 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
             } else {
                 log.warn("❌ No Authorization header in WebSocket CONNECT frame");
                 throw new IllegalArgumentException("Missing authorization header");
+            }
+        }
+
+        // Check role for admin-only topics
+        if (accessor != null && StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+            String destination = accessor.getDestination();
+
+            // Check if subscribing to admin-only topic
+            if (destination != null && destination.startsWith("/topic/admin/")) {
+                Authentication auth = (Authentication) accessor.getUser();
+
+                if (auth == null) {
+                    log.warn("❌ No authentication found when subscribing to: {}", destination);
+                    throw new IllegalArgumentException("Authentication required");
+                }
+
+                // Log user details
+                String username = auth.getName();
+                String roles = auth.getAuthorities().stream()
+                        .map(a -> a.getAuthority())
+                        .collect(java.util.stream.Collectors.joining(", "));
+
+                log.info("🔍 User {} (roles: {}) attempting to subscribe to: {}",
+                        username, roles, destination);
+
+                if (auth.getAuthorities().stream()
+                        .noneMatch(a -> a.getAuthority().equals("ROLE_Admin"))) {
+                    log.warn("❌ User {} (roles: {}) does NOT have ROLE_ADMIN - Access denied to: {}",
+                            username, roles, destination);
+                    throw new IllegalArgumentException("Access denied: Admin role required");
+                }
+
+                log.info("✅ Admin user {} subscribed to: {}", username, destination);
             }
         }
 
