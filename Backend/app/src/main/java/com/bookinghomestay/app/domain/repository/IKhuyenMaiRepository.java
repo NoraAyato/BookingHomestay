@@ -7,9 +7,11 @@ import java.util.Optional;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 
 public interface IKhuyenMaiRepository {
-    List<KhuyenMai> getAdminKm();
+    List<KhuyenMai> getAdminKm(int limit);
 
     List<KhuyenMai> getAllAvailableKhuyenMai();
+
+    List<KhuyenMai> getAdminKm();
 
     Optional<KhuyenMai> getKhuyenMaiById(String id);
 

@@ -7,5 +7,5 @@ import com.bookinghomestay.app.domain.model.KhuVuc;
 public interface IKhuVucRepository {
     List<KhuVuc> getAll();
 
-    List<KhuVuc> getTop5ByHomestayCount();
+    List<KhuVuc> getAllByHomestayCout(int limit);
 }

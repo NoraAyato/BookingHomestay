@@ -5,6 +5,8 @@ import com.bookinghomestay.app.domain.repository.IKhuVucRepository;
 import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaKhuVucRepository;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,7 +30,7 @@ public class KhuVucRepositoryImpl implements IKhuVucRepository {
     }
 
     @Override
-    public List<KhuVuc> getTop5ByHomestayCount() {
-        return jpaRepo.findTop5OrderByHomestayCountDesc();
+    public List<KhuVuc> getAllByHomestayCout(int limit) {
+        return jpaRepo.findAllOrderByHomestayCountDesc(PageRequest.of(0, limit));
     }
 }

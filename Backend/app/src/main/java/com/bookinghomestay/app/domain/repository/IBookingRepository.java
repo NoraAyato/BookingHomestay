@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface IBookingRepository {
 
+    List<PhieuDatPhong> findAll();
+
     PhieuDatPhong create(PhieuDatPhong booking);
 
     PhieuDatPhong save(PhieuDatPhong booking);
@@ -31,4 +33,6 @@ public interface IBookingRepository {
     PhieuHuyPhong saveCancelledBooking(PhieuHuyPhong cancelledBooking);
 
     void saveAll(List<PhieuDatPhong> bookings);
+
+    List<PhieuDatPhong> findAllWithHoaDonAndThanhToan();
 }

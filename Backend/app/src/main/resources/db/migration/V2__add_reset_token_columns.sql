@@ -1,1 +1,1 @@
-select * from users
+update khuyen_mai set trang_thai = 'Active'

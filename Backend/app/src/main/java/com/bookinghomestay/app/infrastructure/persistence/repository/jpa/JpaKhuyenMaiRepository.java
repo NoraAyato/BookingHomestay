@@ -1,8 +1,10 @@
+
 package com.bookinghomestay.app.infrastructure.persistence.repository.jpa;
 
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -19,4 +21,6 @@ public interface JpaKhuyenMaiRepository extends JpaRepository<KhuyenMai, String>
             """)
     List<KhuyenMai> getAllPromotionsForRoom(String maPhong);
 
+    @Query("SELECT k FROM KhuyenMai k ORDER BY k.ngayTao DESC")
+    List<KhuyenMai> findTopByOrderByNgayTaoDesc(Pageable pageable);
 }
