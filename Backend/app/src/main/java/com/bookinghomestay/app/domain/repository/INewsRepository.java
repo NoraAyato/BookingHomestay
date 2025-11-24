@@ -9,5 +9,7 @@ public interface INewsRepository {
 
     Optional<TinTuc> findById(String maTinTuc);
 
+    List<TinTuc> finAllOderByCreateTime(int limit);
+
     List<TinTuc> findAllPublished();
 }

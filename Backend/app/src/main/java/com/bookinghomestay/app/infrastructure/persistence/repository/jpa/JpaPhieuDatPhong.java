@@ -33,4 +33,12 @@ public interface JpaPhieuDatPhong extends JpaRepository<PhieuDatPhong, String> {
   int countByNguoiDung_UserIdAndTrangThai(String userId, String trangThai);
 
   List<PhieuDatPhong> findByNguoiDung_UserId(String userId);
+
+  @Query("""
+          SELECT DISTINCT p
+          FROM PhieuDatPhong p
+          LEFT JOIN FETCH p.hoadon h
+          LEFT JOIN FETCH h.thanhToans
+      """)
+  List<PhieuDatPhong> findAllWithHoaDonAndThanhToan();
 }

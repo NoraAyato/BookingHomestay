@@ -21,6 +21,11 @@ public class PhieuDatPhongRepositoryImpl implements IBookingRepository {
     private final JpaPhieuHuyPhongRepository jpaPhieuHuyPhongRepository;
 
     @Override
+    public List<PhieuDatPhong> findAll() {
+        return jpaPhieuDatPhong.findAll();
+    }
+
+    @Override
     public PhieuDatPhong create(PhieuDatPhong booking) {
         return jpaPhieuDatPhong.save(booking);
     }
@@ -73,5 +78,10 @@ public class PhieuDatPhongRepositoryImpl implements IBookingRepository {
     @Override
     public void saveAll(List<PhieuDatPhong> bookings) {
         jpaPhieuDatPhong.saveAll(bookings);
+    }
+
+    @Override
+    public List<PhieuDatPhong> findAllWithHoaDonAndThanhToan() {
+        return jpaPhieuDatPhong.findAllWithHoaDonAndThanhToan();
     }
 }

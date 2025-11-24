@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import com.bookinghomestay.app.domain.model.KhuyenMai;
@@ -18,6 +19,12 @@ public class KhuyenMaiRepositoryImpl implements IKhuyenMaiRepository {
 
     @Autowired
     private JpaKhuyenMaiRepository jpaKhuyenMaiRepository;
+
+    @Override
+    public List<KhuyenMai> getAdminKm(int limit) {
+        return jpaKhuyenMaiRepository
+                .findTopByOrderByNgayTaoDesc(PageRequest.of(0, limit));
+    }
 
     @Override
     public List<KhuyenMai> getAdminKm() {
