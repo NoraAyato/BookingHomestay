@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.notification;
+package com.bookinghomestay.app.api.controller;
 
 import com.bookinghomestay.app.application.notification.command.*;
 import com.bookinghomestay.app.application.notification.dto.NotificationDto;

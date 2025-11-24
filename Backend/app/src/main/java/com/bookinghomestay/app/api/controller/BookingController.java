@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.booking;
+package com.bookinghomestay.app.api.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +12,6 @@ import jakarta.validation.Valid;
 
 import com.bookinghomestay.app.application.booking.command.BookingAddPromotionCommand;
 import com.bookinghomestay.app.application.booking.command.BookingAddPromotionHandler;
-import com.bookinghomestay.app.application.booking.command.BookingPaymentCommand;
-import com.bookinghomestay.app.application.booking.command.BookingPaymentCommandHandler;
 import com.bookinghomestay.app.application.booking.command.CancelBookingCommand;
 import com.bookinghomestay.app.application.booking.command.CancelBookingCommandHandler;
 import com.bookinghomestay.app.application.booking.command.ConfirmBookingCommand;
@@ -21,12 +19,9 @@ import com.bookinghomestay.app.application.booking.command.ConfirmBookingCommand
 import com.bookinghomestay.app.application.booking.command.CreateBookingCommand;
 import com.bookinghomestay.app.application.booking.command.CreateBookingCommandHandler;
 import com.bookinghomestay.app.application.booking.dto.booking.BookingAddPromotionRequest;
-import com.bookinghomestay.app.application.booking.dto.booking.BookingDetailResponseDto;
-import com.bookinghomestay.app.application.booking.dto.booking.BookingPaymentResponseDto;
 import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.application.booking.dto.booking.CancelBookingRequest;
 import com.bookinghomestay.app.application.booking.dto.booking.ConfirmBookingPaymentRequest;
-import com.bookinghomestay.app.application.booking.dto.booking.ConfirmPaymentRequest;
 import com.bookinghomestay.app.application.booking.dto.booking.CreateBookingRequest;
 import com.bookinghomestay.app.application.booking.query.GetBookingDetailQuery;
 import com.bookinghomestay.app.application.booking.query.GetBookingDetailQueryHandler;
@@ -46,7 +41,8 @@ public class BookingController {
     private final CancelBookingCommandHandler cancelBookingCommandHandler;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<String>> createBooking(@Valid @RequestBody CreateBookingRequest request) {
+    public ResponseEntity<ApiResponse<String>> createBooking(
+            @Valid @RequestBody CreateBookingRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         CreateBookingCommand command = new CreateBookingCommand(
@@ -95,7 +91,8 @@ public class BookingController {
     }
 
     @PostMapping("/cancel")
-    public ResponseEntity<ApiResponse<Void>> cancelBooking(@Valid @RequestBody CancelBookingRequest request) {
+    public ResponseEntity<ApiResponse<Void>> cancelBooking(
+            @Valid @RequestBody CancelBookingRequest request) {
         String userId = SecurityUtils.getCurrentUserId();
 
         CancelBookingCommand command = new CancelBookingCommand(
@@ -106,6 +103,7 @@ public class BookingController {
                 request.getSoTaiKhoan());
 
         cancelBookingCommandHandler.handle(command);
+
         return ResponseEntity.ok(new ApiResponse<>(true, "Hủy đặt phòng thành công", null));
     }
 }

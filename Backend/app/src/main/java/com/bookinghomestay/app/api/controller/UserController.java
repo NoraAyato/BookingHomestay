@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.user;
+package com.bookinghomestay.app.api.controller;
 
 import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.application.booking.query.GetBookingListQuery;

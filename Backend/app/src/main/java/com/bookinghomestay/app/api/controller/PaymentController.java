@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.payment;
+package com.bookinghomestay.app.api.controller;
 
 import com.bookinghomestay.app.application.payment.command.CreatePaymentCommand;
 import com.bookinghomestay.app.application.payment.command.CreatePaymentCommandHandler;

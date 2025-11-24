@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.chat;
+package com.bookinghomestay.app.api.controller;
 
 import com.bookinghomestay.app.application.chat.command.*;
 import com.bookinghomestay.app.application.chat.query.*;

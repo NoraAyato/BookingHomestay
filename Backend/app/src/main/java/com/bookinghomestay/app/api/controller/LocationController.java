@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.location;
+package com.bookinghomestay.app.api.controller;
 
 import com.bookinghomestay.app.application.location.dto.LocationResponseDto;
 import com.bookinghomestay.app.application.location.dto.LocationSuggestResultDto;

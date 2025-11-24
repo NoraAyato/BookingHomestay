@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.auth;
+package com.bookinghomestay.app.api.controller;
 
 import com.bookinghomestay.app.application.auth.command.*;
 import com.bookinghomestay.app.application.auth.dto.auth.*;

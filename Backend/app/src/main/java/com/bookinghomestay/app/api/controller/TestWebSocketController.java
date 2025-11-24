@@ -6,11 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controller để test gửi thông báo
- * ✅ LƯU VÀO DB + GỬI QUA WEBSOCKET (nếu user online)
- * Xóa file này sau khi test xong
- */
+
 @RestController
 @RequestMapping("/api/test-websocket")
 @RequiredArgsConstructor

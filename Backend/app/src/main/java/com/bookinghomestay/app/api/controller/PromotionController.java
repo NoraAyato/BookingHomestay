@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.promotion;
+package com.bookinghomestay.app.api.controller;
 
 import java.util.List;
 

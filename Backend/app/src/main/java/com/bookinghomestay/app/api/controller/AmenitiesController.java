@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.amenities;
+package com.bookinghomestay.app.api.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.homestay;
+package com.bookinghomestay.app.api.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

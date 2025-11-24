@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.ai;
+package com.bookinghomestay.app.api.controller;
 
 import com.bookinghomestay.app.application.ai.command.SendAiMessageCommand;
 import com.bookinghomestay.app.application.ai.command.SendAiMessageCommandHandler;

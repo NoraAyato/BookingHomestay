@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller.news;
+package com.bookinghomestay.app.api.controller;
 
 import com.bookinghomestay.app.application.news.dto.NewsDetailResponseDto;
 import com.bookinghomestay.app.application.news.dto.NewsResponseDto;
