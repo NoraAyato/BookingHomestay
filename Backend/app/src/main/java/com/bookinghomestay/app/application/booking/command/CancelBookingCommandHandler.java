@@ -9,6 +9,7 @@ import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.PhieuHuyPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.domain.service.BookingService;
+import com.bookinghomestay.app.infrastructure.service.ActivityLogHelper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ public class CancelBookingCommandHandler {
 
     private final IBookingRepository bookingRepository;
     private final BookingService bookingDomainService;
+    private final ActivityLogHelper activityLogHelper;
 
     @Transactional
     public void handle(CancelBookingCommand command) {
@@ -61,5 +63,8 @@ public class CancelBookingCommandHandler {
         // Lưu phiếu hủy phòng và cập nhật phiếu đặt phòng
         bookingRepository.saveCancelledBooking(phieuHuy);
         bookingRepository.save(booking);
+        // log
+        activityLogHelper.logBookingCancelled(command.getMaPDPhong(), command.getLyDoHuy());
+
     }
 }

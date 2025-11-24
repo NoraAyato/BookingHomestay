@@ -43,12 +43,10 @@ public class BookingAddPromotionHandler {
             }
             // Tạo hóa đơn
             final KhuyenMai khuyenMai;
-            BigDecimal promotionRemainCount = BigDecimal.ZERO;
             if (command.getPromotionCode() != null) {
                 Optional<KhuyenMai> promotionOpt = promotionRepository.getKhuyenMaiById(command.getPromotionCode());
                 if (promotionOpt.isPresent()) {
                     khuyenMai = promotionOpt.get();
-                    promotionRemainCount = khuyenMai.getSoLuong();
                     // Validate khuyến mãi cho từng phòng
                     boolean isValid = booking.getChiTietDatPhongs().stream()
                             .allMatch(item -> promotionService.isPromotionAvailableForUser(
@@ -73,8 +71,6 @@ public class BookingAddPromotionHandler {
             BigDecimal total = bookingDomainService.calculateTotalAmountWithPromotion(booking, khuyenMai);
             invoiceFactory.addPromotion(hoaDon, khuyenMai, total);
             bookingRepository.save(booking);
-            khuyenMai.setSoLuong(promotionRemainCount.subtract(BigDecimal.ONE));
-            promotionRepository.updateKhuyenMai(khuyenMai);
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi thêm khuyến mãi vào đơn đặt phòng: " + e.getMessage(), e);
         }

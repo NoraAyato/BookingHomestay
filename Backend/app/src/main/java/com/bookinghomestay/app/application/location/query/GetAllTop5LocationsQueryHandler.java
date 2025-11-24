@@ -14,8 +14,7 @@ public class GetAllTop5LocationsQueryHandler {
     private final IKhuVucRepository khuVucRepository;
 
     public List<LocationTop5ResponeDto> handle() {
-        var listKV = khuVucRepository.getTop5ByHomestayCount().subList(0,
-                Math.min(khuVucRepository.getTop5ByHomestayCount().size(), 5));
+        var listKV = khuVucRepository.getAllByHomestayCout(5);
         return listKV.stream()
                 .map(e -> new LocationTop5ResponeDto(
                         e.getMaKv(),
