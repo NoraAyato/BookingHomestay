@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,15 +44,15 @@ public class BookingService {
         if (booking.getHoadon() != null) {
             khuyenMai = booking.getHoadon().getKhuyenMai();
         }
-        if(khuyenMai != null){
-            BigDecimal roomPrice =  booking.getChiTietDatPhongs().stream()
-                .map(ctdp -> {
-                    long nights = ChronoUnit.DAYS.between(
-                            ctdp.getNgayDen().toLocalDate(),
-                            ctdp.getNgayDi().toLocalDate());
-                    return ctdp.getPhong().getDonGia().multiply(BigDecimal.valueOf(nights));
-                })
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (khuyenMai != null) {
+            BigDecimal roomPrice = booking.getChiTietDatPhongs().stream()
+                    .map(ctdp -> {
+                        long nights = ChronoUnit.DAYS.between(
+                                ctdp.getNgayDen().toLocalDate(),
+                                ctdp.getNgayDi().toLocalDate());
+                        return ctdp.getPhong().getDonGia().multiply(BigDecimal.valueOf(nights));
+                    })
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
             return applyPromotion(roomPrice, khuyenMai);
         }
         return booking.getChiTietDatPhongs().stream()
@@ -62,6 +63,29 @@ public class BookingService {
                     return ctdp.getPhong().getDonGia().multiply(BigDecimal.valueOf(nights));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public long countBookings(List<PhieuDatPhong> bookings, LocalDateTime start, LocalDateTime end) {
+        return bookings.stream()
+                .filter(b -> b.getNgayLap() != null)
+                .filter(b -> b.getTrangThai().equalsIgnoreCase("booked")
+                        || b.getTrangThai().equalsIgnoreCase("completed"))
+                .filter(b -> !b.getNgayLap().isBefore(start) && b.getNgayLap().isBefore(end))
+                .count();
+    }
+
+    public BigDecimal calculateRevenue(List<PhieuDatPhong> bookings, LocalDateTime start, LocalDateTime end) {
+
+        var result = bookings.stream()
+                .filter(b -> b.getNgayLap() != null)
+                .filter(b -> !b.getNgayLap().isBefore(start) && b.getNgayLap().isBefore(end))
+                .filter(b -> "Booked".equals(b.getTrangThai()) || "Completed".equals(b.getTrangThai()))
+                .filter(b -> b.getHoadon() != null && b.getHoadon().getThanhToans() != null)
+                .flatMap(b -> b.getHoadon().getThanhToans().stream()
+                        .filter(t -> "SUCCESS".equalsIgnoreCase(t.getTrangThai()))
+                        .map(t -> t.getSoTien()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return result;
     }
 
     /**

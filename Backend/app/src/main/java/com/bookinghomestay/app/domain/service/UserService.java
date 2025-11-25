@@ -26,6 +26,13 @@ public class UserService {
         return String.format("Tháng %d, Năm %d", month, year);
     }
 
+    public long countUsers(List<User> users, LocalDateTime start, LocalDateTime end) {
+        return users.stream()
+                .filter(u -> u.getCreatedAt() != null)
+                .filter(u -> !u.getCreatedAt().isBefore(start) && u.getCreatedAt().isBefore(end))
+                .count();
+    }
+
     public int countBookingComplete(User user) {
 
         int count = 0;

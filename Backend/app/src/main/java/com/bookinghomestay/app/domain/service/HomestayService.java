@@ -102,6 +102,11 @@ public class HomestayService {
         return homestayAmenityIds.containsAll(requiredAmenityIds);
     }
 
+    public long countActiveHomestays(List<Homestay> homestays) {
+        return homestays.stream()
+                .count();
+    }
+
     public BigDecimal getHomestayDiscountPrice(Homestay homestay) {
         BigDecimal originalPrice = caculateMinRoomPriceByHomestay(homestay);
         List<KhuyenMai> khuyenMais = homestay.getPhongs().stream()
