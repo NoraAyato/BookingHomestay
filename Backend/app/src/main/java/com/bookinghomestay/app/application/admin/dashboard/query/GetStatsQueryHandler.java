@@ -9,9 +9,15 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.bookinghomestay.app.application.admin.dashboard.dto.DashboardStatDto;
+import com.bookinghomestay.app.domain.model.Homestay;
+import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
+import com.bookinghomestay.app.domain.service.BookingService;
+import com.bookinghomestay.app.domain.service.HomestayService;
+import com.bookinghomestay.app.domain.service.UserService;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,6 +26,9 @@ public class GetStatsQueryHandler {
     private final IBookingRepository bookingRepository;
     private final IHomestayRepository homestayRepository;
     private final IUserRepository userRepository;
+    private final UserService userService;
+    private final BookingService bookingService;
+    private final HomestayService homestayService;
 
     public List<DashboardStatDto> handler(Integer period) {
         // Default 7 days if not provided
@@ -30,15 +39,19 @@ public class GetStatsQueryHandler {
         LocalDateTime previousStart = currentStart.minusDays(days);
 
         // Calculate stats for current period
-        BigDecimal currentRevenue = calculateRevenue(currentStart, currentEnd);
-        long currentBookings = countBookings(currentStart, currentEnd);
-        long activeHomestays = countActiveHomestays();
-        long currentUsers = countUsers(currentStart, currentEnd);
+        BigDecimal currentRevenue = bookingService.calculateRevenue(bookingRepository.findAllWithHoaDonAndThanhToan(),
+                currentStart, currentEnd);
+        long currentBookings = bookingService.countBookings(bookingRepository.findAllWithHoaDonAndThanhToan(),
+                currentStart, currentEnd);
+        long activeHomestays = homestayService.countActiveHomestays(homestayRepository.getAllActiveHomestay());
+        long currentUsers = userService.countUsers(userRepository.findAll(), currentStart, currentEnd);
 
         // Calculate stats for previous period
-        BigDecimal previousRevenue = calculateRevenue(previousStart, currentStart);
-        long previousBookings = countBookings(previousStart, currentStart);
-        long previousUsers = countUsers(previousStart, currentStart);
+        BigDecimal previousRevenue = bookingService.calculateRevenue(bookingRepository.findAllWithHoaDonAndThanhToan(),
+                previousStart, currentStart);
+        long previousBookings = bookingService.countBookings(bookingRepository.findAllWithHoaDonAndThanhToan(),
+                previousStart, currentStart);
+        long previousUsers = userService.countUsers(userRepository.findAll(), previousStart, currentStart);
 
         return Arrays.asList(
                 DashboardStatDto.builder()
@@ -68,42 +81,6 @@ public class GetStatsQueryHandler {
                         .change(calculateChangePercent(currentUsers, previousUsers))
                         .trend(getDirection(currentUsers, previousUsers))
                         .build());
-    }
-
-    private BigDecimal calculateRevenue(LocalDateTime start, LocalDateTime end) {
-
-        var result = bookingRepository.findAllWithHoaDonAndThanhToan().stream()
-                .filter(b -> b.getNgayLap() != null)
-                .filter(b -> !b.getNgayLap().isBefore(start) && b.getNgayLap().isBefore(end))
-                .filter(b -> "Booked".equals(b.getTrangThai()) || "Completed".equals(b.getTrangThai()))
-                .filter(b -> b.getHoadon() != null && b.getHoadon().getThanhToans() != null)
-                .flatMap(b -> b.getHoadon().getThanhToans().stream()
-                        .filter(t -> "SUCCESS".equalsIgnoreCase(t.getTrangThai()))
-                        .map(t -> t.getSoTien()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        System.out.println("[DEBUG] Revenue result: " + result);
-        return result;
-    }
-
-    private long countBookings(LocalDateTime start, LocalDateTime end) {
-        return bookingRepository.findAll().stream()
-                .filter(b -> b.getNgayLap() != null)
-                .filter(b -> b.getTrangThai().equalsIgnoreCase("booked")
-                        || b.getTrangThai().equalsIgnoreCase("completed"))
-                .filter(b -> !b.getNgayLap().isBefore(start) && b.getNgayLap().isBefore(end))
-                .count();
-    }
-
-    private long countActiveHomestays() {
-        return homestayRepository.getAllActiveHomestay().stream()
-                .count();
-    }
-
-    private long countUsers(LocalDateTime start, LocalDateTime end) {
-        return userRepository.findAll().stream()
-                .filter(u -> u.getCreatedAt() != null)
-                .filter(u -> !u.getCreatedAt().isBefore(start) && u.getCreatedAt().isBefore(end))
-                .count();
     }
 
     private String calculateChangePercent(BigDecimal current, BigDecimal previous) {
