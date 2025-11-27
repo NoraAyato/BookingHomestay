@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller;
+package com.bookinghomestay.app.api.controller.user;
 
 import java.util.List;
 

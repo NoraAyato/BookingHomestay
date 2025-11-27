@@ -1,8 +1,11 @@
-package com.bookinghomestay.app.api.controller;
+package com.bookinghomestay.app.api.controller.user;
 
 import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
 import com.bookinghomestay.app.application.booking.query.GetBookingListQuery;
 import com.bookinghomestay.app.application.booking.query.GetMyBookingListQueryHandler;
+import com.bookinghomestay.app.application.danhgia.command.PostReviewCommandHandler;
+import com.bookinghomestay.app.application.danhgia.dto.ReviewAddCommandDto;
+import com.bookinghomestay.app.application.danhgia.dto.ReviewAddRequestDto;
 import com.bookinghomestay.app.application.users.command.AddFavoriteHomestayCommand;
 import com.bookinghomestay.app.application.users.command.AddFavoriteHomestayCommandHandler;
 import com.bookinghomestay.app.application.users.command.UpdateRecieveEmailCommand;
@@ -41,6 +44,7 @@ public class UserController {
     private final UpdateUserRecieveEmailHandler updateUserRecieveEmailHandler;
     private final GetUserFavoriteHomestayQueryHandler getUserFavoriteHomestayQueryHandler;
     private final AddFavoriteHomestayCommandHandler addFavoriteHomestayCommandHandler;
+    private final PostReviewCommandHandler postReviewCommandHandler;
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserInfoResponeDto>> getCurrentUser() {
@@ -102,8 +106,15 @@ public class UserController {
                 .handle(new GetFavoriteHomestayQuery(userId, page, limit));
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách yêu thích thành công !", entity));
     }
-    @GetMapping("/me/test")
-    public ResponseEntity<ApiResponse<String>> test() {
-        return ResponseEntity.ok(new ApiResponse<>(true, "Test thành công !", "Hello World"));
+
+    @PostMapping("/me/add-review")
+    public ResponseEntity<ApiResponse<Void>> addReview(@RequestParam ReviewAddRequestDto req) {
+        String userId = SecurityUtils.getCurrentUserId();
+        postReviewCommandHandler
+                .handle(new ReviewAddCommandDto(userId, req.getBookingId(), req.getHomestayId(),
+                        req.getCleanlinessRating(), req.getUtilitiesRating(), req.getServiceRating(), req.getImage(),
+                        req.getComment()));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Thêm đánh giá thành công !", null));
     }
+
 }
