@@ -2,6 +2,7 @@ package com.bookinghomestay.app.infrastructure.mapper;
 
 import java.math.BigDecimal;
 
+import com.bookinghomestay.app.application.admin.usermanager.dto.UserListDto;
 import com.bookinghomestay.app.application.users.dto.HostDetailResponseDto;
 import com.bookinghomestay.app.application.users.dto.UserFavoriteHomestayResponseDto;
 import com.bookinghomestay.app.application.users.dto.UserInfoResponeDto;
@@ -48,6 +49,19 @@ public class UserMapper {
         dto.setPrice(price);
         dto.setImage(homestay.getHinhAnh());
         dto.setRating(rating);
+        return dto;
+    }
+
+    public static UserListDto toUserListDto(User user) {
+        UserListDto dto = new UserListDto();
+        dto.setId(user.getUserId());
+        dto.setName(user.getLastName() != null ? user.getLastName() + " " + user.getFirstName() : null);
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhoneNumber());
+        dto.setRole(user.getRole() != null ? user.getRole().getRoleName() : "không xác định");
+        dto.setStatus(user.getStatus());
+        dto.setJoinDate(user.getCreatedAt().toLocalDate().toString());
+        dto.setAvatar(user.getPicture());
         return dto;
     }
 }

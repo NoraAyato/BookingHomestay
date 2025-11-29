@@ -16,7 +16,6 @@ public class UploadUserImgCommandHandler {
     private final IUserRepository userRepository;
     private final FileStorageService fileStorageService;
 
-
     public void handle(UploadUserPictureCommand command) {
         User user = userRepository.findById(command.getUserId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng !"));

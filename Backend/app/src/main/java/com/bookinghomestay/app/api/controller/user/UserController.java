@@ -108,12 +108,20 @@ public class UserController {
     }
 
     @PostMapping("/me/add-review")
-    public ResponseEntity<ApiResponse<Void>> addReview(@RequestParam ReviewAddRequestDto req) {
+    public ResponseEntity<?> addReview(
+            @RequestParam String bookingId,
+            @RequestParam String homestayId,
+            @RequestParam Integer cleanlinessRating,
+            @RequestParam Integer serviceRating,
+            @RequestParam Integer utilitiesRating,
+            @RequestParam(required = false) MultipartFile image,
+            @RequestParam String comment) {
         String userId = SecurityUtils.getCurrentUserId();
+
         postReviewCommandHandler
-                .handle(new ReviewAddCommandDto(userId, req.getBookingId(), req.getHomestayId(),
-                        req.getCleanlinessRating(), req.getUtilitiesRating(), req.getServiceRating(), req.getImage(),
-                        req.getComment()));
+                .handle(new ReviewAddCommandDto(userId, bookingId, homestayId,
+                        cleanlinessRating, utilitiesRating, serviceRating, image,
+                        comment));
         return ResponseEntity.ok(new ApiResponse<>(true, "Thêm đánh giá thành công !", null));
     }
 
