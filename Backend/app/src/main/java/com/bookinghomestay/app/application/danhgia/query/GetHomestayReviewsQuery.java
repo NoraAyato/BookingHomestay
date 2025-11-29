@@ -7,7 +7,6 @@ import lombok.*;
 @AllArgsConstructor
 public class GetHomestayReviewsQuery {
     private final String homestayId;
-    private final String haiLongRange; // "3-4", "1-2" etc.
-    private final String reviewerType; // "me" or "others"
-    private final String currentUserId;
+    private final int page;
+    private final int limit;
 }

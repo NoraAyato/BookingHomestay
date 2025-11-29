@@ -2,17 +2,18 @@
 package com.bookinghomestay.app.infrastructure.persistence.repository.adapter;
 
 import com.bookinghomestay.app.domain.model.DanhGia;
-import com.bookinghomestay.app.domain.repository.IDanhGiaRepository;
+import com.bookinghomestay.app.domain.repository.IReviewRepository;
 import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaDanhGiaRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class DanhGiaRepositoryImpl implements IDanhGiaRepository {
+public class DanhGiaRepositoryImpl implements IReviewRepository {
 
     private final JpaDanhGiaRepository jpaDanhGiaRepository;
 
@@ -29,6 +30,22 @@ public class DanhGiaRepositoryImpl implements IDanhGiaRepository {
     @Override
     public Double averageHaiLongByHomestayId(String homestayId) {
         return jpaDanhGiaRepository.averageDichVuByHomestayId(homestayId);
+    }
+
+    @Override
+    public DanhGia save(DanhGia danhGia) {
+        return jpaDanhGiaRepository.save(danhGia);
+    }
+
+    @Override
+    public DanhGia remove(DanhGia danhGia) {
+        jpaDanhGiaRepository.delete(danhGia);
+        return danhGia;
+    }
+
+    @Override
+    public Optional<DanhGia> findByIdHomestayAndBookingId(String homestayId, String bookingId) {
+        return jpaDanhGiaRepository.findByIdHomestayAndBookingId(homestayId, bookingId);
     }
 
 }

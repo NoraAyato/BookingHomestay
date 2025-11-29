@@ -1,5 +1,7 @@
 package com.bookinghomestay.app.application.homestay.dto;
 
+import java.math.BigDecimal;
+
 import lombok.*;
 
 @Data
@@ -9,7 +11,7 @@ public class HomestayTop5ResponeDto {
     private String id;
     private String title;
     private String location;
-    private Double price;
+    private BigDecimal price;
     private String image;
     private Double rating;
     private Integer reviews;

@@ -27,9 +27,14 @@ public class HomestayService {
         return locationId.equals(homestay.getKhuVuc().getMaKv());
     }
 
-    /**
-     * Kiểm tra phòng có khả dụng trong khoảng thời gian
-     */
+    public boolean isFavoriteHomestay(Homestay homestay, String userId) {
+        if (userId == null || userId.isEmpty()) {
+            return false;
+        }
+        return homestay.getUserFavorites().stream()
+                .anyMatch(favorite -> favorite.getUserId().equals(userId));
+    }
+
     public boolean isRoomAvailable(Phong phong, LocalDate checkIn, LocalDate checkOut) {
         return phong.getChiTietDatPhongs().stream()
                 .filter(ctdp -> {
@@ -59,10 +64,13 @@ public class HomestayService {
         if (homestay.getDanhGias() == null || homestay.getDanhGias().isEmpty()) {
             return 0.0;
         }
-        return homestay.getDanhGias().stream()
-                .mapToDouble(dg -> dg.getDichVu() + dg.getTienIch() + dg.getSachSe())
-                .average()
-                .orElse(0.0);
+        int count = homestay.getDanhGias().size();
+        double total = homestay.getDanhGias().stream()
+                .mapToDouble(dg -> (dg.getDichVu() + dg.getTienIch() + dg.getSachSe()) / 3.0)
+                .sum();
+        double avg = (total / count) > 0 ? (total / count)
+                : homestay.getHang() != null ? homestay.getHang().doubleValue() : 0.0;
+        return Math.floor(avg * 10) / 10.0;
     }
 
     public List<String> getHomestayAmenities(Homestay homestay) {
@@ -116,7 +124,7 @@ public class HomestayService {
                 .collect(Collectors.toList());
         return khuyenMais.stream()
                 .map(km -> {
-                    if (km.getLoaiChietKhau().equals("percentage")) {
+                    if (km.getLoaiChietKhau().equalsIgnoreCase("percentage")) {
                         return originalPrice
                                 .multiply(BigDecimal.ONE.subtract(km.getChietKhau().divide(BigDecimal.valueOf(100))));
                     } else {

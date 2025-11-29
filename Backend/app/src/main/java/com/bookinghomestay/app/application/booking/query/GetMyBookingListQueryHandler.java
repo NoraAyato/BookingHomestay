@@ -31,16 +31,18 @@ public class GetMyBookingListQueryHandler {
                 .skip((long) (query.getPage() - 1) * query.getLimit())
                 .limit(query.getLimit())
                 .map(booking -> {
+                    boolean isCancelable = bookingDomainService.isCancelableBooking(booking);
                     var tongTien = bookingDomainService.calculateTotalAmount(booking);
+                    boolean isReviewable = bookingDomainService.isReviewed(booking, query.getUserId());
                     if (booking.getTrangThai().equals("Booked")) {
                         var paidPrice = bookingDomainService.calculateRoomDepositAmount(booking);
                         BigDecimal haveToPayPrice = tongTien.subtract(paidPrice != null ? paidPrice : BigDecimal.ZERO);
-                        return BookingMapper.toBookingResponseDto(booking, tongTien, haveToPayPrice);
+                        return BookingMapper.toBookingResponseDto(booking, tongTien, haveToPayPrice,isCancelable, isReviewable);
                     } else if (booking.getTrangThai().equals("Pending")) {
                         var paidPrice = bookingDomainService.calculateRoomDepositAmount(booking);
-                        return BookingMapper.toBookingResponseDto(booking, tongTien, paidPrice);
+                        return BookingMapper.toBookingResponseDto(booking, tongTien, paidPrice,isCancelable, isReviewable);
                     }
-                    return BookingMapper.toBookingResponseDto(booking, tongTien, null);
+                    return BookingMapper.toBookingResponseDto(booking, tongTien, null,isCancelable, isReviewable);
                 })
                 .collect(Collectors.toList());
 

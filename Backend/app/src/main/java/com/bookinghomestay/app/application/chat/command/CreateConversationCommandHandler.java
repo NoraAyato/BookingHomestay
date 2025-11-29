@@ -15,7 +15,7 @@ public class CreateConversationCommandHandler {
     private final ChatService chatService;
 
     public CreateConversationResponse handle(CreateConversationCommand command) {
-      
+
         // Validate command
         validateCommand(command);
 
@@ -39,6 +39,9 @@ public class CreateConversationCommandHandler {
         }
         if (command.getHomestayId() == null || command.getHomestayId().isEmpty()) {
             throw new IllegalArgumentException("HomestayId không được để trống");
+        }
+        if (command.getUserId().equals(command.getHostId())) {
+            throw new IllegalArgumentException("Bạn không thể nhắn tin cho chính mình haha :))");
         }
     }
 }

@@ -5,9 +5,10 @@ import com.bookinghomestay.app.application.homestay.dto.HomestayDetailResponseDt
 import com.bookinghomestay.app.application.users.dto.HostDetailResponseDto;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
-import com.bookinghomestay.app.domain.repository.IDanhGiaRepository;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
 import com.bookinghomestay.app.domain.repository.IKhuyenMaiRepository;
+import com.bookinghomestay.app.domain.repository.INewsRepository;
+import com.bookinghomestay.app.domain.repository.IReviewRepository;
 import com.bookinghomestay.app.domain.service.HomestayService;
 import com.bookinghomestay.app.domain.service.PromotionService;
 import com.bookinghomestay.app.domain.service.UserService;
@@ -29,7 +30,7 @@ import org.springframework.stereotype.Service;
 public class GetHomestayDetailQueryHandler {
 
         private final IHomestayRepository homestayRepository;
-        private final IDanhGiaRepository danhGiaRepository;
+        private final IReviewRepository danhGiaRepository;
         private final HomestayService homestayService;
         private final PromotionService promotionService;
         private final IKhuyenMaiRepository khuyenMaiRepository;
@@ -66,7 +67,7 @@ public class GetHomestayDetailQueryHandler {
                 // Lấy thông tin đánh giá
                 int totalReviews = danhGiaRepository.countByHomestayId(query.getHomestayId());
                 Double ratingPoint = danhGiaRepository.averageHaiLongByHomestayId(query.getHomestayId());
-                double rating = ratingPoint != null ? ratingPoint : 0.0;
+                double rating = ratingPoint != null ? Math.floor(ratingPoint * 10) / 10.0 : 0.0;
                 HostDetailResponseDto host = UserMapper.toHostDetailDto(homestay.getNguoiDung(),
                                 userService.getJoinedTime(homestay.getNguoiDung().getCreatedAt()));
                 // Chuyển đổi sang DTO

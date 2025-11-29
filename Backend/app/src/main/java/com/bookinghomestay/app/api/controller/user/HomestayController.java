@@ -1,4 +1,4 @@
-package com.bookinghomestay.app.api.controller;
+package com.bookinghomestay.app.api.controller.user;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -110,13 +110,12 @@ public class HomestayController {
     }
 
     @GetMapping("/{id}/reviews")
-    public ResponseEntity<ApiResponse<List<HomestayReviewResponseDto>>> getReviews(
+    public ResponseEntity<ApiResponse<PageResponse<HomestayReviewResponseDto>>> getReviews(
             @PathVariable String id,
-            @RequestParam(required = false) String haiLongRange,
-            @RequestParam(required = false) String reviewerType, // "me" or "others"
-            @RequestParam(required = false) String currentUserId) {
-        GetHomestayReviewsQuery query = new GetHomestayReviewsQuery(id, haiLongRange, reviewerType, currentUserId);
-        List<HomestayReviewResponseDto> reviews = getHomestayReviewsQueryHandler.handle(query);
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "3") int limit) {
+        GetHomestayReviewsQuery query = new GetHomestayReviewsQuery(id, page, limit);
+        PageResponse<HomestayReviewResponseDto> reviews = getHomestayReviewsQueryHandler.handle(query);
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy đánh giá homestay thành công", reviews));
     }
 

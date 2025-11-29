@@ -4,6 +4,8 @@ import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaUserRepository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -39,12 +41,17 @@ public class UserRepositoryImpl implements IUserRepository {
 
     @Override
     public Optional<User> findByUserName(String userName) {
-      return jpaRepo.findByUserName(userName);
+        return jpaRepo.findByUserName(userName);
     }
 
     @Override
     public boolean existsByEmail(String email) {
-       return jpaRepo.existsByEmail(email);
+        return jpaRepo.existsByEmail(email);
+    }
+
+    @Override
+    public Page<User> findBySearchAndRole(String search, Integer roleId, String status, Pageable pageable) {
+        return jpaRepo.findBySearchAndRole(search, roleId, status, pageable);
     }
 
     @Override

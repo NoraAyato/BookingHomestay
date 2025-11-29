@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class BookingMapper {
     public static BookingResponseDto toBookingResponseDto(PhieuDatPhong booking,
-            BigDecimal tongTien, BigDecimal haveToPayPrice) {
+            BigDecimal tongTien, BigDecimal haveToPayPrice, boolean isCancelable, boolean isReviewable) {
         BookingResponseDto dto = new BookingResponseDto();
         HoaDon hoaDon = booking.getHoadon();
         if (hoaDon != null) {
@@ -25,8 +25,11 @@ public class BookingMapper {
         if (haveToPayPrice != null) {
             dto.setHaveToPayPrice(haveToPayPrice);
         }
+        dto.setReviewable(isReviewable);
+        dto.setCancelable(isCancelable);
         dto.setBookingId(booking.getMaPDPhong());
         dto.setHomestayName(booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getTenHomestay());
+        dto.setHomestayId(booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getIdHomestay());
         dto.setTotalPrice(tongTien);
         dto.setStatus(booking.getTrangThai());
         dto.setRooms(new ArrayList<>());

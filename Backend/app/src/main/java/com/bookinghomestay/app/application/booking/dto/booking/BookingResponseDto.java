@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 public class BookingResponseDto {
     private String bookingId;
+    private String homestayId;
     private String homestayName;
     private String invId;
     private BigDecimal totalPrice;
@@ -21,6 +22,8 @@ public class BookingResponseDto {
     private BigDecimal haveToPayPrice;
     private String promotionId;
     private boolean isCancelable;
+    private boolean isReviewable;
+
     @Getter
     @Setter
     public static class Room {

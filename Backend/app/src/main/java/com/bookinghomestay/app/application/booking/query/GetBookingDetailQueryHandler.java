@@ -26,7 +26,8 @@ public class GetBookingDetailQueryHandler {
                     "Booking not found with ID: " + query.getBookingId());
         }
         PhieuDatPhong booking = bookingOpt.get();
+        var isCancelable = bookingDomainService.isCancelableBooking(booking);
         BigDecimal tongTien = bookingDomainService.calculateTotalAmount(booking);
-        return BookingMapper.toBookingResponseDto(booking, tongTien, null);
+        return BookingMapper.toBookingResponseDto(booking, tongTien, null, isCancelable, false);
     }
 }
