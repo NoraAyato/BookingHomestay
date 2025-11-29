@@ -21,4 +21,5 @@ public class HomestaySearchResponse {
     private List<String> amenities;
     private boolean isNew;
     private boolean isPopular;
+    private int reviews;
 }

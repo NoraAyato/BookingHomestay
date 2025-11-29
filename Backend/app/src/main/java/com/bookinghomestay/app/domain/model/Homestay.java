@@ -66,4 +66,6 @@ public class Homestay {
     // Quan hệ 1-n với ChinhSach
     @OneToMany(mappedBy = "homestay", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChinhSach> chinhSachs = new ArrayList<>();
+    @OneToMany(mappedBy = "homestay", fetch = FetchType.LAZY)
+    private List<UserFavorite> userFavorites = new ArrayList<>();
 }

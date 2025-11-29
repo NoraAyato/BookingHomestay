@@ -13,6 +13,7 @@ import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
 import com.bookinghomestay.app.domain.repository.IKhuyenMaiRepository;
+import com.bookinghomestay.app.domain.repository.IReviewRepository;
 import com.bookinghomestay.app.domain.service.HomestayService;
 import com.bookinghomestay.app.domain.service.PromotionService;
 import com.bookinghomestay.app.infrastructure.mapper.HomestayMapper;
@@ -23,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GetSearchHomestayQueryHandler {
         private final IHomestayRepository homestayRepository;
-
+        private final IReviewRepository reviewRepository;
         private final HomestayService homestayService;
         private final PromotionService promotionService;
         private final IKhuyenMaiRepository khuyenMaiRepository;
@@ -55,7 +56,6 @@ public class GetSearchHomestayQueryHandler {
                                 .skip((long) (page - 1) * limit)
                                 .limit(limit)
                                 .map(homestay -> {
-                                        BigDecimal percentDiscount = BigDecimal.ZERO;
                                         BigDecimal minPrice = homestayService.caculateMinRoomPriceByHomestay(homestay);
                                         List<String> amenities = homestayService.getHomestayAmenities(homestay);
                                         BigDecimal discountPrice = homestayService.getHomestayDiscountPrice(homestay);
@@ -66,9 +66,10 @@ public class GetSearchHomestayQueryHandler {
                                         BigDecimal bestDiscountPrice = discountPrice.compareTo(discountPriceByAdmin) < 0
                                                         ? discountPrice
                                                         : discountPriceByAdmin;
-                                        percentDiscount = promotionService.calculatePercentDiscount(minPrice,
-                                                        bestDiscountPrice);
-                                        double rating = homestayService.calculateAverageRating(homestay);
+
+                                        Double ratingPoint = reviewRepository
+                                                        .averageHaiLongByHomestayId(homestay.getIdHomestay());
+                                        double rating = ratingPoint != null ? Math.floor(ratingPoint * 10) / 10.0 : 0.0;
                                         boolean isNew = false; // hoặc logic xác định
                                         boolean isPopular = false; // hoặc logic xác định
 

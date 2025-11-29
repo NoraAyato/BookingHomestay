@@ -47,6 +47,7 @@ public class HomestayMapper {
                 response.setRating(rating);
                 response.setNew(isNew);
                 response.setPopular(isPopular);
+                response.setReviews(homestay.getDanhGias() != null ? homestay.getDanhGias().size() : 0);
                 return response;
 
         }
@@ -96,23 +97,23 @@ public class HomestayMapper {
                                 roomImages);
         }
 
-        public static HomestayTop5ResponeDto toHomestayTop5ResponseDto(Homestay homestay) {
+        public static HomestayTop5ResponeDto toHomestayTop5ResponseDto(Homestay homestay, BigDecimal price) {
                 HomestayTop5ResponeDto dto = new HomestayTop5ResponeDto();
                 dto.setId(homestay.getIdHomestay());
                 dto.setTitle(homestay.getTenHomestay());
                 dto.setLocation(homestay.getDiaChi() + "," + homestay.getKhuVuc().getTenKv());
-                dto.setPrice(0.0); // homestay.getPricePerNight() != null ?
+                dto.setPrice(price); // homestay.getPricePerNight() != null ?
                 // homestay.getPricePerNight() : BigDecimal.ZERO);
                 dto.setImage(homestay.getHinhAnh());
 
                 List<DanhGia> danhGias = homestay.getDanhGias();
-                // double averageRating = danhGias.isEmpty() ? 0.0
-                // : danhGias.stream()
-                // .mapToDouble(dg -> (dg.getHaiLong() + dg.getSachSe() + dg.getTienIch()
-                // + dg.getDichVu()) / 4.0)
-                // .average()
-                // .orElse(0.0);
-                dto.setRating(homestay.getHang() != null ? homestay.getHang().doubleValue() : 0.0);
+                double averageRating = danhGias.isEmpty() ? 0.0
+                                : danhGias.stream()
+                                                .mapToDouble(dg -> (dg.getSachSe() + dg.getTienIch()
+                                                                + dg.getDichVu()) / 3.0)
+                                                .average()
+                                                .orElse(0.0);
+                dto.setRating(Math.floor(averageRating * 10) / 10);
                 dto.setReviews(danhGias.size());
 
                 return dto;

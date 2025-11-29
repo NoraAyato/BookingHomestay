@@ -10,14 +10,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class HomestayReviewResponseDto {
-    private String idDG;
+    private String id;
     private String username;
-    private String binhLuan;
-    private String hinhAnh;
-    private short haiLong;
-    private short sachSe;
-    private short tienIch;
-    private short dichVu;
-    private String tenPhong;
-    private String ngayDanhGia;
+    private String userAvatar;
+    private String rating;
+    private String comment;
+    private String image;
+    private LocalDateTime date;
 }
