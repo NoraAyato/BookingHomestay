@@ -7,11 +7,14 @@ import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.PhieuHuyPhong;
 
+import co.elastic.clients.util.DateTime;
 import lombok.AllArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -30,12 +33,38 @@ public class BookingService {
     private final CancellationFactory cancellationFactory;
     private final ServiceDetailFactory serviceDetailFactory;
 
-    /**
-     * Tính tổng tiền phòng của booking (không bao gồm dịch vụ)
-     * 
-     * @param booking Phiếu đặt phòng
-     * @return Tổng tiền phòng
-     */
+    public boolean isCancelableBooking(PhieuDatPhong booking) {
+        LocalDate now = LocalDate.now();
+        LocalDate checkInDate = booking.getChiTietDatPhongs().get(0).getNgayDen().toLocalDate();
+        if (booking.getTrangThai().equalsIgnoreCase("Cancelled")
+                || booking.getTrangThai().equalsIgnoreCase("Completed")) {
+            return false;
+        }
+        if (booking.getHoadon() != null && booking.getHoadon().getThanhToans() != null) {
+            boolean hasSuccessfulPayment = booking.getHoadon().getThanhToans().stream()
+                    .anyMatch(t -> "SUCCESS".equalsIgnoreCase(t.getTrangThai()));
+            if (!hasSuccessfulPayment) {
+                return false;
+            }
+        }
+        int day = booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getChinhSachs().stream()
+                .filter(cs -> cs.getHuyPhong() != null && !cs.getHuyPhong().isEmpty())
+                .findFirst()
+                .map(cs -> extractHoursFromCancellationPolicy(cs.getHuyPhong()) / 24)
+                .orElse(0);
+        if (ChronoUnit.DAYS.between(now, checkInDate) < day) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isReviewed(PhieuDatPhong booking, String userId) {
+        return booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getDanhGias().stream()
+                .anyMatch(dg -> dg.getPhieuDatPhong() != null
+                        && dg.getPhieuDatPhong().getMaPDPhong().equals(booking.getMaPDPhong()))
+                && booking.getTrangThai().equals("Completed");
+    }
+
     public BigDecimal calculateRoomPrice(PhieuDatPhong booking) {
         if (booking.getChiTietDatPhongs() == null || booking.getChiTietDatPhongs().isEmpty()) {
             return BigDecimal.ZERO;
