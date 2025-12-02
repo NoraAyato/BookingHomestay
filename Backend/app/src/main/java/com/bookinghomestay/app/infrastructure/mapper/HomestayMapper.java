@@ -3,6 +3,7 @@ package com.bookinghomestay.app.infrastructure.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.bookinghomestay.app.application.admin.homestay.dto.HomestayInfoResponseDto;
 import com.bookinghomestay.app.application.homestay.dto.HomestayDetailResponseDto;
 import com.bookinghomestay.app.application.homestay.dto.HomestayDichVuResponseDto;
 import com.bookinghomestay.app.application.homestay.dto.HomestayImageResponseDto;
@@ -29,6 +30,31 @@ public class HomestayMapper {
          */
         public static HomestayResponseDto toHomestayResponseDto(Homestay homestay) {
                 return new HomestayResponseDto();
+        }
+
+        public static HomestayInfoResponseDto toHomestayInfoResponseDto(Homestay homestay, double rating,
+                        int totalReviews, int totalRooms, int totalBookings, double revenue, double pricePerNight) {
+                HomestayInfoResponseDto dto = new HomestayInfoResponseDto();
+                dto.setId(homestay.getIdHomestay());
+                dto.setName(homestay.getTenHomestay());
+                dto.setLocation(homestay.getDiaChi() + ", " + homestay.getKhuVuc().getTenKv());
+                dto.setHost(homestay.getNguoiDung() != null
+                                ? homestay.getNguoiDung().getLastName() != null
+                                                ? homestay.getNguoiDung().getLastName() + " "
+                                                                + homestay.getNguoiDung().getFirstName()
+                                                : homestay.getNguoiDung().getEmail()
+                                : "");
+                dto.setDescription(homestay.getGioiThieu());
+                dto.setStatus(homestay.getTrangThai());
+                dto.setRating(rating);
+                dto.setReviews(totalReviews);
+                dto.setRooms(totalRooms);
+                dto.setPricePerNight(pricePerNight);
+                dto.setTotalBookings(totalBookings);
+                dto.setRevenue(revenue);
+                dto.setHostEmail(homestay.getNguoiDung() != null ? homestay.getNguoiDung().getEmail() : "");
+                dto.setImage(homestay.getHinhAnh());
+                return dto;
         }
 
         public static HomestaySearchResponse toHomestaySearchResponse(Homestay homestay,
