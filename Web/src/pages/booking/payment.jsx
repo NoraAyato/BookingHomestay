@@ -34,15 +34,26 @@ const PaymentPage = () => {
       return;
     }
 
-    // Gọi API lấy chi tiết booking
-    const loadBookingDetail = async () => {
+    // Gọi API lấy chi tiết booking và promotions
+    const loadData = async () => {
       try {
         const data = await fetchBookingDetail(bookingId);
         if (data) {
-          console.log("Booking detail data:", data);
           setBookingData(data);
-          // Sau khi có booking data, load promotions và truyền data để check promotionId
-          loadAvailablePromotions(bookingId, data);
+          // Lấy promotions sau khi có booking detail
+          const promotions = await fetchBookingAvailablePromotions(bookingId);
+          if (promotions) {
+            setAvailablePromotions(promotions);
+            // Nếu booking đã có promotionId, tự động chọn promotion đó
+            if (data?.promotionId) {
+              const preSelectedPromo = promotions.find(
+                (promo) => promo.id === data.promotionId
+              );
+              if (preSelectedPromo) {
+                setSelectedPromotion(preSelectedPromo);
+              }
+            }
+          }
         } else {
           showToast("error", "Không thể lấy thông tin đặt phòng");
           navigate("/");
@@ -53,30 +64,7 @@ const PaymentPage = () => {
       }
     };
 
-    // Gọi API lấy promotions có thể áp dụng
-    const loadAvailablePromotions = async (bookingId, bookingData) => {
-      try {
-        const promotions = await fetchBookingAvailablePromotions(bookingId);
-        if (promotions) {
-          setAvailablePromotions(promotions);
-
-          // Nếu booking đã có promotionId, tự động chọn promotion đó
-          if (bookingData?.promotionId) {
-            const preSelectedPromo = promotions.find(
-              (promo) => promo.id === bookingData.promotionId
-            );
-            if (preSelectedPromo) {
-              setSelectedPromotion(preSelectedPromo);
-              console.log("Auto-selected promotion:", preSelectedPromo);
-            }
-          }
-        }
-      } catch (error) {
-        setAvailablePromotions([]);
-      }
-    };
-
-    loadBookingDetail();
+    loadData();
   }, [
     searchParams,
     navigate,
@@ -182,16 +170,20 @@ const PaymentPage = () => {
             setIsProcessing(false);
             return;
           }
+
+          // Reload booking detail sau khi apply promotion thành công
+          const updatedBookingData = await fetchBookingDetail(bookingId);
+          if (updatedBookingData) {
+            setBookingData(updatedBookingData);
+          }
         } catch (promotionError) {
           setIsProcessing(false);
           return;
         }
-      } else if (bookingData?.promotionId && selectedPromotion) {
       }
 
       // Bước 2: Gọi API thanh toán theo phương thức được chọn
       if (selectedPaymentMethod === "momo") {
-
         const paymentUrl = await initiateMoMoPayment(
           bookingId,
           finalDepositAmount,

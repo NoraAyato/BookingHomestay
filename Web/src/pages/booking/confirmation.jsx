@@ -489,7 +489,9 @@ const PaymentConfirmation = () => {
             {paymentInfo.bookingId ? (
               <button
                 onClick={() =>
-                  navigate(`/booking?bookingId=${paymentInfo.bookingId}`)
+                  navigate(
+                    `/booking/payment?bookingId=${paymentInfo.bookingId}`
+                  )
                 }
                 className={`w-full py-3 px-6 bg-gradient-to-r text-white font-bold rounded-xl transition-all shadow-lg ${
                   isCancelled

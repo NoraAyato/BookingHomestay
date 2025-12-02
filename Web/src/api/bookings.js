@@ -160,3 +160,15 @@ export async function confirmMoMoPayment(paymentParams) {
     requireAuth: true,
   });
 }
+/**
+ * Cancel booking API
+ * @param {Object} data - Cancel request body
+ * @param {string} data.maPDPhong - Mã phiếu đặt phòng
+ * @param {string} data.lyDoHuy - Lý do hủy
+ * @param {string} data.tenNganHang - Tên ngân hàng
+ * @param {string} data.soTaiKhoan - Số tài khoản
+ * @returns {Promise} - Promise resolving to cancel result
+ */
+export const cancelBooking = (data) => {
+  return http.post("/api/Booking/cancel", data, { requireAuth: true });
+};

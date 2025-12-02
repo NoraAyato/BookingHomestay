@@ -8,6 +8,7 @@ import {
   createMoMoPayment,
   confirmMoMoPayment,
   parseMoMoReturnParams,
+  cancelBooking as cancelBookingApi,
 } from "../api/bookings";
 
 import { handleApiResponse } from "../utils/apiHelper";
@@ -55,6 +56,31 @@ export function useBookings() {
       const errorMessage = err.message || "Lỗi khi tạo đơn đặt phòng";
       setError(errorMessage);
       setSuccess(false);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  // Hủy booking
+  const cancelBooking = useCallback(async (cancelData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await cancelBookingApi(cancelData);
+      const isSuccess = handleApiResponse(
+        response,
+        "Hủy đặt phòng thành công!",
+        "Không thể hủy đặt phòng"
+      );
+      if (isSuccess && response.data) {
+        return response.data;
+      } else {
+        setError(response.message || "Không thể hủy đặt phòng");
+        return null;
+      }
+    } catch (err) {
+      const errorMessage = err.message || "Lỗi khi hủy đặt phòng";
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -263,5 +289,6 @@ export function useBookings() {
     confirmMoMoPaymentResult,
     parseMoMoReturnParams,
     resetBooking,
+    cancelBooking,
   };
 }
