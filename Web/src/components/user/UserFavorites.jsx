@@ -1,22 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Pagination from "../common/Pagination";
 import { getImageUrl } from "../../utils/imageUrl";
 import { formatPrice } from "../../utils/price";
 import { Link } from "react-router-dom";
 
-const FAVORITES_PER_PAGE = 6;
+const LIMIT = 3; // Số lượng yêu thích mỗi trang
 
-const UserFavorites = ({ favorites, addFavorite, loading }) => {
+const UserFavorites = ({
+  favorites,
+  addFavorite,
+  loading,
+  getUserFavorites,
+  favortitesTotal,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    // Load first page on mount với limit = 3
+    getUserFavorites(1, LIMIT);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Ensure favorites is always an array
   const favoritesList = Array.isArray(favorites) ? favorites : [];
 
-  const totalPages = Math.ceil(favoritesList.length / FAVORITES_PER_PAGE);
-  const paginatedFavorites = favoritesList.slice(
-    (currentPage - 1) * FAVORITES_PER_PAGE,
-    currentPage * FAVORITES_PER_PAGE
-  );
+  const totalPages = LIMIT > 0 ? Math.ceil(favortitesTotal / LIMIT) : 0;
 
   const scrollToFavoritesTitle = () => {
     const el = document.getElementById("favorites-title");
@@ -28,6 +36,7 @@ const UserFavorites = ({ favorites, addFavorite, loading }) => {
 
   const handleChangePage = (newPage) => {
     setCurrentPage(newPage);
+    getUserFavorites(newPage, LIMIT);
     setTimeout(scrollToFavoritesTitle, 0);
   };
   console.log("Favorites:", favoritesList);
@@ -52,10 +61,10 @@ const UserFavorites = ({ favorites, addFavorite, loading }) => {
         Homestay yêu thích của bạn
       </h3>
 
-      {paginatedFavorites.length > 0 ? (
+      {favoritesList.length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {paginatedFavorites.map((fav) => (
+            {favoritesList.map((fav) => (
               <div
                 key={fav.homestayId || fav.id}
                 className="bg-white rounded-xl shadow-md border-2 border-gray-100 overflow-hidden hover:border-rose-200 transition-colors"

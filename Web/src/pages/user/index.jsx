@@ -13,7 +13,8 @@ const UserPage = () => {
   const promotionsTabRef = useRef(null);
   const [activeTab, setActiveTab] = useState("bookings");
   const [expandedBookings, setExpandedBookings] = useState({});
-  const { favorites, getUserFavorites, addFavorite, loading } = useUser();
+  const { favorites, getUserFavorites, addFavorite, loading, favortitesTotal } =
+    useUser();
 
   const toggleBookingDetails = (bookingId) => {
     setExpandedBookings((prev) => ({
@@ -52,13 +53,6 @@ const UserPage = () => {
       }, 100);
     }
   }, [location.pathname]);
-
-  // Load favorites when tab is active
-  useEffect(() => {
-    if (activeTab === "favorites") {
-      getUserFavorites();
-    }
-  }, [activeTab]);
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-rose-50/20 via-white to-cyan-50/30 py-8">
@@ -179,6 +173,8 @@ const UserPage = () => {
               favorites={favorites}
               addFavorite={addFavorite}
               loading={loading}
+              getUserFavorites={getUserFavorites}
+              favortitesTotal={favortitesTotal}
             />
           )}
           {activeTab === "promotions" && <UserPromotions />}
