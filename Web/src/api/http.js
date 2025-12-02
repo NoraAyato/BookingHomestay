@@ -72,9 +72,11 @@ const fetchWithAuth = async (
   timeout = 15000
 ) => {
   let headers = { ...(options.headers || {}) };
-  // Nếu body là FormData thì KHÔNG set Content-Type
+  // Nếu body là FormData thì KHÔNG set Content-Type (browser tự động set)
   if (!(options.body instanceof FormData)) {
-    headers["Content-Type"] = "application/json";
+    if (options.body) {
+      headers["Content-Type"] = "application/json";
+    }
   }
   if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`;
   return fetchWithTimeout(
@@ -105,7 +107,7 @@ const request = async (endpoint, options = {}) => {
             },
           })
         );
-        return { success: false };
+        return { success: false, isAuthError: true };
       }
       let res = await fetchWithAuth(endpoint, options, accessToken, timeout);
       if (res.status === 401) {
@@ -205,13 +207,18 @@ const http = {
     request(endpoint, {
       ...options,
       method: "POST",
-      body: JSON.stringify(body),
+      body: body instanceof FormData ? body : JSON.stringify(body),
     }),
   put: (endpoint, body, options = {}) =>
     request(endpoint, {
       ...options,
       method: "PUT",
-      body: body instanceof FormData ? body : JSON.stringify(body),
+      body:
+        body instanceof FormData
+          ? body
+          : typeof body === "string"
+          ? body
+          : JSON.stringify(body),
     }),
   delete: (endpoint, options = {}) =>
     request(endpoint, { ...options, method: "DELETE" }),

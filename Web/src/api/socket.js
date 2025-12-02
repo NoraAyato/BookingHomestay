@@ -10,7 +10,9 @@ let onConnectCallback = null; // Store callback để gọi khi connected
 const createStompClient = (token) => {
   const client = new Client({
     // Sử dụng SockJS để có fallback options
-    webSocketFactory: () => new SockJS(`${BASE_URL}/ws`),
+    webSocketFactory: () => {
+      return new SockJS(`${BASE_URL}/ws`);
+    },
 
     // Connection headers với JWT token
     connectHeaders: {
@@ -24,12 +26,11 @@ const createStompClient = (token) => {
 
     // Debug logging
     debug: (str) => {
-      //   console.log("🔵 STOMP:", str);
+      // Silent in production
     },
 
     // Callbacks
     onConnect: (frame) => {
-      console.log("✅ STOMP connected:", frame);
       // Gọi callback nếu có (để setup subscriptions)
       if (onConnectCallback) {
         onConnectCallback();
@@ -37,19 +38,18 @@ const createStompClient = (token) => {
     },
 
     onStompError: (frame) => {
-      //   console.error("🔴 STOMP error:", frame);
+      console.error("STOMP error:", frame);
     },
 
     onWebSocketClose: (event) => {
-      //   console.log("❌ WebSocket closed:", event);
+      // Connection closed
     },
 
     onWebSocketError: (event) => {
-      //   console.error("🔴 WebSocket error:", event);
+      console.error("WebSocket error:", event);
     },
 
     onDisconnect: () => {
-      console.log("🔌 STOMP disconnected");
       subscriptions = {}; // Clear subscriptions
     },
   });
@@ -60,10 +60,6 @@ const createStompClient = (token) => {
 // Subscribe to a destination
 export const subscribe = (destination, callback) => {
   if (!stompClient || !stompClient.connected) {
-    // console.warn(
-    //   "⚠️ STOMP client not connected, cannot subscribe to:",
-    //   destination
-    // );
     return null;
   }
 
@@ -78,13 +74,12 @@ export const subscribe = (destination, callback) => {
       const data = JSON.parse(message.body);
       callback(data);
     } catch (error) {
-      //   console.error("Error parsing message:", error);
+      console.error("Error parsing message:", error);
       callback(message.body);
     }
   });
 
   subscriptions[destination] = subscription;
-  //   console.log("📡 Subscribed to:", destination);
 
   return subscription;
 };
@@ -94,14 +89,12 @@ export const unsubscribe = (destination) => {
   if (subscriptions[destination]) {
     subscriptions[destination].unsubscribe();
     delete subscriptions[destination];
-    // console.log("� Unsubscribed from:", destination);
   }
 };
 
 // Send message to destination
 export const sendMessage = (destination, body) => {
   if (!stompClient || !stompClient.connected) {
-    // console.warn("⚠️ STOMP client not connected, cannot send message");
     return;
   }
 
@@ -114,7 +107,6 @@ export const sendMessage = (destination, body) => {
 // Helper function để authenticate và connect STOMP với JWT token
 export const authenticateSocket = (token, callback = null) => {
   if (!token) {
-    // console.warn("⚠️ No token provided for STOMP authentication");
     return;
   }
 
@@ -123,7 +115,6 @@ export const authenticateSocket = (token, callback = null) => {
 
   // Disconnect existing connection nếu có
   if (stompClient && stompClient.connected) {
-    // console.log("🔄 Disconnecting existing STOMP connection...");
     stompClient.deactivate();
   }
 
@@ -144,7 +135,6 @@ export const disconnectSocket = () => {
     // Deactivate client
     stompClient.deactivate();
     stompClient = null;
-    console.log("🔌 STOMP client disconnected and cleaned up");
   }
 };
 

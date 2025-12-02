@@ -7,6 +7,8 @@ import {
   setReceiveEmail,
   getFavorites,
   addToFavorites,
+  addReview,
+  getMyPromotion,
 } from "../api/users";
 import { showToast } from "../components/common/Toast";
 import {
@@ -27,9 +29,34 @@ export default function useUser() {
   const [bookingsPage, setBookingsPage] = useState(1);
   const [bookingsLimit, setBookingsLimit] = useState(3);
   const [favorites, setFavorites] = useState([]);
+  const [favortitesTotal, setFavoritesTotal] = useState(0);
+  const [favortitesPage, setFavoritesPage] = useState(1);
+  const [favortitesLimit, setFavoritesLimit] = useState(3);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isReceiveEmailStatus, setIsReceiveEmailStatus] = useState(false);
+  const [promotions, setPromotions] = useState([]);
+  const [promotionsPage, setPromotionsPage] = useState(1);
+  const [promotionsLimit, setPromotionsLimit] = useState(5);
+  const [promotionsTotal, setPromotionsTotal] = useState(0);
+  const getMypromotion = async (page = 1, limit = 3) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await getMyPromotion(page, limit);
+      if (res.success) {
+        setPromotions(res.data?.items || []);
+        setPromotionsPage(res.data?.page || page);
+        setPromotionsLimit(res.data?.limit || limit);
+        setPromotionsTotal(res.data?.total || 0);
+      }
+      setLoading(false);
+    } catch (err) {
+      setError(err.message || "Có lỗi xảy ra");
+      showToast("error", err.message || "Có lỗi xảy ra");
+      setLoading(false);
+    }
+  };
   const updateUserProfile = async (newData) => {
     setLoading(true);
     setError(null);
@@ -93,18 +120,19 @@ export default function useUser() {
     }
   };
 
-  const getUserFavorites = async () => {
+  const getUserFavorites = async (page = 1, limit = 3) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await getFavorites();
-      // console.log("Favorites response:", res);
+      const res = await getFavorites(page, limit);
       if (res.success) {
-        // Check if data is an array or has items property
         const favoritesData = Array.isArray(res.data)
           ? res.data
           : res.data?.items || [];
         setFavorites(favoritesData);
+        setFavoritesPage(res.data?.page || page);
+        setFavoritesLimit(res.data?.limit || limit);
+        setFavoritesTotal(res.data?.total || 0);
       } else {
         showErrorToastIfNotAuth(
           res,
@@ -208,6 +236,44 @@ export default function useUser() {
     }
   };
 
+  // Thêm review cho homestay
+  const addReviewUser = async ({
+    bookingId,
+    homestayId,
+    cleanlinessRating,
+    serviceRating,
+    utilitiesRating,
+    image, // optional
+    comment,
+  }) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await addReview({
+        bookingId,
+        homestayId,
+        cleanlinessRating,
+        serviceRating,
+        utilitiesRating,
+        image,
+        comment,
+      });
+      if (
+        handleApiResponse(res, "Đánh giá thành công", "Gửi đánh giá thất bại")
+      ) {
+        setLoading(false);
+        return true;
+      }
+      setLoading(false);
+      return false;
+    } catch (err) {
+      setError(err.message || "Có lỗi xảy ra");
+      showToast("error", err.message || "Có lỗi xảy ra");
+      setLoading(false);
+      return false;
+    }
+  };
+
   // Hàm lấy user (có thể gọi API ở đây)
   const fetchUser = async () => {
     setLoading(true);
@@ -264,8 +330,16 @@ export default function useUser() {
     bookingsTotal,
     bookingsPage,
     bookingsLimit,
+    getMypromotion,
+    promotions,
+    promotionsPage,
+    promotionsLimit,
+    promotionsTotal,
     favorites,
     getUserFavorites,
+    favortitesTotal,
+    favortitesPage,
+    favortitesLimit,
     addFavorite,
     removeFavorite,
     setUser,
@@ -276,5 +350,6 @@ export default function useUser() {
     getCurrentUserBooking,
     loading,
     error,
+    addReviewUser,
   };
 }

@@ -36,7 +36,16 @@ const AdminPromotions = React.lazy(() => import("./pages/admin/Promotions"));
 const AdminNews = React.lazy(() => import("./pages/admin/News"));
 const AdminReviews = React.lazy(() => import("./pages/admin/Reviews"));
 const AdminSettings = React.lazy(() => import("./pages/admin/Settings"));
+const AdminActivityLogs = React.lazy(() =>
+  import("./pages/admin/ActivityLogs")
+);
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
+
+// Lazy load host pages
+const HostDashboard = React.lazy(() => import("./pages/host/Dashboard"));
+const HostHomestays = React.lazy(() => import("./pages/host/Homestays"));
+const HostBookings = React.lazy(() => import("./pages/host/Bookings"));
+const HostPromotions = React.lazy(() => import("./pages/host/Promotions"));
 function App() {
   return (
     <AuthProvider>
@@ -204,10 +213,56 @@ function App() {
               }
             />
             <Route
+              path="/admin/activity-logs"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminActivityLogs />
+                </Suspense>
+              }
+            />
+            <Route
               path="/admin/settings"
               element={
                 <Suspense fallback={<LoadingSpinner />}>
                   <AdminSettings />
+                </Suspense>
+              }
+            />
+
+            {/* Host Routes */}
+            <Route
+              path="/host"
+              element={<Navigate to="/host/dashboard" replace />}
+            />
+            <Route
+              path="/host/dashboard"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <HostDashboard />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/host/homestays"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <HostHomestays />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/host/bookings"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <HostBookings />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/host/promotions"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <HostPromotions />
                 </Suspense>
               }
             />

@@ -79,7 +79,10 @@ const UserActions = ({
             >
               {/* Role-based item */}
               {userInfo.role === "Admin" && (
-                <button className={styles.menuItemAdmin}>
+                <button
+                  className={styles.menuItemAdmin}
+                  onClick={() => navigate("/admin/dashboard")}
+                >
                   <div className={styles.iconWrapper}>
                     <svg
                       className={styles.icon}
@@ -101,7 +104,10 @@ const UserActions = ({
               )}
 
               {userInfo.role === "Host" && (
-                <button className={styles.menuItemHost}>
+                <button
+                  className={styles.menuItemHost}
+                  onClick={() => navigate("/host/homestays")}
+                >
                   <div className={styles.iconWrapperHost}>
                     <svg
                       className={styles.iconHost}

@@ -1,45 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Pagination from "../common/Pagination";
-
+import useUser from "../../hooks/useUser";
+import { getImageUrl } from "../../utils/imageUrl";
+import { formatDateDisplay } from "../../utils/date";
 const UserPromotions = () => {
-  // Dummy data mẫu có hình ảnh
-  const promotions = [
-    {
-      id: "KM001",
-      title: "Giảm giá 10% cho đơn đầu tiên",
-      description: "Áp dụng cho tất cả homestay, tối đa 500.000đ.",
-      expiry: "31/12/2025",
-      image: "https://source.unsplash.com/400x300/?discount,homestay",
-    },
-    {
-      id: "KM002",
-      title: "Tặng dịch vụ spa miễn phí",
-      description: "Khi đặt phòng tại Sapa View Fansipan.",
-      expiry: "15/10/2025",
-      image: "https://source.unsplash.com/400x300/?spa,homestay",
-    },
-    {
-      id: "KM003",
-      title: "Voucher 200k cho Hội An Riverside",
-      description: "Áp dụng cho phòng Superior View Sông.",
-      expiry: "30/09/2025",
-      image: "https://source.unsplash.com/400x300/?voucher,homestay",
-    },
-    {
-      id: "KM004",
-      title: "Miễn phí ăn sáng",
-      description: "Cho tất cả phòng tại Đà Lạt View Đồi.",
-      expiry: "10/11/2025",
-      image: "https://source.unsplash.com/400x300/?breakfast,homestay",
-    },
-    // ... thêm nhiều khuyến mãi mẫu nếu muốn
-  ];
+  const {
+    promotions,
+    getMypromotion,
+    promotionsPage,
+    promotionsLimit,
+    promotionsTotal,
+    loading,
+  } = useUser();
 
-  // Phân trang
+  const LIMIT = 3; // Số lượng khuyến mãi mỗi trang
+  // Phân trang local để điều khiển UI
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    // Load first page on mount với limit = 3
+    getMypromotion(1, LIMIT);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleChangePage = (newPage) => {
     setCurrentPage(newPage);
+    getMypromotion(newPage, LIMIT);
     setTimeout(() => {
       const el = document.getElementById("promotions-title");
       if (el) {
@@ -48,12 +34,9 @@ const UserPromotions = () => {
       }
     }, 0);
   };
-  const pageSize = 2;
-  const totalPages = Math.ceil(promotions.length / pageSize);
-  const pagedPromotions = promotions.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+
+  const totalPages = LIMIT > 0 ? Math.ceil(promotionsTotal / LIMIT) : 0;
+  const pagedPromotions = promotions || [];
 
   return (
     <section>
@@ -74,7 +57,7 @@ const UserPromotions = () => {
         Khuyến mãi của tôi
       </h3>
       <div className="bg-white rounded-2xl shadow-lg p-4 md:p-8">
-        {promotions.length === 0 ? (
+        {!promotions || promotions.length === 0 ? (
           <p className="text-gray-500 text-center">
             Bạn chưa có khuyến mãi nào.
           </p>
@@ -83,30 +66,43 @@ const UserPromotions = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {pagedPromotions.map((promo) => (
                 <div
-                  key={promo.id}
+                  key={promo.id || promo.code || promo.promotionId}
                   className="group bg-gradient-to-br from-rose-50 via-white to-cyan-50 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col h-full"
                 >
                   <div className="relative">
                     <img
-                      src={promo.image}
-                      alt={promo.title}
+                      src={
+                        getImageUrl(promo.image) ||
+                        promo.thumbnail ||
+                        promo.picture ||
+                        "https://source.unsplash.com/400x300/?discount,homestay"
+                      }
+                      alt={
+                        promo.title || promo.name || promo.code || "Khuyến mãi"
+                      }
                       className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
                     <span className="absolute top-2 left-2 bg-rose-600 text-white text-xs px-3 py-1 rounded-full shadow">
-                      {promo.id}
+                      {promo.id || promo.code || promo.promotionId}
                     </span>
                   </div>
                   <div className="flex-1 flex flex-col p-4">
                     <h3 className="font-bold text-lg text-rose-700 mb-2 group-hover:text-rose-800 transition-colors">
-                      {promo.title}
+                      {promo.title || promo.name || promo.code}
                     </h3>
                     <p className="text-gray-700 text-sm mb-3 flex-1">
-                      {promo.description}
+                      {promo.description || promo.content || ""}
                     </p>
                     <div className="flex items-center justify-between mt-auto">
                       <span className="text-xs text-gray-400">
-                        HSD: {promo.expiry}
+                        HSD:{" "}
+                        {formatDateDisplay(
+                          promo.expiry ||
+                            promo.expiredAt ||
+                            promo.expiryDate ||
+                            ""
+                        )}
                       </span>
                       <span className="bg-rose-100 text-rose-600 px-2 py-1 rounded text-xs font-medium">
                         Còn hiệu lực

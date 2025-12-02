@@ -1,12 +1,30 @@
 import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 import AIChatManager from "./AIChatManager";
 import "./styles/chat.css";
 
 const AIChatButton = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClose = () => {
     setIsOpen(false);
+  };
+
+  const handleOpenChat = () => {
+    if (!user) {
+      window.dispatchEvent(
+        new CustomEvent("AUTH_POPUP_EVENT", {
+          detail: {
+            type: "openAuthPopup",
+            mode: "login",
+            message: "Bạn cần đăng nhập để sử dụng AI Assistant",
+          },
+        })
+      );
+      return;
+    }
+    setIsOpen(true);
   };
 
   return (
@@ -38,7 +56,7 @@ const AIChatButton = () => {
 
           {/* Button */}
           <button
-            onClick={() => setIsOpen(true)}
+            onClick={handleOpenChat}
             className="relative w-16 h-16 rounded-full bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 text-white shadow-2xl hover:shadow-violet-500/50 transition-all duration-500 hover:scale-110 flex items-center justify-center group overflow-hidden ai-main-button"
           >
             {/* Shimmer Effect */}
