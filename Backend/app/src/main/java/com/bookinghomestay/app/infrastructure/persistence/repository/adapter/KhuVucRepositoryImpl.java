@@ -6,11 +6,13 @@ import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaKhuV
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,18 +21,26 @@ public class KhuVucRepositoryImpl implements IKhuVucRepository {
 
     @Override
     public List<KhuVuc> getAll() {
-        return jpaRepo.findAll().stream()
-                .map(e -> {
-                    KhuVuc kv = new KhuVuc();
-                    kv.setMaKv(e.getMaKv());
-                    kv.setTenKv(e.getTenKv());
-                    return kv;
-                })
-                .collect(Collectors.toList());
+        return jpaRepo.findAll();
     }
 
     @Override
     public List<KhuVuc> getAllByHomestayCout(int limit) {
         return jpaRepo.findAllOrderByHomestayCountDesc(PageRequest.of(0, limit));
+    }
+
+    @Override
+    public void save(KhuVuc khuVuc) {
+        jpaRepo.save(khuVuc);
+    }
+
+    @Override
+    public Optional<KhuVuc> findById(String id) {
+        return jpaRepo.findById(id);
+    }
+
+    @Override
+    public Page<KhuVuc> findBySearch(String search, Pageable pageable) {
+        return jpaRepo.findBySearch(search, pageable);
     }
 }
