@@ -44,7 +44,7 @@ public class GoogleLoginCommandHandler {
         Payload payload = idToken.getPayload();
         String email = payload.getEmail();
         String name = (String) payload.get("name");
-        
+
         String providerId = payload.getSubject();
 
         Optional<UserLogin> optionalUserLogin = userLoginRepository.findByProviderAndProviderId("google", providerId);
@@ -61,7 +61,9 @@ public class GoogleLoginCommandHandler {
             UserLogin userLogin = new UserLogin(null, Messages.GOOGLE_PROVIDER, providerId, user);
             userLoginRepository.save(userLogin);
         }
-
+        if (!user.getStatus().equalsIgnoreCase("active")) {
+            throw new RuntimeException("Tài khoản của bạn đã bị vô hiệu hóa.");
+        }
         String accessToken = jwtTokenProvider.generateToken(user.getUserId(), user.getRole().getRoleName());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
         refreshTokenService.save(user.getUserId(), refreshToken, 60 * 24 * 3);

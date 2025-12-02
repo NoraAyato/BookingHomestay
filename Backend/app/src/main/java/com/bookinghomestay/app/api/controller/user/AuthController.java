@@ -76,11 +76,18 @@ public class AuthController {
 
     @GetMapping("/google/callback")
     public void googleCallback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
-        AuthResponseDto authResponse = googleCallbackCommandHandler.handle(new GoogleCallbackCommand(code));
-        String redirectUrl = "http://localhost:5173/auth/google-callback" + "?accessToken="
-                + authResponse.getAccessToken()
-                + "&refreshToken=" + authResponse.getRefreshToken();
-        response.sendRedirect(redirectUrl);
+        var result = googleCallbackCommandHandler.handle(new GoogleCallbackCommand(code));
+
+        if (result.isSuccess()) {
+            String redirectUrl = "http://localhost:5173/auth/google-callback" + "?accessToken="
+                    + result.getAuthResponse().getAccessToken()
+                    + "&refreshToken=" + result.getAuthResponse().getRefreshToken();
+            response.sendRedirect(redirectUrl);
+        } else {
+            String redirectUrl = "http://localhost:5173/auth/google-callback?error="
+                    + java.net.URLEncoder.encode(result.getErrorMessage(), "UTF-8");
+            response.sendRedirect(redirectUrl);
+        }
     }
 
     @PostMapping("/reset-password")
