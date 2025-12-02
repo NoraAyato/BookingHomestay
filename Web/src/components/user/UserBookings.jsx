@@ -5,16 +5,39 @@ import useUser from "../../hooks/useUser";
 import { getImageUrl } from "../../utils/imageUrl";
 import { formatPrice } from "../../utils/price";
 
+import ReviewModal from "./ReviewModal";
+import CancelBookingModal from "./CancelBookingModal";
+import { useNavigate } from "react-router-dom";
+
 const UserBookings = () => {
+  const navigate = useNavigate();
   const {
     bookings,
     bookingsTotal,
     bookingsPage,
     bookingsLimit,
     getCurrentUserBooking,
+    addReviewUser,
   } = useUser();
-  console.log(bookings);
   const [expandedBookings, setExpandedBookings] = useState({});
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const openCancelModal = (booking) => {
+    setSelectedBooking(booking);
+    setCancelModalOpen(true);
+  };
+
+  const closeCancelModal = () => {
+    setCancelModalOpen(false);
+    setSelectedBooking(null);
+  };
+
+  const handleSubmitCancel = (bookingId, cancelData, shouldReload = false) => {
+    if (shouldReload) {
+      getCurrentUserBooking(bookingsPage, bookingsLimit);
+    }
+  };
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(bookingsTotal / bookingsLimit);
   useEffect(() => {
@@ -31,7 +54,7 @@ const UserBookings = () => {
     Booked: "Đã xác nhận",
     Cancelled: "Đã hủy",
     Pending: "Đang chờ",
-    Complete: "Hoàn thành",
+    Completed: "Hoàn thành",
   };
 
   const getStatusStyles = (status) => {
@@ -62,6 +85,52 @@ const UserBookings = () => {
     setCurrentPage(newPage);
     setExpandedBookings({});
     setTimeout(scrollToBookingsTitle, 0);
+  };
+
+  const openReviewModal = (booking) => {
+    setSelectedBooking(booking);
+    setReviewModalOpen(true);
+  };
+
+  const closeReviewModal = () => {
+    setReviewModalOpen(false);
+    setSelectedBooking(null);
+  };
+
+  const handleSubmitReview = async (bookingId, reviewData) => {
+    const homestayId = selectedBooking.homestayId;
+    if (!homestayId) {
+      console.error("homestayId is missing from selectedBooking");
+      alert("Không thể xác định homestay ID. Vui lòng thử lại!");
+      return;
+    }
+
+    // Validate required fields
+    if (
+      !reviewData.cleanliness ||
+      !reviewData.service ||
+      !reviewData.amenities
+    ) {
+      console.error("Missing required ratings");
+      alert("Vui lòng đánh giá đầy đủ các tiêu chí!");
+      return;
+    }
+
+    const reviewPayload = {
+      bookingId: bookingId,
+      homestayId: homestayId,
+      cleanlinessRating: reviewData.cleanliness,
+      serviceRating: reviewData.service,
+      utilitiesRating: reviewData.amenities,
+      image: reviewData.images.length > 0 ? reviewData.images[0] : undefined,
+      comment: reviewData.comment,
+    };
+
+    const success = await addReviewUser(reviewPayload);
+    if (success) {
+      // Refresh danh sách bookings sau khi đánh giá thành công
+      getCurrentUserBooking(bookingsPage, bookingsLimit);
+    }
   };
 
   return (
@@ -474,28 +543,38 @@ const UserBookings = () => {
                   )}
 
                 <div className="flex flex-wrap gap-1.5 justify-end">
-                  {booking.status === "Booked" && (
-                    <button className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 text-[10px] font-bold shadow-md">
-                      Hủy đặt phòng
-                    </button>
-                  )}
-                  {booking.status === "Complete" && (
-                    <>
-                      <button className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:from-amber-600 hover:to-amber-700 text-[10px] font-bold shadow-md">
-                        ⭐ Đánh giá
+                  {booking.cancelable &&
+                    booking.status !== "Completed" &&
+                    booking.status !== "Cancelled" && (
+                      <button
+                        className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 text-[10px] font-bold shadow-md"
+                        onClick={() => openCancelModal(booking)}
+                      >
+                        Hủy đặt phòng
                       </button>
-                      <button className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 text-[10px] font-bold shadow-md">
-                        🔄 Đặt lại
-                      </button>
-                    </>
-                  )}
+                    )}
+                  {booking.status === "Completed" &&
+                    booking.reviewable === false && (
+                      <>
+                        <button
+                          onClick={() => openReviewModal(booking)}
+                          className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:from-amber-600 hover:to-amber-700 text-[10px] font-bold shadow-md"
+                        >
+                          ⭐ Đánh giá
+                        </button>
+                      </>
+                    )}
                   {booking.status === "Pending" && (
                     <>
-                      <button className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 text-[10px] font-bold shadow-md">
+                      <button
+                        className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 text-[10px] font-bold shadow-md"
+                        onClick={() =>
+                          navigate(
+                            `/booking/payment?bookingId=${booking.bookingId}`
+                          )
+                        }
+                      >
                         💳 Thanh toán ngay
-                      </button>
-                      <button className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 text-[10px] font-bold shadow-md">
-                        Hủy đặt phòng
                       </button>
                     </>
                   )}
@@ -555,6 +634,21 @@ const UserBookings = () => {
         onChangePage={handleChangePage}
         prevLabel="Trước"
         nextLabel="Sau"
+      />
+
+      {/* Review Modal Component */}
+      <ReviewModal
+        isOpen={reviewModalOpen}
+        onClose={closeReviewModal}
+        booking={selectedBooking}
+        onSubmit={handleSubmitReview}
+      />
+      {/* Cancel Booking Modal */}
+      <CancelBookingModal
+        isOpen={cancelModalOpen}
+        onClose={closeCancelModal}
+        booking={selectedBooking}
+        onSubmit={handleSubmitCancel}
       />
     </div>
   );
