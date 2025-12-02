@@ -26,6 +26,8 @@ public class KhuVuc {
     @Column(name = "hinhanh", nullable = true)
     private String hinhanh;
 
+    @Column(name = "trangthai", nullable = true, length = 50, columnDefinition = "nvarchar(50)")
+    private String trangThai;
     @OneToMany(mappedBy = "khuVuc", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Homestay> homestays = new ArrayList<>();
 

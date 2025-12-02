@@ -6,6 +6,9 @@ import com.bookinghomestay.app.application.booking.query.GetMyBookingListQueryHa
 import com.bookinghomestay.app.application.danhgia.command.PostReviewCommandHandler;
 import com.bookinghomestay.app.application.danhgia.dto.ReviewAddCommandDto;
 import com.bookinghomestay.app.application.danhgia.dto.ReviewAddRequestDto;
+import com.bookinghomestay.app.application.promotion.dto.MyPromotionQueryDto;
+import com.bookinghomestay.app.application.promotion.dto.MyPromotionResponeDto;
+import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQueryHandler;
 import com.bookinghomestay.app.application.users.command.AddFavoriteHomestayCommand;
 import com.bookinghomestay.app.application.users.command.AddFavoriteHomestayCommandHandler;
 import com.bookinghomestay.app.application.users.command.UpdateRecieveEmailCommand;
@@ -45,6 +48,7 @@ public class UserController {
     private final GetUserFavoriteHomestayQueryHandler getUserFavoriteHomestayQueryHandler;
     private final AddFavoriteHomestayCommandHandler addFavoriteHomestayCommandHandler;
     private final PostReviewCommandHandler postReviewCommandHandler;
+    private final GetMyPromotionQueryHandler getMyPromotionQueryHandler;
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserInfoResponeDto>> getCurrentUser() {
@@ -105,6 +109,19 @@ public class UserController {
         PageResponse<UserFavoriteHomestayResponseDto> entity = getUserFavoriteHomestayQueryHandler
                 .handle(new GetFavoriteHomestayQuery(userId, page, limit));
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách yêu thích thành công !", entity));
+    }
+
+    @GetMapping("/me/my-promotions")
+    public ResponseEntity<ApiResponse<PageResponse<MyPromotionResponeDto>>> getAllPromotions(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int limit) {
+        String userId = SecurityUtils.getCurrentUserId();
+        PageResponse<MyPromotionResponeDto> promotions = getMyPromotionQueryHandler
+                .handle(new MyPromotionQueryDto(userId, page, limit));
+        return ResponseEntity.ok(new ApiResponse<>(
+                true,
+                "Lấy danh sách khuyến mãi thành công",
+                promotions));
     }
 
     @PostMapping("/me/add-review")

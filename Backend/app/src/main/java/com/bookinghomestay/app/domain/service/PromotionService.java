@@ -28,7 +28,7 @@ public class PromotionService {
         LocalDateTime now = LocalDateTime.now();
 
         // 1. Kiểm tra trạng thái khuyến mãi
-        if (!"Hoạt động".equals(khuyenMai.getTrangThai())) {
+        if (!"Active".equalsIgnoreCase(khuyenMai.getTrangThai())) {
             System.out.println("Trạng thái khuyến mãi không hoạt động");
             throw new BusinessException("Trạng thái khuyến mãi không hoạt động");
         }
@@ -120,7 +120,7 @@ public class PromotionService {
         }
         return khuyenMais.stream().filter(km -> km.isApDungChoTatCaPhong())
                 .map(km -> {
-                    if (km.getLoaiChietKhau().equals("percentage")) {
+                    if (km.getLoaiChietKhau().equalsIgnoreCase("percentage")) {
                         return originalPrice
                                 .multiply(BigDecimal.ONE.subtract(km.getChietKhau().divide(BigDecimal.valueOf(100))));
                     } else {

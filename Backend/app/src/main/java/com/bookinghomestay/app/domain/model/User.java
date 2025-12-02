@@ -44,6 +44,7 @@ public class User {
         this.userId = UUID.randomUUID().toString();
         this.userName = userName;
         this.email = email;
+        this.status = "ACTIVE";
         this.setRole();
     }
 

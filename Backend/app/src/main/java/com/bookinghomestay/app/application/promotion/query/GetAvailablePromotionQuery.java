@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class GetMyPromotionQuery {
+public class GetAvailablePromotionQuery {
     private String maPDPhong;
     private String userId;
 }
