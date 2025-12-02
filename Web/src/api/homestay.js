@@ -60,3 +60,16 @@ export const getAvailableRooms = (params = {}) => {
 export const getHomestayServices = (homestayId) => {
   return http.get(`/api/homestays/${homestayId}/services`);
 };
+
+/**
+ * Fetch reviews for a specific homestay
+ * @param {string} homestayId - Homestay ID
+ * @param {number} page - Page number (default: 1)
+ * @param {number} limit - Number of reviews per page (default: 3)
+ * @returns {Promise} - Promise resolving to reviews data with pagination
+ */
+export const getHomestayReviews = (homestayId, page = 1, limit = 3) => {
+  return http.get(
+    `/api/homestays/${homestayId}/reviews?page=${page}&limit=${limit}`
+  );
+};

@@ -17,6 +17,7 @@ import { showToast } from "../../components/common/Toast";
 import { useHomestayData } from "../../hooks/useHomestay";
 import { useBookings } from "../../hooks/useBookings";
 import useUser from "../../hooks/useUser";
+import { useAuth } from "../../hooks/useAuth";
 import { renderDescription } from "../../utils/string";
 import { getImageUrl } from "../../utils/imageUrl";
 import { formatPrice } from "../../utils/price";
@@ -46,6 +47,7 @@ const HomestayDetail = () => {
   const [totalNights, setTotalNights] = useState(0);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isDateValid, setIsDateValid] = useState(true);
+  const [currentReviewPage, setCurrentReviewPage] = useState(1);
 
   // Validation function cho dates
   const validateDates = (checkIn, checkOut) => {
@@ -93,16 +95,31 @@ const HomestayDetail = () => {
     loadingRooms,
     errorRooms,
     fetchAvailableRooms,
+    homestayReviews,
+    loadingReviews,
+    errorReviews,
+    fetchHomestayReviews,
   } = useHomestayData();
 
   const { loading: bookingLoading, createNewBooking } = useBookings();
   const { addFavorite } = useUser();
+  const { user } = useAuth();
+  console.log("user:", user);
   useEffect(() => {
     // Fetch homestay detail khi id thay đổi
     fetchHomestayDetail(id);
     // Reset selected room khi chuyển homestay
     setSelectedRoom(null);
+    // Reset review page về trang 1
+    setCurrentReviewPage(1);
   }, [id]);
+
+  useEffect(() => {
+    // Fetch reviews khi homestay detail được load hoặc khi đổi trang
+    if (homestayDetail && homestayDetail.id) {
+      fetchHomestayReviews(homestayDetail.id, currentReviewPage);
+    }
+  }, [homestayDetail, fetchHomestayReviews, currentReviewPage]);
 
   useEffect(() => {
     const newDates = getInitialDates();
@@ -536,7 +553,18 @@ const HomestayDetail = () => {
               </div>
 
               {/* Reviews list with pagination */}
-              {/* <ReviewsList reviews={reviewsList} /> */}
+              {loadingReviews ? (
+                <div className="py-8 text-center">
+                  <LoadingSpinner />
+                </div>
+              ) : errorReviews ? (
+                <p className="text-red-500">{errorReviews}</p>
+              ) : (
+                <ReviewsList
+                  reviews={homestayReviews}
+                  onPageChange={(page) => setCurrentReviewPage(page)}
+                />
+              )}
             </div>
             {/* Host section */}
             <div className="pb-6">
@@ -588,12 +616,18 @@ const HomestayDetail = () => {
                     tại homestay của tôi. Tôi luôn cố gắng cung cấp trải nghiệm
                     tốt nhất cho khách hàng và sẵn sàng hỗ trợ bạn 24/7.
                   </p>
-                  <ChatButton
-                    hostId={host.hostId}
-                    homestayId={id}
-                    hostName={host.hostName}
-                    hostAvatar={host.avatar}
-                  />
+                  {!(
+                    user &&
+                    host.hostId &&
+                    String(user.userId) === String(host.hostId)
+                  ) && (
+                    <ChatButton
+                      hostId={host.hostId}
+                      homestayId={id}
+                      hostName={host.hostName}
+                      hostAvatar={host.avatar}
+                    />
+                  )}
                 </div>
               </div>
             </div>
