@@ -38,9 +38,6 @@ public class Homestay {
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao = LocalDateTime.now();
 
-    @Column(name = "hang")
-    private BigDecimal hang;
-
     // Quan hệ nhiều-1 với KhuVuc
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_kv", nullable = false)

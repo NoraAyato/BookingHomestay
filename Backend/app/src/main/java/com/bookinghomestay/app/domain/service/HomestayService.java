@@ -12,6 +12,7 @@ import com.bookinghomestay.app.domain.model.ChiTietDatPhong;
 import com.bookinghomestay.app.domain.model.ChiTietPhong;
 import com.bookinghomestay.app.domain.model.DanhGia;
 import com.bookinghomestay.app.domain.model.Homestay;
+import com.bookinghomestay.app.domain.model.KhuVuc;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.model.KhuyenMaiPhong;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
@@ -19,6 +20,69 @@ import com.bookinghomestay.app.domain.model.Phong;
 
 @Service
 public class HomestayService {
+
+    public int countBookingByLocation(KhuVuc khuVuc) {
+        int count = 0;
+        for (Homestay homestay : khuVuc.getHomestays()) {
+            count += countBookingByHomestay(homestay);
+        }
+        return count;
+    }
+
+    public double calculateRevenueByHomestay(Homestay homestay) {
+        double totalRevenue = 0.0;
+        double roomRevenue = 0.0;
+        double serviceRevenue = 0.0;
+        for (Phong phong : homestay.getPhongs()) {
+            for (ChiTietDatPhong chiTietDatPhong : phong.getChiTietDatPhongs()) {
+                PhieuDatPhong phieuDatPhong = chiTietDatPhong.getPhieuDatPhong();
+                int days = chiTietDatPhong.getNgayDi().toLocalDate()
+                        .compareTo(chiTietDatPhong.getNgayDen().toLocalDate());
+
+                if (phieuDatPhong != null) {
+                    if ((phieuDatPhong.getTrangThai().equalsIgnoreCase("completed"))) {
+                        double discount = phieuDatPhong.getHoadon() != null
+                                && phieuDatPhong.getHoadon().getKhuyenMai() != null
+                                        ? phieuDatPhong.getHoadon().getKhuyenMai().getChietKhau().doubleValue()
+                                        : 0.0;
+                        if (phieuDatPhong.getHoadon().getKhuyenMai() != null
+                                && phieuDatPhong.getHoadon().getKhuyenMai().getLoaiChietKhau()
+                                        .equalsIgnoreCase("percentage")) {
+                            discount = discount / 100.0;
+                            roomRevenue += phong.getDonGia().doubleValue() * days * (1 - discount) * 85 / 100;
+                        } else {
+                            roomRevenue += (phong.getDonGia().doubleValue() * days) - discount * 85 / 100;
+                        }
+                        // Tính doanh thu từ dịch vụ
+                        serviceRevenue += phieuDatPhong.getChiTietDatPhongs().stream()
+                                .flatMap(ctdp -> ctdp.getChiTietDichVus().stream())
+                                .mapToDouble(ctdv -> ctdv.getDichVu().getDonGia().doubleValue()
+                                        * ctdv.getSoLuong().doubleValue() * days)
+                                .sum();
+                    }
+                }
+            }
+        }
+        totalRevenue = roomRevenue + serviceRevenue;
+        return totalRevenue;
+    }
+
+    public int countBookingByHomestay(Homestay homestay) {
+        int count = 0;
+        for (Phong phong : homestay.getPhongs()) {
+            for (ChiTietDatPhong chiTietDatPhong : phong.getChiTietDatPhongs()) {
+                PhieuDatPhong phieuDatPhong = chiTietDatPhong.getPhieuDatPhong();
+                if (phieuDatPhong != null) {
+                    if (phieuDatPhong.getTrangThai().equalsIgnoreCase("booked")
+                            || phieuDatPhong.getTrangThai().equalsIgnoreCase("completed")) {
+
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
+    }
 
     public boolean isInLocationId(Homestay homestay, String locationId) {
         if (locationId == null || locationId.isEmpty()) {
@@ -66,11 +130,9 @@ public class HomestayService {
         }
         int count = homestay.getDanhGias().size();
         double total = homestay.getDanhGias().stream()
-                .mapToDouble(dg -> (dg.getDichVu() + dg.getTienIch() + dg.getSachSe()) / 3.0)
+                .mapToDouble(dg -> (dg.getDichVu() + dg.getTienIch() + dg.getSachSe() / 3))
                 .sum();
-        double avg = (total / count) > 0 ? (total / count)
-                : homestay.getHang() != null ? homestay.getHang().doubleValue() : 0.0;
-        return Math.floor(avg * 10) / 10.0;
+        return Math.floor(total * 10) / 10.0;
     }
 
     public List<String> getHomestayAmenities(Homestay homestay) {
