@@ -1,158 +1,44 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
-import Pagination from "../../components/common/Pagination";
-import { mockNewsData } from "../../api/mockData/mockNewsData";
-
-const NewsCard = ({ news }) => {
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:-translate-y-1">
-      <Link to={`/news/${news.id}`} className="block">
-        <div className="relative aspect-video overflow-hidden">
-          <img
-            src={news.image}
-            alt={news.title}
-            className="w-full h-full object-cover"
-          />
-          {news.category && (
-            <span className="absolute top-3 left-3 bg-rose-500 text-white text-xs font-semibold px-2 py-1 rounded">
-              {news.category}
-            </span>
-          )}
-        </div>
-        <div className="p-4">
-          <div className="flex items-center text-xs text-gray-500 mb-2">
-            <span className="mr-2">
-              <i className="far fa-calendar-alt"></i>{" "}
-              {new Date(news.createdAt).toLocaleDateString("vi-VN")}
-            </span>
-            <span className="mr-2">|</span>
-            <span>
-              <i className="far fa-eye"></i> {news.views}
-            </span>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-            {news.title}
-          </h3>
-          <p className="text-sm text-gray-600 line-clamp-3 mb-3">
-            {news.summary}
-          </p>
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-gray-500">
-              <i className="far fa-user"></i> {news.author}
-            </span>
-            <span className="text-rose-600 text-sm font-medium hover:text-rose-700">
-              Đọc tiếp <i className="fas fa-arrow-right text-xs ml-1"></i>
-            </span>
-          </div>
-        </div>
-      </Link>
-    </div>
-  );
-};
-
-const FeaturedNews = ({ news }) => {
-  if (!news) return null;
-
-  return (
-    <div className="bg-gradient-to-r from-rose-50 to-white rounded-xl shadow-md overflow-hidden mb-8">
-      <div className="md:flex">
-        <div className="md:flex-shrink-0 md:w-1/2">
-          <Link to={`/news/${news.id}`}>
-            <img
-              src={news.image}
-              alt={news.title}
-              className="h-full w-full object-cover md:h-full"
-            />
-          </Link>
-        </div>
-        <div className="p-6 md:p-8 md:w-1/2">
-          <div className="flex items-center text-sm text-gray-500 mb-2">
-            <span className="mr-2">
-              <i className="far fa-calendar-alt"></i>{" "}
-              {new Date(news.createdAt).toLocaleDateString("vi-VN")}
-            </span>
-            <span className="mr-2">|</span>
-            <span>
-              <i className="far fa-eye"></i> {news.views}
-            </span>
-          </div>
-          <Link to={`/news/${news.id}`} className="block">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3 hover:text-rose-600 transition-colors">
-              {news.title}
-            </h2>
-          </Link>
-          <p className="text-gray-600 mb-4">{news.summary}</p>
-          <div className="flex items-center justify-between">
-            <span className="inline-block bg-rose-500 text-white text-sm font-semibold px-3 py-1 rounded">
-              {news.category}
-            </span>
-            <Link
-              to={`/news/${news.id}`}
-              className="inline-flex items-center text-rose-600 font-medium hover:text-rose-700"
-            >
-              Đọc chi tiết
-              <i className="fas fa-arrow-right ml-2"></i>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+import React from "react";
+import { useNews } from "../../hooks/useNews";
+import CategoryFilter from "../../components/news/CategoryFilter";
+import NewsCard from "../../components/news/NewsCard";
+import FeaturedNews from "../../components/news/FeaturedNews";
 
 const NewsPage = () => {
-  // Using mock data directly
-  const { data } = mockNewsData;
-  const [loading, setLoading] = useState(false);
-  const [newsList, setNewsList] = useState(data.items);
-  const [featuredNews, setFeaturedNews] = useState(data.featured);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(data.totalPages);
-  const [activeCategory, setActiveCategory] = useState("all");
+  // Chỉ dùng 1 hook useNews cho tất cả
+  const {
+    news: newsList,
+    featuredNews,
+    loading,
+    error,
+    pagination,
+    currentCategory,
+    popularCategories,
+    moreCategories,
+    changeCategory,
+    changePage,
+  } = useNews(1, 6);
 
-  const categories = [
-    { id: "all", name: "Tất cả" },
-    { id: "tips", name: "Kinh nghiệm du lịch" },
-    { id: "destination", name: "Điểm đến" },
-    { id: "event", name: "Sự kiện" },
-    { id: "promotion", name: "Khuyến mãi" },
-  ];
-
-  // Function to filter news by category
-  const filterNewsByCategory = (category) => {
-    if (category === "all") {
-      setNewsList(data.items);
-      setFeaturedNews(data.featured);
-    } else {
-      const filtered = data.items.filter(
-        (item) =>
-          item.category &&
-          item.category.toLowerCase().includes(category.toLowerCase())
-      );
-      setNewsList(filtered);
-
-      // Update featured news if on first page
-      if (currentPage === 1) {
-        setFeaturedNews(filtered.length > 0 ? filtered[0] : null);
-      }
+  // Count from pagination when active category
+  const getCategoryCount = (categoryId) => {
+    if (categoryId === currentCategory) {
+      return pagination.total;
     }
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    window.scrollTo(0, 0);
+    return "";
   };
 
   const handleCategoryChange = (categoryId) => {
-    setActiveCategory(categoryId);
-    setCurrentPage(1);
-    filterNewsByCategory(categoryId);
+    changeCategory(categoryId);
   };
 
   if (loading && newsList.length === 0) {
-    return <LoadingSpinner />;
+    return (
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -167,23 +53,14 @@ const NewsPage = () => {
       </div>
 
       {/* Category filter */}
-      <div className="flex overflow-x-auto pb-2 mb-8 scrollbar-hide">
-        <div className="flex space-x-2">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => handleCategoryChange(category.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                activeCategory === category.id
-                  ? "bg-rose-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      <CategoryFilter
+        popularCategories={popularCategories}
+        moreCategories={moreCategories}
+        currentCategory={currentCategory}
+        onCategoryChange={handleCategoryChange}
+        getCategoryCount={getCategoryCount}
+        loading={loading}
+      />
 
       {error && (
         <div className="bg-red-50 p-4 rounded-md mb-6">
@@ -204,41 +81,79 @@ const NewsPage = () => {
       )}
 
       {/* Featured news */}
-      {currentPage === 1 && featuredNews && (
-        <FeaturedNews news={featuredNews} />
-      )}
+      {featuredNews && <FeaturedNews news={featuredNews} />}
 
-      {/* News grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {newsList.map((news) => (
-          <NewsCard key={news.id} news={news} />
-        ))}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-10">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
-      )}
-
-      {newsList.length === 0 && !loading && !error && (
-        <div className="text-center py-12">
-          <div className="text-rose-500 mb-4">
-            <i className="far fa-newspaper text-5xl"></i>
+      {/* News List */}
+      <div>
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Không có tin tức
-          </h3>
-          <p className="text-gray-500">
-            Không có tin tức nào trong danh mục này.
-          </p>
-        </div>
-      )}
+        ) : newsList.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-rose-500 mb-4">
+              <i className="far fa-newspaper text-5xl"></i>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Không có tin tức
+            </h3>
+            <p className="text-gray-500">
+              Không có tin tức nào trong danh mục này.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {newsList.map((news) => (
+                <NewsCard key={news.id} news={news} />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {pagination.total > pagination.limit && (
+              <div className="mt-8 flex justify-center">
+                <nav className="flex items-center gap-2">
+                  <button
+                    onClick={() => changePage(pagination.page - 1)}
+                    disabled={pagination.page === 1}
+                    className="px-3 py-2 rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <i className="fas fa-chevron-left"></i>
+                  </button>
+
+                  {Array.from(
+                    { length: Math.ceil(pagination.total / pagination.limit) },
+                    (_, i) => i + 1
+                  ).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => changePage(page)}
+                      className={`px-4 py-2 rounded-md ${
+                        pagination.page === page
+                          ? "bg-rose-600 text-white"
+                          : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => changePage(pagination.page + 1)}
+                    disabled={
+                      pagination.page >=
+                      Math.ceil(pagination.total / pagination.limit)
+                    }
+                    className="px-3 py-2 rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <i className="fas fa-chevron-right"></i>
+                  </button>
+                </nav>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

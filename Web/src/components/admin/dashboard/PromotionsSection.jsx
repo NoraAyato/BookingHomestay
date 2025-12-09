@@ -12,7 +12,7 @@ const PromotionsSection = ({ data = [], loading, error }) => {
             <h4 className="font-medium text-gray-900">{promo.name}</h4>
             <span
               className={`px-2 py-1 text-xs rounded-full ${
-                promo.status === "Active"
+                promo.status === "Active" || promo.status === "active"
                   ? "bg-green-100 text-green-800"
                   : promo.status === "Disable"
                   ? "bg-gray-200 text-gray-500"
@@ -21,7 +21,7 @@ const PromotionsSection = ({ data = [], loading, error }) => {
                   : "bg-gray-100 text-gray-800"
               }`}
             >
-              {promo.status === "Active"
+              {promo.status === "Active" || promo.status === "active"
                 ? "Đang hoạt động"
                 : promo.status === "Disable"
                 ? "Vô hiệu hóa"

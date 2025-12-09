@@ -1,5 +1,6 @@
 import http from "./http";
-// Amenities API functions
+
+// Public Amenities API
 export const getAllAmenities = () => {
   return http.get(`/api/amenities`);
 };

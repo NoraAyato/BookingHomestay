@@ -157,21 +157,6 @@ const NotificationBell = () => {
             })
           )}
         </div>
-
-        {/* Footer */}
-        {notifications.length > 0 && (
-          <div className={styles.footer}>
-            <button
-              className={styles.viewAllBtn}
-              onClick={() => {
-                navigate("/user/notifications");
-                setShowNotifications(false);
-              }}
-            >
-              Xem tất cả thông báo
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

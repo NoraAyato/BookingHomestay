@@ -1,27 +1,52 @@
 import http from "./http";
-import { mockNewsData, mockNewsDetail } from "./mockNewsData";
 
-// Using mock data for now - replace with real API calls when ready
-export const getNewsList = (params = {}) => {
-  // Return mock data with a delay to simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockNewsData);
-    }, 500);
-  });
-
-  // Uncomment below when real API is ready
-  // return http.get('/api/news', { params });
+/**
+ * Get all news with pagination and optional topic filter
+ * @param {number} page - Page number (default: 1)
+ * @param {number} size - Items per page (default: 6)
+ * @param {string} idTopic - Optional topic ID filter
+ * @returns {Promise} Response with { success, message, data: { items, total, page, limit } }
+ */
+export const getNewsList = async (page = 1, size = 6, idTopic = null) => {
+  try {
+    const params = { page, size };
+    if (idTopic && idTopic !== "all") {
+      params.idTopic = idTopic;
+    }
+    const response = await http.get("/api/news", { params });
+    console.log("API response for news list:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching news list:", error);
+    throw error;
+  }
 };
 
-export const getNewsDetail = (id) => {
-  // Return mock data with a delay to simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockNewsDetail);
-    }, 500);
-  });
+/**
+ * Get news detail by ID
+ * @param {string} id - News ID
+ * @returns {Promise} News detail data
+ */
+export const getNewsDetail = async (id) => {
+  try {
+    const response = await http.get(`/api/news/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching news detail:", error);
+    throw error;
+  }
+};
 
-  // Uncomment below when real API is ready
-  // return http.get(`/api/news/${id}`);
+/**
+ * Get all news categories/topics
+ * @returns {Promise} List of categories
+ */
+export const getNewsCategories = async () => {
+  try {
+    const response = await http.get("/api/news/topic");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching news categories:", error);
+    throw error;
+  }
 };

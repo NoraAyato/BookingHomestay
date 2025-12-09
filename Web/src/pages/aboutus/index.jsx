@@ -398,16 +398,10 @@ const AboutUsPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="#"
+              href="/homestay"
               className="px-8 py-3 bg-rose-600 text-white rounded-md hover:bg-rose-700 transition-colors text-base font-medium"
             >
               Đặt phòng ngay
-            </a>
-            <a
-              href="#"
-              className="px-8 py-3 bg-white border border-rose-600 text-rose-600 rounded-md hover:bg-rose-50 transition-colors text-base font-medium"
-            >
-              Trở thành chủ nhà
             </a>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Menu,
   X,
@@ -15,20 +15,55 @@ import {
   Gift,
   FileText,
   Activity,
+  ChevronDown,
+  ChevronRight,
+  Sparkles,
+  Briefcase,
+  LayoutGrid,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getUserInfo } from "../../../utils/session";
 import { getImageUrl } from "../../../utils/imageUrl";
+import { useAuth } from "../../../hooks/useAuth";
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [homestayMenuOpen, setHomestayMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const userInfo = getUserInfo();
+  const { logout } = useAuth();
+
+  // Check if current route is in homestay submenu to keep it open
+  useEffect(() => {
+    const homestayRoutes = [
+      "/admin/homestays",
+      "/admin/amenities",
+      "/admin/services",
+      "/admin/room-types",
+    ];
+    if (homestayRoutes.some((route) => location.pathname.startsWith(route))) {
+      setHomestayMenuOpen(true);
+    }
+  }, [location.pathname]);
 
   const menuItems = [
     { path: "/admin/dashboard", name: "Tổng quan", icon: Home },
-    { path: "/admin/homestays", name: "Quản lý Homestay", icon: Building },
+    {
+      name: "Quản lý Homestay",
+      icon: Building,
+      hasDropdown: true,
+      subItems: [
+        { path: "/admin/homestays", name: "Quản lý Homestay", icon: Building },
+        { path: "/admin/amenities", name: "Quản lý Tiện nghi", icon: Sparkles },
+        { path: "/admin/services", name: "Quản lý Dịch vụ", icon: Briefcase },
+        {
+          path: "/admin/room-types",
+          name: "Quản lý Loại phòng",
+          icon: LayoutGrid,
+        },
+      ],
+    },
     { path: "/admin/bookings", name: "Đặt chỗ", icon: Calendar },
     { path: "/admin/users", name: "Người dùng", icon: Users },
     { path: "/admin/locations", name: "Khu vực", icon: MapPin },
@@ -36,12 +71,11 @@ const AdminLayout = ({ children }) => {
     { path: "/admin/news", name: "Tin tức", icon: FileText },
     { path: "/admin/reviews", name: "Đánh giá", icon: MessageSquare },
     { path: "/admin/activity-logs", name: "Lịch sử hoạt động", icon: Activity },
-    { path: "/admin/settings", name: "Cài đặt", icon: Settings },
+    // { path: "/admin/settings", name: "Cài đặt", icon: Settings },
   ];
 
   const handleLogout = () => {
-    // Implement logout logic here
-    navigate("/");
+    logout();
   };
 
   return (
@@ -59,35 +93,92 @@ const AdminLayout = ({ children }) => {
           </button>
         </div>
 
-        <nav className="mt-6 px-3">
-          {menuItems.map((item) => {
+        <nav className="mt-4 px-3 overflow-y-auto h-[calc(100vh-8rem)]">
+          {menuItems.map((item, index) => {
             const Icon = item.icon;
+
+            // Nếu có dropdown
+            if (item.hasDropdown) {
+              const isAnySubItemActive = item.subItems.some(
+                (subItem) => location.pathname === subItem.path
+              );
+
+              return (
+                <div key={index} className="mb-0.5">
+                  <button
+                    onClick={() => setHomestayMenuOpen(!homestayMenuOpen)}
+                    className={`flex items-center justify-between w-full px-2.5 py-2 rounded-md transition-colors text-sm ${
+                      isAnySubItemActive
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <Icon className="h-4 w-4 mr-2.5" />
+                      <span className="font-medium">{item.name}</span>
+                    </div>
+                    {homestayMenuOpen ? (
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    ) : (
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+
+                  {/* Dropdown menu */}
+                  {homestayMenuOpen && (
+                    <div className="mt-0.5 ml-3 pl-3 border-l-2 border-gray-200">
+                      {item.subItems.map((subItem) => {
+                        const SubIcon = subItem.icon;
+                        const isActive = location.pathname === subItem.path;
+
+                        return (
+                          <Link
+                            key={subItem.path}
+                            to={subItem.path}
+                            className={`flex items-center px-2 py-1.5 mb-0.5 rounded-md transition-colors text-sm ${
+                              isActive
+                                ? "bg-blue-100 text-blue-700 font-medium"
+                                : "text-gray-600 hover:bg-gray-50"
+                            }`}
+                          >
+                            <SubIcon className="h-3.5 w-3.5 mr-2" />
+                            <span className="text-xs">{subItem.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            // Menu item thông thường
             const isActive = location.pathname === item.path;
 
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center px-3 py-3 mb-1 rounded-lg transition-colors ${
+                className={`flex items-center px-2.5 py-2 mb-0.5 rounded-md transition-colors text-sm ${
                   isActive
-                    ? "bg-blue-100 text-blue-700 border-r-2 border-blue-700"
+                    ? "bg-blue-100 text-blue-700 font-medium"
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
-                <Icon className="h-5 w-5 mr-3" />
-                {item.name}
+                <Icon className="h-4 w-4 mr-2.5" />
+                <span>{item.name}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="absolute bottom-0 w-full p-3 border-t">
+        <div className="absolute bottom-0 w-full p-3 border-t bg-white">
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-3 py-3 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+            className="flex items-center w-full px-2.5 py-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-md transition-colors text-sm"
           >
-            <LogOut className="h-5 w-5 mr-3" />
-            Đăng xuất
+            <LogOut className="h-4 w-4 mr-2.5" />
+            <span>Đăng xuất</span>
           </button>
         </div>
       </div>
@@ -110,13 +201,6 @@ const AdminLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center space-x-4">
-              <button className="relative p-2 text-gray-600 hover:text-gray-800">
-                <Bell className="h-6 w-6" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  3
-                </span>
-              </button>
-
               <div className="flex items-center space-x-3">
                 {userInfo?.picture ? (
                   <img

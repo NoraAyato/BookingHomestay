@@ -249,10 +249,8 @@ export function AuthProvider({ children }) {
     removeToken();
     removeUserInfo();
 
-    // Disconnect socket khi logout
     disconnectSocket();
 
-    showToast("success", "Đã đăng xuất");
     setTimeout(() => {
       window.location.href = "/";
     }, 2000);

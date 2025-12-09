@@ -6,7 +6,7 @@ const Pagination = ({
   onChangePage,
   prevLabel = "Trước",
   nextLabel = "Sau",
-  maxVisiblePages = 7,
+  maxVisiblePages = 5,
 }) => {
   if (totalPages <= 1) return null;
 

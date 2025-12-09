@@ -27,6 +27,7 @@ import {
 } from "../../api/admin/activityLogs";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import { exportActivityLogsToExcel } from "../../utils/excelExport";
 
 const ActivityLogs = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -59,6 +60,15 @@ const ActivityLogs = () => {
   const handleRefreshWithNew = () => {
     clearNewActivitiesCount();
     refresh();
+  };
+
+  // Export to Excel
+  const handleExportToExcel = () => {
+    try {
+      exportActivityLogsToExcel(activities);
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   // Icon mapping
@@ -191,7 +201,11 @@ const ActivityLogs = () => {
               />
               Làm mới
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <button
+              onClick={handleExportToExcel}
+              disabled={loading || activities.length === 0}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <Download className="h-4 w-4" />
               Xuất báo cáo
             </button>
