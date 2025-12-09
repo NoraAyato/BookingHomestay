@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/news/**").permitAll()
                         .requestMatchers("/api/amenities").permitAll()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/api/reviews/**").permitAll()
                         // MoMo payment endpoints
                         .requestMatchers("/api/payment/momo/callback").permitAll() // MoMo IPN callback (không cần auth)
                         .requestMatchers("/api/payment/momo/return").permitAll() // User return URL (không cần auth)

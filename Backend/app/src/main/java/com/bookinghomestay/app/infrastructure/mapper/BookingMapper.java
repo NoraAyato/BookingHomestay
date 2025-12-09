@@ -1,5 +1,6 @@
 package com.bookinghomestay.app.infrastructure.mapper;
 
+import com.bookinghomestay.app.application.admin.booking.dto.BookingDataResponseDto;
 import com.bookinghomestay.app.application.booking.dto.booking.BookingDetailResponseDto;
 import com.bookinghomestay.app.application.booking.dto.booking.BookingPaymentResponseDto;
 import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
@@ -12,6 +13,66 @@ import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 public class BookingMapper {
+
+    public static BookingDataResponseDto toBookingDataResponse(PhieuDatPhong booking, BigDecimal totalAmount) {
+        BookingDataResponseDto dto = new BookingDataResponseDto();
+
+        dto.setId(booking.getMaPDPhong());
+
+        // Thông tin khách hàng
+        if (booking.getNguoiDung() != null) {
+            String fullName = (booking.getNguoiDung().getFirstName() != null
+                    ? booking.getNguoiDung().getFirstName()
+                    : "")
+                    + " " + (booking.getNguoiDung().getLastName() != null
+                            ? booking.getNguoiDung().getLastName()
+                            : "");
+            dto.setGuestName(fullName.trim());
+            dto.setGuestEmail(booking.getNguoiDung().getEmail());
+            dto.setGuestPhone(booking.getNguoiDung().getPhoneNumber());
+        }
+
+        // Lấy thông tin homestay và ngày check in/out từ chi tiết đặt phòng
+        if (booking.getChiTietDatPhongs() != null && !booking.getChiTietDatPhongs().isEmpty()) {
+            var chiTiet = booking.getChiTietDatPhongs().get(0);
+            if (chiTiet.getNgayDen() != null) {
+                dto.setCheckIn(chiTiet.getNgayDen().toLocalDate());
+            }
+            if (chiTiet.getNgayDi() != null) {
+                dto.setCheckOut(chiTiet.getNgayDi().toLocalDate());
+            }
+
+            // Lấy thông tin homestay
+            if (chiTiet.getPhong() != null && chiTiet.getPhong().getHomestay() != null) {
+                dto.setHomestay(chiTiet.getPhong().getHomestay().getTenHomestay());
+                // Lấy thông tin chủ nhà nếu có
+                if (chiTiet.getPhong().getHomestay().getNguoiDung() != null) {
+                    String hostName = (chiTiet.getPhong().getHomestay().getNguoiDung()
+                            .getFirstName() != null
+                                    ? chiTiet.getPhong().getHomestay()
+                                            .getNguoiDung()
+                                            .getFirstName()
+                                    : "")
+                            + " " + (chiTiet.getPhong().getHomestay().getNguoiDung()
+                                    .getLastName() != null
+                                            ? chiTiet.getPhong()
+                                                    .getHomestay()
+                                                    .getNguoiDung()
+                                                    .getLastName()
+                                            : "");
+                    dto.setHostName(hostName.trim());
+                }
+            }
+        }
+
+        dto.setStatus(booking.getTrangThai());
+        dto.setBookingDate(booking.getNgayLap().toLocalDate());
+
+        dto.setTotalAmount(totalAmount.doubleValue());
+
+        return dto;
+    }
+
     public static BookingResponseDto toBookingResponseDto(PhieuDatPhong booking,
             BigDecimal tongTien, BigDecimal haveToPayPrice, boolean isCancelable, boolean isReviewable) {
         BookingResponseDto dto = new BookingResponseDto();

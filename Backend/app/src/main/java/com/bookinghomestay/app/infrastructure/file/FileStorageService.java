@@ -26,6 +26,9 @@ public class FileStorageService {
     private static final String SERVICE_IMAGE_PUBLIC_PATH = "/img/uploads/services/";
     private static final String LOCATION_IMAGE_UPLOAD_DIR = System.getProperty("user.dir") + "/img/uploads/locations/";
     private static final String LOCATION_IMAGE_PUBLIC_PATH = "/img/uploads/locations/";
+    private static final String PROMOTION_IMAGE_UPLOAD_DIR = System.getProperty("user.dir")
+            + "/img/uploads/promotions/";
+    private static final String PROMOTION_IMAGE_PUBLIC_PATH = "/img/uploads/promotions/";
 
     public String storeAvatar(MultipartFile file, String userId) {
         return storeImage(file, userId, AVATAR_UPLOAD_DIR, AVATAR_PUBLIC_PATH);
@@ -33,6 +36,10 @@ public class FileStorageService {
 
     public String storeNew(MultipartFile file, String headString) {
         return storeImage(file, headString, NEW_IMAGE_UPLOAD_DIR, NEW_IMAGE_PUBLIC_PATH);
+    }
+
+    public String storePromotion(MultipartFile file, String headString) {
+        return storeImage(file, headString, PROMOTION_IMAGE_UPLOAD_DIR, PROMOTION_IMAGE_PUBLIC_PATH);
     }
 
     public String storeService(MultipartFile file, String headString) {

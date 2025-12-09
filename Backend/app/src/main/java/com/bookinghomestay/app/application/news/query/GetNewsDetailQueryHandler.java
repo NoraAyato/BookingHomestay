@@ -19,14 +19,13 @@ public class GetNewsDetailQueryHandler {
                         () -> new ResourceNotFoundException("Không tìm thấy tin tức với mã: " + query.getMaTinTuc()));
 
         return NewsDetailResponseDto.builder()
-                .maTinTuc(tt.getMaTinTuc())
-                .tieuDe(tt.getTieuDe())
-                .noiDung(tt.getNoiDung())
-                .hinhAnh(tt.getHinhAnh())
-                .tacGia(tt.getTacGia())
-                .ngayDang(tt.getNgayDang())
-                .trangThai(tt.getTrangThai())
-                .tenChuDe(tt.getChuDe().getTenChuDe())
+                .id(tt.getMaTinTuc())
+                .title(tt.getTieuDe())
+                .content(tt.getNoiDung())
+                .image(tt.getHinhAnh())
+                .author(tt.getTacGia())
+                .createdAt(tt.getNgayDang())
+                .category(tt.getChuDe().getTenChuDe())
                 .build();
     }
 }

@@ -7,14 +7,13 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class NewsResponseDto {
-    private String maTinTuc;
-    private String tieuDe;
-    private String noiDung;
-    private String hinhAnh;
-    private String tacGia;
-    private LocalDateTime ngayDang;
-    private String trangThai;
-    private String tenChuDe;
+    private String id;
+    private String title;
+    private String content;
+    private String image;
+    private String category;
+    private String author;
+    private Boolean isFeatured;
+    private LocalDateTime createdAt;
 }

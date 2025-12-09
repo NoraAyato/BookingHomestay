@@ -1,1 +1,1 @@
-truncate table activity_logs;
+select * from khuyen_mai

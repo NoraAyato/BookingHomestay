@@ -27,23 +27,13 @@ public class KhuyenMaiRepositoryImpl implements IKhuyenMaiRepository {
     }
 
     @Override
-    public List<KhuyenMai> getAdminKm() {
+    public List<KhuyenMai> getAll() {
         return jpaKhuyenMaiRepository.findAll();
     }
 
     @Override
     public Optional<KhuyenMai> getKhuyenMaiById(String id) {
         return jpaKhuyenMaiRepository.findById(id);
-    }
-
-    @Override
-    public KhuyenMai createKhuyenMai(KhuyenMai khuyenMai) {
-        return jpaKhuyenMaiRepository.save(khuyenMai);
-    }
-
-    @Override
-    public KhuyenMai updateKhuyenMai(KhuyenMai khuyenMai) {
-        return jpaKhuyenMaiRepository.save(khuyenMai);
     }
 
     @Override
@@ -68,6 +58,11 @@ public class KhuyenMaiRepositoryImpl implements IKhuyenMaiRepository {
     @Override
     public List<KhuyenMai> getAllAvailableKhuyenMai() {
         return jpaKhuyenMaiRepository.getAllAvailableKhuyenMai();
+    }
+
+    @Override
+    public void save(KhuyenMai khuyenMai) {
+        jpaKhuyenMaiRepository.save(khuyenMai);
     }
 
 }

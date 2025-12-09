@@ -19,7 +19,10 @@ public class ChuDe {
 
     @Column(name = "ten_chude", nullable = false, columnDefinition = "nvarchar(100)")
     private String tenChuDe;
-
+    @Column(name = "mo_ta", columnDefinition = "nvarchar(500)")
+    private String moTa;
+    @Column(name = "trang_thai")
+    private boolean trangThai;
     @OneToMany(mappedBy = "chuDe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TinTuc> tinTucs;
 }

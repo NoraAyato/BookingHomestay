@@ -1,6 +1,6 @@
 package com.bookinghomestay.app.infrastructure.mapper;
 
-import com.bookinghomestay.app.application.admin.locationmanager.dto.LocationInfoResponseDto;
+import com.bookinghomestay.app.application.admin.location.dto.LocationInfoResponseDto;
 import com.bookinghomestay.app.domain.model.KhuVuc;
 
 public class LocationMapper {

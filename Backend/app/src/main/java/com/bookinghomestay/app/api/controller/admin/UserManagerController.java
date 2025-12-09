@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bookinghomestay.app.application.admin.usermanager.command.UpdateUserRoleCommand;
-import com.bookinghomestay.app.application.admin.usermanager.command.UpdateUserRoleCommandHandler;
-import com.bookinghomestay.app.application.admin.usermanager.command.UpdateUserStatusCommand;
-import com.bookinghomestay.app.application.admin.usermanager.command.UpdateUserStatusCommandHandler;
-import com.bookinghomestay.app.application.admin.usermanager.dto.RoleDto;
-import com.bookinghomestay.app.application.admin.usermanager.dto.UpdateUserRoleRequestDto;
-import com.bookinghomestay.app.application.admin.usermanager.dto.UserListDto;
-import com.bookinghomestay.app.application.admin.usermanager.dto.UserStatsDto;
-import com.bookinghomestay.app.application.admin.usermanager.query.GetAllRolesQueryHandler;
-import com.bookinghomestay.app.application.admin.usermanager.query.GetAllUserQueryHandler;
-import com.bookinghomestay.app.application.admin.usermanager.query.GetUserListQueryHandler;
-import com.bookinghomestay.app.application.admin.usermanager.query.GetUserListQuey;
-import com.bookinghomestay.app.application.admin.usermanager.query.GetUserStatsQueryHandler;
+import com.bookinghomestay.app.application.admin.user.command.UpdateUserRoleCommand;
+import com.bookinghomestay.app.application.admin.user.command.UpdateUserRoleCommandHandler;
+import com.bookinghomestay.app.application.admin.user.command.UpdateUserStatusCommand;
+import com.bookinghomestay.app.application.admin.user.command.UpdateUserStatusCommandHandler;
+import com.bookinghomestay.app.application.admin.user.dto.RoleDto;
+import com.bookinghomestay.app.application.admin.user.dto.UpdateUserRoleRequestDto;
+import com.bookinghomestay.app.application.admin.user.dto.UserListDto;
+import com.bookinghomestay.app.application.admin.user.dto.UserStatsDto;
+import com.bookinghomestay.app.application.admin.user.query.GetAllRolesQueryHandler;
+import com.bookinghomestay.app.application.admin.user.query.GetAllUserQueryHandler;
+import com.bookinghomestay.app.application.admin.user.query.GetUserListQueryHandler;
+import com.bookinghomestay.app.application.admin.user.query.GetUserListQuey;
+import com.bookinghomestay.app.application.admin.user.query.GetUserStatsQueryHandler;
 import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.common.response.PageResponse;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -51,9 +51,6 @@ public class UserManagerController {
             @RequestParam(defaultValue = "5") int limit, @RequestParam(required = false) Integer role,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String search) {
-        log.info("getUserList called with params - page: {}, limit: {}, role: {}, status: {}, search: {}",
-                page, limit, role, status, search);
-
         PageResponse<UserListDto> response = getUserListQueryHandler
                 .handle(new GetUserListQuey(page, limit, role, status, search));
 
@@ -80,7 +77,6 @@ public class UserManagerController {
 
     @PutMapping("/updateStatus/{id}")
     public ResponseEntity<ApiResponse<String>> updateUserStatus(@PathVariable String id, @RequestBody String status) {
-        System.out.println("status of :" + id + " is " + status);
         updateUserStatusHandler.handle(new UpdateUserStatusCommand(id, status));
         return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật trạng thái người dùng thành công", null));
     }

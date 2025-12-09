@@ -28,6 +28,8 @@ public class TinTuc {
     @Column(name = "noi_dung", columnDefinition = "nvarchar(max)")
     private String noiDung;
 
+    @Column(name = "featured")
+    private Boolean featured;
     @Column(name = "hinh_anh")
     private String hinhAnh;
 

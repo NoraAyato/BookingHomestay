@@ -3,6 +3,10 @@ package com.bookinghomestay.app.domain.repository;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.PhieuHuyPhong;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,4 +39,11 @@ public interface IBookingRepository {
     void saveAll(List<PhieuDatPhong> bookings);
 
     List<PhieuDatPhong> findAllWithHoaDonAndThanhToan();
+
+    Page<PhieuDatPhong> findBookingsByFilters(
+            String status,
+            LocalDate startDate,
+            LocalDate endDate,
+            String keyword,
+            Pageable pageable);
 }

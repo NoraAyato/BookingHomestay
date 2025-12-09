@@ -128,11 +128,16 @@ public class HomestayService {
         if (homestay.getDanhGias() == null || homestay.getDanhGias().isEmpty()) {
             return 0.0;
         }
+
         int count = homestay.getDanhGias().size();
+
         double total = homestay.getDanhGias().stream()
-                .mapToDouble(dg -> (dg.getDichVu() + dg.getTienIch() + dg.getSachSe() / 3))
+                .mapToDouble(dg -> (dg.getDichVu() + dg.getTienIch() + dg.getSachSe()) / 3.0)
                 .sum();
-        return Math.floor(total * 10) / 10.0;
+
+        double average = total / count;
+
+        return Math.round(average * 10.0) / 10.0;
     }
 
     public List<String> getHomestayAmenities(Homestay homestay) {

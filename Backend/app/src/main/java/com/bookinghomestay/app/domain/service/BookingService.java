@@ -65,6 +65,52 @@ public class BookingService {
                 && booking.getTrangThai().equals("Completed");
     }
 
+    public boolean matchesKeyword(PhieuDatPhong booking, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return true;
+        }
+
+        String lowerKeyword = keyword.toLowerCase();
+
+        // Tìm theo mã booking
+        if (booking.getMaPDPhong() != null
+                && booking.getMaPDPhong().toLowerCase().contains(lowerKeyword)) {
+            return true;
+        }
+
+        // Tìm theo tên khách hàng
+        if (booking.getNguoiDung() != null) {
+            String firstName = booking.getNguoiDung().getFirstName() != null
+                    ? booking.getNguoiDung().getFirstName()
+                    : "";
+            String lastName = booking.getNguoiDung().getLastName() != null
+                    ? booking.getNguoiDung().getLastName()
+                    : "";
+            String fullName = (firstName + " " + lastName).trim().toLowerCase();
+
+            if (firstName.toLowerCase().contains(lowerKeyword)
+                    || lastName.toLowerCase().contains(lowerKeyword)
+                    || fullName.contains(lowerKeyword)) {
+                return true;
+            }
+        }
+
+        // Tìm theo tên homestay
+        if (booking.getChiTietDatPhongs() != null) {
+            for (var chiTiet : booking.getChiTietDatPhongs()) {
+                if (chiTiet.getPhong() != null
+                        && chiTiet.getPhong().getHomestay() != null
+                        && chiTiet.getPhong().getHomestay().getTenHomestay() != null
+                        && chiTiet.getPhong().getHomestay().getTenHomestay().toLowerCase()
+                                .contains(lowerKeyword)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public BigDecimal calculateRoomPrice(PhieuDatPhong booking) {
         if (booking.getChiTietDatPhongs() == null || booking.getChiTietDatPhongs().isEmpty()) {
             return BigDecimal.ZERO;

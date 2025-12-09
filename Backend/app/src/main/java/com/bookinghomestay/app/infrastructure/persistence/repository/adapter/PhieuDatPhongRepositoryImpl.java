@@ -1,9 +1,12 @@
 package com.bookinghomestay.app.infrastructure.persistence.repository.adapter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
@@ -83,5 +86,11 @@ public class PhieuDatPhongRepositoryImpl implements IBookingRepository {
     @Override
     public List<PhieuDatPhong> findAllWithHoaDonAndThanhToan() {
         return jpaPhieuDatPhong.findAllWithHoaDonAndThanhToan();
+    }
+
+    @Override
+    public Page<PhieuDatPhong> findBookingsByFilters(String status, LocalDate startDate, LocalDate endDate,
+            String keyword, Pageable pageable) {
+        return jpaPhieuDatPhong.findBookingsByFilters(status, startDate, endDate, keyword, pageable);
     }
 }
