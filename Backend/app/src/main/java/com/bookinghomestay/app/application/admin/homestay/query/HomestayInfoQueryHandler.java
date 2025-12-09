@@ -1,15 +1,14 @@
 package com.bookinghomestay.app.application.admin.homestay.query;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
 import com.bookinghomestay.app.application.admin.homestay.dto.HomestayInfoResponseDto;
 import com.bookinghomestay.app.common.response.PageResponse;
+import com.bookinghomestay.app.common.util.PaginationUtil;
 import com.bookinghomestay.app.domain.model.Homestay;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
 import com.bookinghomestay.app.domain.service.HomestayService;
@@ -24,9 +23,13 @@ public class HomestayInfoQueryHandler {
     private final HomestayService homestayService;
 
     public PageResponse<HomestayInfoResponseDto> handle(HomestayInfoQuery query) {
-        Pageable pageable = PageRequest.of(query.getPage() - 1, query.getSize());
-        Page<Homestay> homestayPage = homestayRepository.findBySearch(query.getSearch(), pageable);
-        List<HomestayInfoResponseDto> dtos = homestayPage.getContent().stream()
+        // Lấy tất cả homestay theo search
+        List<Homestay> allHomestays = query.getSearch() != null && !query.getSearch().isEmpty()
+                ? homestayRepository.findBySearch(query.getSearch(), Pageable.unpaged()).getContent()
+                : homestayRepository.getAll();
+
+        // BƯỚC 1: Filter trước
+        List<Homestay> filteredHomestays = allHomestays.stream()
                 .filter(hs -> {
                     if (query.getStatus() == null || query.getStatus().isEmpty())
                         return true;
@@ -58,6 +61,17 @@ public class HomestayInfoQueryHandler {
                         return true;
                     return homestayService.calculateRevenueByHomestay(hs) >= query.getRevenue().doubleValue();
                 })
+                .collect(Collectors.toList());
+
+        // BƯỚC 2: Tính total sau khi filter
+        int totalElements = filteredHomestays.size();
+
+        // BƯỚC 3: Phân trang (page bắt đầu từ 1)
+        List<Homestay> pagedHomestays = PaginationUtil.paginate(filteredHomestays, query.getPage(),
+                query.getSize());
+
+        // BƯỚC 4: Map sang DTO
+        List<HomestayInfoResponseDto> dtos = pagedHomestays.stream()
                 .map(homestay -> {
                     int roomCount = homestay.getPhongs() != null ? homestay.getPhongs().size() : 0;
                     int bookingCount = homestayService.countBookingByHomestay(homestay);
@@ -69,7 +83,7 @@ public class HomestayInfoQueryHandler {
                             bookingCount, revenue, minPrice);
                 })
                 .collect(Collectors.toList());
-        return new PageResponse<>(dtos, (int) homestayPage.getTotalElements(), query.getPage(), query.getSize());
 
+        return new PageResponse<>(dtos, totalElements, query.getPage(), query.getSize());
     }
 }
