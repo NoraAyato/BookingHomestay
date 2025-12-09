@@ -1,1 +1,1 @@
-update khuyen_mai set trang_thai = 'Active'
+select * from loaiphong;
