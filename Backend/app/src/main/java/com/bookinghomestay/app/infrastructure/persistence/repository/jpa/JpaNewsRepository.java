@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface JpaNewsRepository extends JpaRepository<TinTuc, String> {
-    @Query("SELECT t FROM TinTuc t WHERE t.trangThai = 'published'")
+    @Query("SELECT t FROM TinTuc t WHERE t.trangThai = 'published' ORDER BY t.ngayDang DESC")
     List<TinTuc> findAllPublished();
 
     @Query("SELECT t FROM TinTuc t ORDER BY t.ngayDang DESC")

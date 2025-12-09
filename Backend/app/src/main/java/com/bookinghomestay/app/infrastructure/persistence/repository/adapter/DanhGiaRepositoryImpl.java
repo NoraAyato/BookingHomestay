@@ -6,6 +6,8 @@ import com.bookinghomestay.app.domain.repository.IReviewRepository;
 import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaDanhGiaRepository;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -38,14 +40,28 @@ public class DanhGiaRepositoryImpl implements IReviewRepository {
     }
 
     @Override
-    public DanhGia remove(DanhGia danhGia) {
-        jpaDanhGiaRepository.delete(danhGia);
-        return danhGia;
+    public Optional<DanhGia> findByIdHomestayAndBookingId(String homestayId, String bookingId) {
+        return jpaDanhGiaRepository.findByIdHomestayAndBookingId(homestayId, bookingId);
     }
 
     @Override
-    public Optional<DanhGia> findByIdHomestayAndBookingId(String homestayId, String bookingId) {
-        return jpaDanhGiaRepository.findByIdHomestayAndBookingId(homestayId, bookingId);
+    public List<DanhGia> getAll() {
+        return jpaDanhGiaRepository.findAll();
+    }
+
+    @Override
+    public List<DanhGia> findBestReviewPerTop5Locations() {
+        return jpaDanhGiaRepository.findBestReviewPerTop5Locations(PageRequest.of(0, 5));
+    }
+
+    @Override
+    public void deleteById(String reviewId) {
+        jpaDanhGiaRepository.deleteById(reviewId);
+    }
+
+    @Override
+    public Optional<DanhGia> findById(String reviewId) {
+        return jpaDanhGiaRepository.findById(reviewId);
     }
 
 }

@@ -8,6 +8,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.bookinghomestay.app.domain.model.TienNghi;
 
 public interface JpaTienNghiRepository extends JpaRepository<TienNghi, String> {
-    List<TienNghi> findAll();
-
 }

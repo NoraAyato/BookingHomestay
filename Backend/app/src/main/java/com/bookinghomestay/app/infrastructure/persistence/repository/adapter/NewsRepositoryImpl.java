@@ -22,7 +22,7 @@ public class NewsRepositoryImpl implements INewsRepository {
     public List<TinTuc> findAll() {
         return jpaNewsRepository.findAll();
     }
-    
+
     @Override
     public Optional<TinTuc> findById(String maTinTuc) {
         return jpaNewsRepository.findById(maTinTuc);
@@ -36,6 +36,16 @@ public class NewsRepositoryImpl implements INewsRepository {
     @Override
     public List<TinTuc> finAllOderByCreateTime(int limit) {
         return jpaNewsRepository.findAllOrderByCreateTimeDesc(PageRequest.of(0, limit));
+    }
+
+    @Override
+    public void save(TinTuc tinTuc) {
+        jpaNewsRepository.save(tinTuc);
+    }
+
+    @Override
+    public void deleteById(String maTinTuc) {
+        jpaNewsRepository.deleteById(maTinTuc);
     }
 
 }
