@@ -15,7 +15,6 @@ const Testimonials = React.lazy(() =>
 );
 const Benefits = React.lazy(() => import("../../components/home/Benefits"));
 const Newsletter = React.lazy(() => import("../../components/home/Newsletter"));
-console.log("Access Token on Home Page:", getAccessToken());
 const HomePage = () => {
   return (
     <div className="homepage">

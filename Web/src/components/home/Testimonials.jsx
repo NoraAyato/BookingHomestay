@@ -1,67 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useStaggeredAnimation } from "../../hooks/useInView";
+import { useReviews } from "../../hooks/useReviews";
 
 const Testimonials = () => {
   const [ref, shouldAnimate] = useStaggeredAnimation(100);
+  const { reviews: testimonials, loading, error } = useReviews();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-
-  const testimonials = [
-    {
-      id: 1,
-      name: "Nguyễn Thị Minh Tâm",
-      avatar: "https://i.pravatar.cc/150?img=32",
-      role: "Blogger du lịch",
-      location: "Đà Nẵng",
-      content:
-        "Một trải nghiệm tuyệt vời vượt xa mong đợi! Từ quy trình đặt phòng đơn giản đến dịch vụ tiếp đón nhiệt tình, mọi thứ đều hoàn hảo. Homestay không chỉ sạch sẽ, view đẹp mà còn có vị trí thuận tiện để khám phá thành phố. Chắc chắn sẽ quay lại trong lần du lịch tới.",
-      rating: 5,
-      homestay: "Villa Đà Lạt View Đồi",
-      date: "Tháng 5, 2025",
-      image: "https://images.unsplash.com/photo-1586611292717-f828b167408c",
-    },
-    {
-      id: 2,
-      name: "Trần Đức Minh",
-      avatar: "https://i.pravatar.cc/150?img=12",
-      role: "Nhiếp ảnh gia",
-      location: "Hồ Chí Minh",
-      content:
-        "Rose Homestay đã mang đến cho chúng tôi kỳ nghỉ đáng nhớ tại Hội An. Dịch vụ chuyên nghiệp, địa điểm thuận tiện và giá cả hợp lý. Đặc biệt ấn tượng với không gian homestay được trang trí độc đáo, phù hợp cho việc chụp ảnh. Tôi đã có một kỳ nghỉ tuyệt vời cùng gia đình.",
-      rating: 5,
-      homestay: "Homestay Hội An Cổ Kính",
-      date: "Tháng 4, 2025",
-      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945",
-    },
-    {
-      id: 2,
-      name: "Trần Đức Minh",
-      avatar: "https://i.pravatar.cc/150?img=12",
-      role: "Nhiếp ảnh gia",
-      location: "Hồ Chí Minh",
-      content:
-        "Rose Homestay đã mang đến cho chúng tôi kỳ nghỉ đáng nhớ tại Hội An. Dịch vụ chuyên nghiệp, địa điểm thuận tiện và giá cả hợp lý. Đặc biệt ấn tượng với không gian homestay được trang trí độc đáo, phù hợp cho việc chụp ảnh. Tôi đã có một kỳ nghỉ tuyệt vời cùng gia đình.",
-      rating: 5,
-      homestay: "Homestay Hội An Cổ Kính",
-      date: "Tháng 4, 2025",
-      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945",
-    },
-    {
-      id: 3,
-      name: "Phạm Quang Hải",
-      avatar: "https://i.pravatar.cc/150?img=67",
-      role: "Doanh nhân",
-      location: "Hà Nội",
-      content:
-        "Tôi thường xuyên di chuyển vì công việc và Rose Homestay là lựa chọn hàng đầu của tôi. Đặt phòng dễ dàng, thanh toán nhanh chóng và an toàn. Phòng ở luôn đúng như mô tả và hình ảnh trên website. Đặc biệt, nhân viên hỗ trợ rất nhiệt tình và chuyên nghiệp.",
-      rating: 4,
-      homestay: "Sea View Nha Trang",
-      date: "Tháng 3, 2025",
-      image: "https://images.unsplash.com/photo-1586611292717-f828b167409c",
-    },
-  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -100,15 +47,61 @@ const Testimonials = () => {
   };
   useEffect(() => {
     let interval;
-    if (!isPaused) {
+    if (!isPaused && testimonials.length > 0) {
       interval = setInterval(() => {
         setActiveIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
-      }, 3000); // Change testimonial every 1 second
+      }, 3000); // Change testimonial every 3 seconds
     }
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [isPaused, testimonials.length]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <section className="py-12 bg-gradient-to-b from-white to-rose-50/30">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mt-2 mb-4">
+              Khách Hàng Nói Gì Về Chúng Tôi
+            </h2>
+            <div className="flex justify-center mb-4">
+              <div className="h-1 w-12 bg-rose-500 rounded-full"></div>
+            </div>
+          </div>
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Show error state with fallback
+  if (error || testimonials.length === 0) {
+    return (
+      <section className="py-12 bg-gradient-to-b from-white to-rose-50/30">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-gray-900 mt-2 mb-4">
+              Khách Hàng Nói Gì Về Chúng Tôi
+            </h2>
+            <div className="flex justify-center mb-4">
+              <div className="h-1 w-12 bg-rose-500 rounded-full"></div>
+            </div>
+          </div>
+          <div className="text-center py-20">
+            <p className="text-gray-500">
+              {error
+                ? "Không thể tải đánh giá. Vui lòng thử lại sau."
+                : "Chưa có đánh giá nào."}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
