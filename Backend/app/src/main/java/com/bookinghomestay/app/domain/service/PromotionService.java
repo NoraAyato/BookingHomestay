@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -97,6 +98,59 @@ public class PromotionService {
     }
 
     /**
+     * Filter theo khoảng thời gian
+     */
+    public boolean filterByDateRange(KhuyenMai promotion, LocalDate startDate, LocalDate endDate) {
+        if (startDate == null && endDate == null) {
+            return true;
+        }
+
+        LocalDateTime promotionStart = promotion.getNgayBatDau();
+        LocalDateTime promotionEnd = promotion.getNgayKetThuc();
+
+        if (startDate != null) {
+            LocalDateTime queryStartDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
+            if (promotionEnd.isBefore(queryStartDateTime)) {
+                return false;
+            }
+        }
+
+        if (endDate != null) {
+            LocalDateTime queryEndDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
+            if (promotionStart.isAfter(queryEndDateTime)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Filter theo search text (tìm trong mã KM và nội dung)
+     */
+    public boolean filterBySearch(KhuyenMai promotion, String search) {
+        if (search == null || search.trim().isEmpty()) {
+            return true;
+        }
+
+        String searchLower = search.toLowerCase().trim();
+
+        // Tìm trong mã khuyến mãi
+        if (promotion.getMaKM() != null &&
+                promotion.getMaKM().toLowerCase().contains(searchLower)) {
+            return true;
+        }
+
+        // Tìm trong nội dung
+        if (promotion.getNoiDung() != null &&
+                promotion.getNoiDung().toLowerCase().contains(searchLower)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Lấy danh sách khuyến mãi khả dụng cho user
      */
     public List<KhuyenMai> getAvailablePromotionsForUser(
@@ -144,7 +198,7 @@ public class PromotionService {
 
     public String getPromotionTitle(KhuyenMai khuyenMai) {
         String title = "Giảm ";
-        if (khuyenMai.getLoaiChietKhau().equals("Percentage")) {
+        if (khuyenMai.getLoaiChietKhau().equalsIgnoreCase("Percentage")) {
             title += khuyenMai.getChietKhau().setScale(0, RoundingMode.HALF_UP).toString() + "%";
         } else {
             title += String.format("%,.0f", khuyenMai.getChietKhau()) + " VND";

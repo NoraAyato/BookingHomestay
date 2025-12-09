@@ -48,7 +48,7 @@ public class KhuyenMai {
     private boolean apDungChoTatCaPhong = false;
 
     @Column(name = "trang_thai", length = 50, nullable = false, columnDefinition = "nvarchar(50)")
-    private String trangThai = "Đang áp dụng";
+    private String trangThai = "Active";
 
     @Column(name = "so_luong")
     private BigDecimal soLuong;

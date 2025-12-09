@@ -31,7 +31,9 @@ public class DichVu {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_homestay", nullable = false)
     private Homestay homestay;
-
+    @ManyToOne
+    @JoinColumn(name = "ma_dv_hs", referencedColumnName = "ma_dv_hs", nullable = true) 
+    private DichVuHs dichVuHomestay;
     @OneToMany(mappedBy = "dichVu", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChiTietDichVu> chiTietDichVus;
 

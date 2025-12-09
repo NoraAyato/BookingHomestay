@@ -11,13 +11,11 @@ public interface IKhuyenMaiRepository {
 
     List<KhuyenMai> getAllAvailableKhuyenMai();
 
-    List<KhuyenMai> getAdminKm();
+    List<KhuyenMai> getAll();
 
     Optional<KhuyenMai> getKhuyenMaiById(String id);
 
-    KhuyenMai createKhuyenMai(KhuyenMai khuyenMai);
-
-    KhuyenMai updateKhuyenMai(KhuyenMai khuyenMai);
+    void save(KhuyenMai khuyenMai);
 
     void deleteKhuyenMai(String id);
 

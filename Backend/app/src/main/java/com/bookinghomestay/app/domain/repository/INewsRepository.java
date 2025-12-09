@@ -12,4 +12,9 @@ public interface INewsRepository {
     List<TinTuc> finAllOderByCreateTime(int limit);
 
     List<TinTuc> findAllPublished();
+
+    void save(TinTuc tinTuc);
+
+    void deleteById(String maTinTuc);
+
 }
