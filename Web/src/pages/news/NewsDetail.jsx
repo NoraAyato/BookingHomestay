@@ -1,29 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import React from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import { mockNewsDetail } from "../../api/mockData/mockNewsData";
+import { useNewsDetail } from "../../hooks/useNews";
+import { getImageUrl } from "../../utils/imageUrl";
 
 const NewsDetailPage = () => {
   const { id } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [news, setNews] = useState(null);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    // Simulate loading time
-    const timer = setTimeout(() => {
-      // Using mock data directly
-      if (mockNewsDetail.success) {
-        setNews(mockNewsDetail.data);
-        setLoading(false);
-      } else {
-        setError("Không thể tải tin tức");
-        setLoading(false);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [id]);
+  const navigate = useNavigate();
+  const { newsDetail: news, loading, error } = useNewsDetail(id);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -68,6 +52,15 @@ const NewsDetailPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center text-gray-600 hover:text-rose-600 mb-6 transition-colors group"
+      >
+        <i className="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+        <span className="font-medium">Quay lại</span>
+      </button>
+
       <div className="mb-6">
         <div className="flex items-center text-sm text-gray-500 mb-2">
           <span className="mr-2">
@@ -85,7 +78,7 @@ const NewsDetailPage = () => {
         {news.image && (
           <div className="mb-6">
             <img
-              src={news.image}
+              src={getImageUrl(news.image)}
               alt={news.title}
               className="w-full h-auto rounded-lg shadow-md"
             />
@@ -103,21 +96,6 @@ const NewsDetailPage = () => {
         dangerouslySetInnerHTML={{ __html: news.content }}
       />
 
-      <div className="mt-10 pt-6 border-t border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Tags</h3>
-        <div className="flex flex-wrap gap-2">
-          {news.tags &&
-            news.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-sm"
-              >
-                {tag}
-              </span>
-            ))}
-        </div>
-      </div>
-
       {news.relatedNews && news.relatedNews.length > 0 && (
         <div className="mt-10 pt-6 border-t border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">
@@ -132,7 +110,7 @@ const NewsDetailPage = () => {
                 <Link to={`/news/${item.id}`}>
                   <div className="aspect-video overflow-hidden">
                     <img
-                      src={item.image}
+                      src={getImageUrl(item.image)}
                       alt={item.title}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
