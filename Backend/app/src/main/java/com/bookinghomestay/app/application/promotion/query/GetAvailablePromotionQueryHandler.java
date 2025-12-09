@@ -46,7 +46,7 @@ public class GetAvailablePromotionQueryHandler {
         var ngayDi = booking.get().getChiTietDatPhongs().get(0).getNgayDi().toLocalDate();
         List<KhuyenMai> allPromos = khuyenMaiRepository.getAllPromotionsForRoom(maPhong);
         if (allPromos.isEmpty()) {
-            allPromos = khuyenMaiRepository.getAdminKm();
+            allPromos = khuyenMaiRepository.getAll();
         }
         var validPromos = allPromos.stream()
                 .filter(km -> !LocalDate.now().isAfter(km.getNgayKetThuc().toLocalDate()))
