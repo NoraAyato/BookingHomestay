@@ -29,6 +29,15 @@ import AIChatButton from "./components/chat/AIChatButton";
 // Lazy load admin pages
 const Dashboard = React.lazy(() => import("./pages/admin/Dashboard"));
 const AdminHomestays = React.lazy(() => import("./pages/admin/Homestays"));
+const AdminAmenities = React.lazy(() =>
+  import("./pages/admin/amenities/AmenitiesManager")
+);
+const AdminServices = React.lazy(() =>
+  import("./pages/admin/services/ServicesManager")
+);
+const AdminRoomTypes = React.lazy(() =>
+  import("./pages/admin/roomtypes/RoomTypesManager")
+);
 const AdminBookings = React.lazy(() => import("./pages/admin/Bookings"));
 const AdminUsers = React.lazy(() => import("./pages/admin/Users"));
 const AdminLocations = React.lazy(() => import("./pages/admin/Locations"));
@@ -38,6 +47,9 @@ const AdminReviews = React.lazy(() => import("./pages/admin/Reviews"));
 const AdminSettings = React.lazy(() => import("./pages/admin/Settings"));
 const AdminActivityLogs = React.lazy(() =>
   import("./pages/admin/ActivityLogs")
+);
+const AdminNewsCategories = React.lazy(() =>
+  import("./pages/admin/NewsCategories")
 );
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 
@@ -165,6 +177,30 @@ function App() {
               }
             />
             <Route
+              path="/admin/amenities"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminAmenities />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/services"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminServices />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/room-types"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminRoomTypes />
+                </Suspense>
+              }
+            />
+            <Route
               path="/admin/bookings"
               element={
                 <Suspense fallback={<LoadingSpinner />}>
@@ -201,6 +237,14 @@ function App() {
               element={
                 <Suspense fallback={<LoadingSpinner />}>
                   <AdminNews />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/news-categories"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminNewsCategories />
                 </Suspense>
               }
             />
