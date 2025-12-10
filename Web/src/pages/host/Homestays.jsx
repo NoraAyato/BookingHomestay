@@ -1,21 +1,16 @@
 import React, { useState } from "react";
 import HostLayout from "../../components/host/HostLayout";
 import Pagination from "../../components/host/Pagination";
+import ViewHomestayModal from "../../components/host/ViewHomestayModal";
+import EditHomestayModal from "../../components/host/EditHomestayModal";
+import DeleteHomestayModal from "../../components/host/DeleteHomestayModal";
 import {
-  Plus,
   Search,
   Filter,
   Edit,
   Eye,
-  MoreVertical,
   MapPin,
   Star,
-  Calendar,
-  Users,
-  Bed,
-  Bath,
-  Wifi,
-  Coffee,
   TrendingUp,
   AlertCircle,
   CheckCircle,
@@ -23,17 +18,23 @@ import {
   DoorOpen,
   Trash2,
   Utensils,
+  Home as HomeIcon,
 } from "lucide-react";
 import mockData from "../../data/hostMockData.json";
 
 const Homestays = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [viewMode, setViewMode] = useState("grid"); // grid or list
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  const homestays = mockData.homestays;
+  // Modal states
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedHomestay, setSelectedHomestay] = useState(null);
+
+  const [homestays, setHomestays] = useState(mockData.homestays);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -54,14 +55,8 @@ const Homestays = () => {
       inactive: {
         bg: "bg-gray-100",
         text: "text-gray-700",
-        label: "Tạm dừng",
+        label: "Ngừng hoạt động",
         icon: XCircle,
-      },
-      pending: {
-        bg: "bg-amber-100",
-        text: "text-amber-700",
-        label: "Chờ duyệt",
-        icon: AlertCircle,
       },
     };
 
@@ -99,6 +94,40 @@ const Homestays = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // Modal handlers
+  const handleViewHomestay = (homestay) => {
+    setSelectedHomestay(homestay);
+    setViewModalOpen(true);
+  };
+
+  const handleEditHomestay = (homestay) => {
+    setSelectedHomestay(homestay);
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteHomestay = (homestay) => {
+    setSelectedHomestay(homestay);
+    setDeleteModalOpen(true);
+  };
+
+  const handleSaveHomestay = (updatedHomestay) => {
+    setHomestays((prev) =>
+      prev.map((h) => (h.id === updatedHomestay.id ? updatedHomestay : h))
+    );
+    setEditModalOpen(false);
+    setSelectedHomestay(null);
+    // TODO: Call API to save changes
+    alert("Homestay đã được cập nhật thành công!");
+  };
+
+  const handleConfirmDelete = (homestayId) => {
+    setHomestays((prev) => prev.filter((h) => h.id !== homestayId));
+    setDeleteModalOpen(false);
+    setSelectedHomestay(null);
+    // TODO: Call API to delete
+    alert("Homestay đã được xóa thành công!");
+  };
+
   const stats = {
     total: homestays.length,
     active: homestays.filter((h) => h.status === "active").length,
@@ -116,13 +145,9 @@ const Homestays = () => {
               Homestay của tôi
             </h1>
             <p className="text-gray-600 mt-1">
-              Quản lý tất cả homestay của bạn
+              Quản lý tất cả homestay của bạn ({stats.total} homestay)
             </p>
           </div>
-          <button className="bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors shadow-md">
-            <Plus className="h-5 w-5" />
-            Thêm Homestay Mới
-          </button>
         </div>
 
         {/* Stats Cards */}
@@ -138,7 +163,7 @@ const Homestays = () => {
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
-                <Users className="h-6 w-6 text-blue-600" />
+                <HomeIcon className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </div>
@@ -163,7 +188,7 @@ const Homestays = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm font-medium mb-1">
-                  Tạm dừng
+                  Ngừng hoạt động
                 </p>
                 <p className="text-3xl font-bold text-gray-600">
                   {stats.inactive}
@@ -194,8 +219,8 @@ const Homestays = () => {
 
         {/* Search and Filter */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 relative">
+          <div className="flex flex-col lg:flex-row gap-4 items-center">
+            <div className="flex-1 relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
@@ -206,7 +231,7 @@ const Homestays = () => {
               />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap lg:flex-nowrap">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -214,14 +239,27 @@ const Homestays = () => {
               >
                 <option value="all">Tất cả trạng thái</option>
                 <option value="active">Đang hoạt động</option>
-                <option value="inactive">Tạm dừng</option>
-                <option value="pending">Chờ duyệt</option>
+                <option value="inactive">Ngừng hoạt động</option>
               </select>
 
-              <button className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
-                <Filter className="h-5 w-5" />
-                <span className="hidden sm:inline">Bộ lọc</span>
-              </button>
+              <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option value="all">Tất cả khu vực</option>
+                <option value="sapa">Sa Pa</option>
+                <option value="dalat">Đà Lạt</option>
+                <option value="nhatrang">Nha Trang</option>
+                <option value="hoian">Hội An</option>
+                <option value="phuquoc">Phú Quốc</option>
+              </select>
+
+              <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option value="all">Sắp xếp</option>
+                <option value="price-asc">Giá: Thấp đến cao</option>
+                <option value="price-desc">Giá: Cao đến thấp</option>
+                <option value="rating-desc">Đánh giá cao nhất</option>
+                <option value="reviews-desc">Nhiều đánh giá nhất</option>
+                <option value="name-asc">Tên: A - Z</option>
+                <option value="name-desc">Tên: Z - A</option>
+              </select>
             </div>
           </div>
         </div>
@@ -236,7 +274,7 @@ const Homestays = () => {
               {/* Image */}
               <div className="relative h-40 overflow-hidden">
                 <img
-                  src={homestay.images[0]}
+                  src={homestay.image}
                   alt={homestay.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -320,15 +358,24 @@ const Homestays = () => {
                     </button>
                   </div>
                   <div className="grid grid-cols-3 gap-1.5">
-                    <button className="px-2 py-1.5 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 text-xs font-medium">
+                    <button
+                      onClick={() => handleViewHomestay(homestay)}
+                      className="px-2 py-1.5 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 text-xs font-medium"
+                    >
                       <Eye className="h-3.5 w-3.5" />
                       Xem
                     </button>
-                    <button className="px-2 py-1.5 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 text-xs font-medium">
+                    <button
+                      onClick={() => handleEditHomestay(homestay)}
+                      className="px-2 py-1.5 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 text-xs font-medium"
+                    >
                       <Edit className="h-3.5 w-3.5" />
                       Sửa
                     </button>
-                    <button className="px-2 py-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors flex items-center justify-center gap-1 text-xs font-medium">
+                    <button
+                      onClick={() => handleDeleteHomestay(homestay)}
+                      className="px-2 py-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors flex items-center justify-center gap-1 text-xs font-medium"
+                    >
                       <Trash2 className="h-3.5 w-3.5" />
                       Xóa
                     </button>
@@ -344,7 +391,7 @@ const Homestays = () => {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <div className="max-w-md mx-auto">
               <div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-10 w-10 text-gray-400" />
+                <HomeIcon className="h-10 w-10 text-gray-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 Không tìm thấy homestay
@@ -377,6 +424,36 @@ const Homestays = () => {
           />
         )}
       </div>
+
+      {/* Modals */}
+      <ViewHomestayModal
+        homestay={selectedHomestay}
+        isOpen={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setSelectedHomestay(null);
+        }}
+      />
+
+      <EditHomestayModal
+        homestay={selectedHomestay}
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedHomestay(null);
+        }}
+        onSave={handleSaveHomestay}
+      />
+
+      <DeleteHomestayModal
+        homestay={selectedHomestay}
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedHomestay(null);
+        }}
+        onDelete={handleConfirmDelete}
+      />
     </HostLayout>
   );
 };
