@@ -20,6 +20,8 @@ public interface IHomestayRepository {
 
     List<Homestay> getTopRated();
 
+    List<Homestay> getHomestayByHostId(String hostId);
+
     void save(Homestay homestay);
 
     Optional<Homestay> findById(String id);

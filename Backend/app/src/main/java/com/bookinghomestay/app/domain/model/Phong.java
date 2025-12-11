@@ -23,7 +23,7 @@ public class Phong {
     private String tenPhong;
 
     @Column(name = "trang_thai", length = 50, columnDefinition = "nvarchar(50)", nullable = false)
-    private String trangThai = "Active";
+    private String trangThai = "active";
 
     @Column(name = "don_gia", nullable = false)
     private BigDecimal donGia;
@@ -34,7 +34,7 @@ public class Phong {
     @Column(name = "so_nguoi", nullable = false)
     private Integer soNguoi;
 
-    @Column(name = "tour360")
+    @Column(name = "tour360", nullable = true)
     private String tour360;
 
     // Quan hệ nhiều-1 với Homestay
