@@ -6,6 +6,7 @@ import com.bookinghomestay.app.application.host.homestay.dto.HostHomestayDataRes
 import com.bookinghomestay.app.application.host.homestay.dto.HostHomestayUpdateRequestDto;
 import com.bookinghomestay.app.application.host.homestay.query.GetHomestayDataQuery;
 import com.bookinghomestay.app.application.host.homestay.query.GetHomestayDataQueryHandler;
+import com.bookinghomestay.app.application.host.homestay.query.GetHostHomestayStatsQueryHandler;
 import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.common.response.PageResponse;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/host/homestay")
@@ -35,6 +35,7 @@ public class HostHomestayController {
     private final GetHomestayDataQueryHandler getHomestayDataQueryHandler;
     private final DeleteHomestayCommandHandler deleteHomestayCommandHandler;
     private final UpdateHomestayCommandHandler updateHomestayCommandHandler;
+    private final GetHostHomestayStatsQueryHandler getHostHomestayStatsQueryHandler;
 
     @GetMapping()
     public ResponseEntity<ApiResponse<PageResponse<HostHomestayDataResponseDto>>> getHomestayData(
@@ -52,7 +53,7 @@ public class HostHomestayController {
     public ResponseEntity<ApiResponse<Void>> updateHomestay(@PathVariable String id,
             @ModelAttribute HostHomestayUpdateRequestDto req) {
         updateHomestayCommandHandler.handle(id, req);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật thông tin homestay thành công !", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật dữ liệu homestay thành công !", null));
     }
 
     @PostMapping("/{id}/delete")
@@ -61,4 +62,10 @@ public class HostHomestayController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Dừng hoạt động homestay thành công !", null));
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<?>> getHostHomestayStats() {
+        String hostId = SecurityUtils.getCurrentUserId();
+        var stats = getHostHomestayStatsQueryHandler.handle(hostId);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy thống kê homestay thành công!", stats));
+    }
 }
