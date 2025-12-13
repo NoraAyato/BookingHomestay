@@ -1,18 +1,17 @@
 package com.bookinghomestay.app.application.host.service.dto;
 
+import org.springframework.web.multipart.MultipartFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class ServiceDataDto {
-    private String id;
-    private String homestayId;
-    private String homestayName;
+public class HostServiceCreateRequestDto {
     private String name;
-    private double price;
     private String description;
-    private String image;
+    private int price;
+    private String homestayId;
+    private MultipartFile image;
 }
