@@ -56,6 +56,8 @@ const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 // Lazy load host pages
 const HostDashboard = React.lazy(() => import("./pages/host/Dashboard"));
 const HostHomestays = React.lazy(() => import("./pages/host/Homestays"));
+const HostRooms = React.lazy(() => import("./pages/host/Rooms"));
+const HostServices = React.lazy(() => import("./pages/host/Services"));
 const HostBookings = React.lazy(() => import("./pages/host/Bookings"));
 const HostPromotions = React.lazy(() => import("./pages/host/Promotions"));
 function App() {
@@ -291,6 +293,22 @@ function App() {
               element={
                 <Suspense fallback={<LoadingSpinner />}>
                   <HostHomestays />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/host/rooms"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <HostRooms />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/host/services"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <HostServices />
                 </Suspense>
               }
             />

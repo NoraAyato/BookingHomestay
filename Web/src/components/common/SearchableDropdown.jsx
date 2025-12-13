@@ -111,13 +111,15 @@ const SearchableDropdown = ({
           <div className="overflow-y-auto max-h-48">
             {loading ? (
               <div className="px-3 py-2 text-sm text-gray-500">Đang tải...</div>
-            ) : filteredOptions.length > 0 ? (
+            ) : filteredOptions.length > 0 || allowEmpty ? (
               <>
-                {allowEmpty && !value && (
+                {allowEmpty && (
                   <button
                     type="button"
                     onClick={() => handleSelect("")}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 transition-colors bg-emerald-50 text-emerald-700"
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 transition-colors ${
+                      !value ? "bg-emerald-50 text-emerald-700" : ""
+                    }`}
                   >
                     {emptyOptionLabel}
                   </button>
