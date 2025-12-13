@@ -1,32 +1,54 @@
-import React, { useState } from "react";
-import HostLayout from "../../components/host/HostLayout";
-import Pagination from "../../components/host/Pagination";
-import ViewHomestayModal from "../../components/host/ViewHomestayModal";
-import EditHomestayModal from "../../components/host/EditHomestayModal";
-import DeleteHomestayModal from "../../components/host/DeleteHomestayModal";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import HostLayout from "../../components/host/common/HostLayout";
+import Pagination from "../../components/host/common/Pagination";
+import HomestaysList from "../../components/host/homestays/HomestaysList";
+import ViewHomestayModal from "../../components/host/homestays/ViewHomestayModal";
+import EditHomestayModal from "../../components/host/homestays/EditHomestayModal";
+import DeleteHomestayModal from "../../components/host/homestays/DeleteHomestayModal";
 import {
   Search,
-  Filter,
-  Edit,
-  Eye,
-  MapPin,
-  Star,
   TrendingUp,
-  AlertCircle,
   CheckCircle,
   XCircle,
-  DoorOpen,
-  Trash2,
-  Utensils,
   Home as HomeIcon,
 } from "lucide-react";
-import mockData from "../../data/hostMockData.json";
+import { useLocationData } from "../../hooks/useLocation";
+import { useHostHomestays } from "../../hooks/host/useHostHomestays";
+import {
+  updateHostHomestay,
+  deleteHostHomestay,
+} from "../../api/host/homestays";
 
 const Homestays = () => {
+  const navigate = useNavigate();
+
+  // Get data from API
+  const {
+    stats,
+    homestays,
+    page,
+    size,
+    total,
+    loading,
+    setPage,
+    setSearch,
+    setStatus,
+    setLocationId,
+    setSortBy,
+    refresh,
+    updateHomestay,
+    deleteHomestay,
+  } = useHostHomestays();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const [sortFilter, setSortFilter] = useState("all");
+
+  // Location filter states
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [locationSearchTerm, setLocationSearchTerm] = useState("");
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
   // Modal states
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -34,7 +56,7 @@ const Homestays = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedHomestay, setSelectedHomestay] = useState(null);
 
-  const [homestays, setHomestays] = useState(mockData.homestays);
+  const { allLocations } = useLocationData();
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -44,53 +66,65 @@ const Homestays = () => {
     }).format(amount);
   };
 
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      active: {
-        bg: "bg-green-100",
-        text: "text-green-700",
-        label: "Đang hoạt động",
-        icon: CheckCircle,
-      },
-      inactive: {
-        bg: "bg-gray-100",
-        text: "text-gray-700",
-        label: "Ngừng hoạt động",
-        icon: XCircle,
-      },
-    };
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm, setSearch]);
 
-    const config = statusConfig[status];
-    const Icon = config.icon;
+  // Update status filter
+  useEffect(() => {
+    if (statusFilter === "all") {
+      setStatus("");
+    } else {
+      // Capitalize first letter for backend
+      const backendStatus =
+        statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1);
+      setStatus(backendStatus);
+    }
+  }, [statusFilter, setStatus]);
 
-    return (
-      <span
-        className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full ${config.bg} ${config.text}`}
-      >
-        <Icon className="h-3 w-3" />
-        {config.label}
-      </span>
-    );
+  // Update location filter
+  useEffect(() => {
+    if (locationFilter === "all") {
+      setLocationId("");
+    } else {
+      setLocationId(locationFilter);
+    }
+  }, [locationFilter, setLocationId]);
+
+  // Update sort filter
+  useEffect(() => {
+    if (sortFilter === "all") {
+      setSortBy("");
+    } else {
+      setSortBy(sortFilter);
+    }
+  }, [sortFilter, setSortBy]);
+
+  // Filter locations based on search term
+  const filteredLocations = allLocations.filter((location) =>
+    location.tenKv.toLowerCase().includes(locationSearchTerm.toLowerCase())
+  );
+
+  // Get selected location name for display
+  const selectedLocationName =
+    locationFilter === "all"
+      ? "Tất cả khu vực"
+      : allLocations.find((loc) => loc.maKv === locationFilter)?.tenKv ||
+        "Tất cả khu vực";
+
+  // Handle location selection
+  const handleLocationSelect = (maKv) => {
+    setLocationFilter(maKv);
+    setLocationSearchTerm("");
+    setShowLocationDropdown(false);
   };
 
-  const filteredHomestays = homestays.filter((homestay) => {
-    const matchesSearch =
-      homestay.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      homestay.location.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || homestay.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  // Pagination logic
-  const totalItems = filteredHomestays.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedHomestays = filteredHomestays.slice(startIndex, endIndex);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -110,30 +144,79 @@ const Homestays = () => {
     setDeleteModalOpen(true);
   };
 
-  const handleSaveHomestay = (updatedHomestay) => {
-    setHomestays((prev) =>
-      prev.map((h) => (h.id === updatedHomestay.id ? updatedHomestay : h))
-    );
-    setEditModalOpen(false);
-    setSelectedHomestay(null);
-    // TODO: Call API to save changes
-    alert("Homestay đã được cập nhật thành công!");
+  const handleSaveHomestay = async (homestayId, formData) => {
+    try {
+      // Create FormData object for multipart upload
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("description", formData.description);
+      data.append("address", formData.address);
+      data.append("locationId", formData.locationId);
+      data.append("status", formData.status);
+
+      // Only append image if a new one was selected
+      if (formData.image) {
+        data.append("image", formData.image);
+      }
+
+      await updateHostHomestay(homestayId, data);
+
+      // Close modal and refresh data
+      setEditModalOpen(false);
+      setSelectedHomestay(null);
+
+      // Refresh the homestays list
+      await refresh();
+
+      alert("Cập nhật homestay thành công!");
+    } catch (error) {
+      console.error("Error updating homestay:", error);
+      alert("Có lỗi xảy ra khi cập nhật homestay. Vui lòng thử lại.");
+    }
   };
 
-  const handleConfirmDelete = (homestayId) => {
-    setHomestays((prev) => prev.filter((h) => h.id !== homestayId));
-    setDeleteModalOpen(false);
-    setSelectedHomestay(null);
-    // TODO: Call API to delete
-    alert("Homestay đã được xóa thành công!");
+  const handleConfirmDelete = async (homestayId) => {
+    try {
+      await deleteHostHomestay(homestayId);
+
+      // Close modal
+      setDeleteModalOpen(false);
+      setSelectedHomestay(null);
+
+      // Refresh the homestays list
+      await refresh();
+
+      alert("Dừng hoạt động homestay thành công!");
+    } catch (error) {
+      console.error("Error deleting homestay:", error);
+      alert("Có lỗi xảy ra khi xóa homestay. Vui lòng thử lại.");
+    }
   };
 
-  const stats = {
-    total: homestays.length,
-    active: homestays.filter((h) => h.status === "active").length,
-    inactive: homestays.filter((h) => h.status === "inactive").length,
-    totalRevenue: homestays.reduce((sum, h) => sum + h.revenue, 0),
+  // Navigation handlers
+  const handleViewRooms = (homestay) => {
+    navigate("/host/rooms", {
+      state: { homestayId: homestay.id, homestayName: homestay.name },
+    });
   };
+
+  const handleViewServices = (homestay) => {
+    navigate("/host/services", {
+      state: { homestayId: homestay.id, homestayName: homestay.name },
+    });
+  };
+
+  // Close location dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showLocationDropdown && !event.target.closest(".relative")) {
+        setShowLocationDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showLocationDropdown]);
 
   return (
     <HostLayout>
@@ -142,7 +225,7 @@ const Homestays = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              Homestay của tôi
+              Quản lý Homestay
             </h1>
             <p className="text-gray-600 mt-1">
               Quản lý tất cả homestay của bạn ({stats.total} homestay)
@@ -158,7 +241,7 @@ const Homestays = () => {
                 <p className="text-gray-600 text-sm font-medium mb-1">
                   Tổng homestay
                 </p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-gray-900">
                   {stats.total}
                 </p>
               </div>
@@ -174,7 +257,7 @@ const Homestays = () => {
                 <p className="text-gray-600 text-sm font-medium mb-1">
                   Đang hoạt động
                 </p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-2xl font-bold text-green-600">
                   {stats.active}
                 </p>
               </div>
@@ -190,7 +273,7 @@ const Homestays = () => {
                 <p className="text-gray-600 text-sm font-medium mb-1">
                   Ngừng hoạt động
                 </p>
-                <p className="text-3xl font-bold text-gray-600">
+                <p className="text-2xl font-bold text-gray-600">
                   {stats.inactive}
                 </p>
               </div>
@@ -206,7 +289,7 @@ const Homestays = () => {
                 <p className="text-gray-600 text-sm font-medium mb-1">
                   Tổng doanh thu
                 </p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-xl font-bold text-blue-600">
                   {formatCurrency(stats.totalRevenue)}
                 </p>
               </div>
@@ -219,15 +302,15 @@ const Homestays = () => {
 
         {/* Search and Filter */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-center">
-            <div className="flex-1 relative w-full">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div className="relative w-96">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
                 placeholder="Tìm kiếm homestay theo tên hoặc địa điểm..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-sm"
               />
             </div>
 
@@ -242,16 +325,96 @@ const Homestays = () => {
                 <option value="inactive">Ngừng hoạt động</option>
               </select>
 
-              <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                <option value="all">Tất cả khu vực</option>
-                <option value="sapa">Sa Pa</option>
-                <option value="dalat">Đà Lạt</option>
-                <option value="nhatrang">Nha Trang</option>
-                <option value="hoian">Hội An</option>
-                <option value="phuquoc">Phú Quốc</option>
-              </select>
+              {/* Location Filter Dropdown */}
+              <div className="relative w-48">
+                <button
+                  type="button"
+                  onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-left flex items-center justify-between"
+                >
+                  <span className="truncate">{selectedLocationName}</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      showLocationDropdown ? "transform rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
 
-              <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                {showLocationDropdown && (
+                  <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-hidden">
+                    {/* Search Input */}
+                    <div className="p-2 border-b border-gray-200 sticky top-0 bg-white">
+                      <input
+                        type="text"
+                        placeholder="Tìm kiếm khu vực..."
+                        value={locationSearchTerm}
+                        onChange={(e) => setLocationSearchTerm(e.target.value)}
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+                        autoFocus
+                      />
+                    </div>
+
+                    {/* Options List */}
+                    <div className="overflow-y-auto max-h-60">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleLocationSelect("all", "Tất cả khu vực")
+                        }
+                        className={`w-full text-left px-3 py-2 hover:bg-blue-50 transition-colors ${
+                          locationFilter === "all"
+                            ? "bg-blue-100 font-medium"
+                            : ""
+                        }`}
+                      >
+                        Tất cả khu vực
+                      </button>
+
+                      {filteredLocations.length === 0 ? (
+                        <div className="px-3 py-4 text-sm text-gray-500 text-center">
+                          Không tìm thấy khu vực
+                        </div>
+                      ) : (
+                        filteredLocations.map((location) => (
+                          <button
+                            key={location.maKv}
+                            type="button"
+                            onClick={() =>
+                              handleLocationSelect(
+                                location.maKv,
+                                location.tenKv
+                              )
+                            }
+                            className={`w-full text-left px-3 py-2 hover:bg-blue-50 transition-colors ${
+                              locationFilter === location.maKv
+                                ? "bg-blue-100 font-medium"
+                                : ""
+                            }`}
+                          >
+                            {location.tenKv}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <select
+                value={sortFilter}
+                onChange={(e) => setSortFilter(e.target.value)}
+                className="w-40 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-center"
+              >
                 <option value="all">Sắp xếp</option>
                 <option value="price-asc">Giá: Thấp đến cao</option>
                 <option value="price-desc">Giá: Cao đến thấp</option>
@@ -264,161 +427,23 @@ const Homestays = () => {
           </div>
         </div>
 
-        {/* Homestays Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {paginatedHomestays.map((homestay) => (
-            <div
-              key={homestay.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200 group"
-            >
-              {/* Image */}
-              <div className="relative h-40 overflow-hidden">
-                <img
-                  src={homestay.image}
-                  alt={homestay.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-2 right-2">
-                  {getStatusBadge(homestay.status)}
-                </div>
-                <div className="absolute top-2 left-2">
-                  <div className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                    <span className="text-xs font-semibold text-gray-900">
-                      {homestay.rating}
-                    </span>
-                    <span className="text-xs text-gray-600">
-                      ({homestay.reviews})
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-3">
-                <div className="mb-2">
-                  <h3 className="text-sm font-bold text-gray-900 mb-1 line-clamp-1">
-                    {homestay.name}
-                  </h3>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
-                    <span className="line-clamp-1">{homestay.location}</span>
-                  </div>
-                </div>
-
-                {/* Room Info */}
-                <div className="mb-3">
-                  <div className="flex items-center justify-between p-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded border border-purple-100">
-                    <div className="flex items-center gap-1.5">
-                      <DoorOpen className="h-4 w-4 text-purple-600" />
-                      <div>
-                        <p className="text-xs text-purple-600 font-semibold">
-                          Tổng phòng
-                        </p>
-                        <p className="text-base font-bold text-gray-900">
-                          {homestay.totalRooms}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-600">Phòng trống</p>
-                      <p className="text-base font-bold text-green-600">
-                        {homestay.availableRooms}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-2 mb-3 pb-3 border-b border-gray-200">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-0.5">Đặt phòng</p>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {homestay.totalBookings}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-0.5">Doanh thu</p>
-                    <p className="text-xs font-semibold text-green-600">
-                      {formatCurrency(homestay.revenue)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <button className="px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded hover:from-blue-700 hover:to-blue-800 transition-all font-semibold flex items-center justify-center gap-1 text-xs shadow-sm">
-                      <DoorOpen className="h-3.5 w-3.5" />
-                      Phòng ({homestay.totalRooms})
-                    </button>
-                    <button className="px-3 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded hover:from-green-700 hover:to-green-800 transition-all font-semibold flex items-center justify-center gap-1 text-xs shadow-sm">
-                      <Utensils className="h-3.5 w-3.5" />
-                      Dịch vụ
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    <button
-                      onClick={() => handleViewHomestay(homestay)}
-                      className="px-2 py-1.5 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 text-xs font-medium"
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                      Xem
-                    </button>
-                    <button
-                      onClick={() => handleEditHomestay(homestay)}
-                      className="px-2 py-1.5 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors flex items-center justify-center gap-1 text-xs font-medium"
-                    >
-                      <Edit className="h-3.5 w-3.5" />
-                      Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDeleteHomestay(homestay)}
-                      className="px-2 py-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors flex items-center justify-center gap-1 text-xs font-medium"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Xóa
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {filteredHomestays.length === 0 && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-            <div className="max-w-md mx-auto">
-              <div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <HomeIcon className="h-10 w-10 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Không tìm thấy homestay
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Thử điều chỉnh bộ lọc hoặc tìm kiếm của bạn
-              </p>
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setStatusFilter("all");
-                  setCurrentPage(1);
-                }}
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Xóa bộ lọc
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Homestays List */}
+        <HomestaysList
+          homestays={homestays}
+          loading={loading}
+          onView={handleViewHomestay}
+          onEdit={handleEditHomestay}
+          onDelete={handleDeleteHomestay}
+          onViewRooms={handleViewRooms}
+          onViewServices={handleViewServices}
+        />
 
         {/* Pagination */}
-        {filteredHomestays.length > 0 && (
+        {total > 0 && (
           <Pagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
+            currentPage={page}
+            totalItems={total}
+            itemsPerPage={size}
             onPageChange={handlePageChange}
             itemLabel="homestay"
           />
@@ -442,7 +467,7 @@ const Homestays = () => {
           setEditModalOpen(false);
           setSelectedHomestay(null);
         }}
-        onSave={handleSaveHomestay}
+        updateHomestay={updateHomestay}
       />
 
       <DeleteHomestayModal
@@ -452,7 +477,7 @@ const Homestays = () => {
           setDeleteModalOpen(false);
           setSelectedHomestay(null);
         }}
-        onDelete={handleConfirmDelete}
+        deleteHomestay={deleteHomestay}
       />
     </HostLayout>
   );
