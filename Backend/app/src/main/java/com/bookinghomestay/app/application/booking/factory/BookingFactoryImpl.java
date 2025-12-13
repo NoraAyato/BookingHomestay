@@ -5,7 +5,8 @@ import com.bookinghomestay.app.domain.model.ChiTietDatPhong;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.Phong;
 import com.bookinghomestay.app.domain.model.User;
-import com.bookinghomestay.app.domain.repository.IPhongRepository;
+import com.bookinghomestay.app.domain.repository.IRoomRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BookingFactoryImpl implements BookingFactory {
 
-    private final IPhongRepository phongRepository;
+    private final IRoomRepository phongRepository;
 
     @Override
     public PhieuDatPhong createBooking(User user, Phong phong, LocalDate ngayDen, LocalDate ngayDi, String status) {
@@ -45,7 +46,7 @@ public class BookingFactoryImpl implements BookingFactory {
     public PhieuDatPhong addRoom(PhieuDatPhong booking, List<String> roomIds) {
         for (String roomId : roomIds) {
 
-            Phong phong = phongRepository.findById(roomId)
+            Phong phong = phongRepository.getById(roomId)
                     .orElseThrow(() -> new IllegalArgumentException("Room not found: " + roomId));
             ChiTietDatPhong chiTiet = new ChiTietDatPhong();
             chiTiet.setMaPDPhong(booking.getMaPDPhong());

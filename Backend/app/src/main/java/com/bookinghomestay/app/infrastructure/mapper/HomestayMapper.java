@@ -216,6 +216,7 @@ public class HomestayMapper {
                 dto.setRating(averageRating);
                 dto.setReviews(totalReviews);
                 dto.setRevenue(revenue);
+                dto.setTotalRooms(homestay.getPhongs() != null ? homestay.getPhongs().size() : 0);
                 dto.setTotalBookings(totalBookings);
                 dto.setCreatedAt(homestay.getNgayTao().toLocalDate());
                 dto.setAmenities(amenities);

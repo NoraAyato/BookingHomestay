@@ -20,6 +20,7 @@ public class HostHomestayDataResponseDto {
     private String address;
     private String description;
     private String status;
+    private int totalRooms;
     private double rating;
     private int reviews;
     private int totalBookings;

@@ -33,9 +33,22 @@ public class HomestayService {
 
     public int countAvailableRooms(Homestay homestay) {
         int count = 0;
+        LocalDate today = LocalDate.now();
         for (Phong phong : homestay.getPhongs()) {
             if (phong.getTrangThai().equalsIgnoreCase("active")) {
-                count++;
+                boolean isBookedOrPendingToday = phong.getChiTietDatPhongs().stream().anyMatch(ctdp -> {
+                    PhieuDatPhong phieu = ctdp.getPhieuDatPhong();
+                    if (phieu == null)
+                        return false;
+                    boolean statusMatch = "Booked".equalsIgnoreCase(phieu.getTrangThai())
+                            || "Pending".equalsIgnoreCase(phieu.getTrangThai());
+                    LocalDate ngayDen = ctdp.getNgayDen().toLocalDate();
+                    LocalDate ngayDi = ctdp.getNgayDi().toLocalDate();
+                    return statusMatch && (!today.isBefore(ngayDen) && !today.isAfter(ngayDi));
+                });
+                if (!isBookedOrPendingToday) {
+                    count++;
+                }
             }
         }
         return count;
@@ -203,6 +216,11 @@ public class HomestayService {
                         .collect(Collectors.toList());
             case "rating-asc":
                 return list.stream().sorted(Comparator.comparing(this::calculateAverageRating))
+                        .collect(Collectors.toList());
+            case "reviews-desc":
+                return list.stream()
+                        .sorted(Comparator.comparing(this::totalReviews)
+                                .reversed())
                         .collect(Collectors.toList());
             case "revenue-desc":
                 return list.stream()

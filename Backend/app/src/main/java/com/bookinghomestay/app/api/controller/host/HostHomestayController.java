@@ -3,9 +3,12 @@ package com.bookinghomestay.app.api.controller.host;
 import com.bookinghomestay.app.application.admin.homestay.command.DeleteHomestayCommandHandler;
 import com.bookinghomestay.app.application.host.homestay.command.UpdateHomestayCommandHandler;
 import com.bookinghomestay.app.application.host.homestay.dto.HostHomestayDataResponseDto;
+import com.bookinghomestay.app.application.host.homestay.dto.HostHomestayList;
+import com.bookinghomestay.app.application.host.homestay.dto.HostHomestayStatsResponseDto;
 import com.bookinghomestay.app.application.host.homestay.dto.HostHomestayUpdateRequestDto;
 import com.bookinghomestay.app.application.host.homestay.query.GetHomestayDataQuery;
 import com.bookinghomestay.app.application.host.homestay.query.GetHomestayDataQueryHandler;
+import com.bookinghomestay.app.application.host.homestay.query.GetHostHomestayListQueryHandler;
 import com.bookinghomestay.app.application.host.homestay.query.GetHostHomestayStatsQueryHandler;
 import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.common.response.PageResponse;
@@ -13,6 +16,8 @@ import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 import org.apache.catalina.security.SecurityUtil;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +41,7 @@ public class HostHomestayController {
     private final DeleteHomestayCommandHandler deleteHomestayCommandHandler;
     private final UpdateHomestayCommandHandler updateHomestayCommandHandler;
     private final GetHostHomestayStatsQueryHandler getHostHomestayStatsQueryHandler;
+    private final GetHostHomestayListQueryHandler getHostHomestayListHandler;
 
     @GetMapping()
     public ResponseEntity<ApiResponse<PageResponse<HostHomestayDataResponseDto>>> getHomestayData(
@@ -52,6 +58,7 @@ public class HostHomestayController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> updateHomestay(@PathVariable String id,
             @ModelAttribute HostHomestayUpdateRequestDto req) {
+        System.out.println("-----" + req.toString());
         updateHomestayCommandHandler.handle(id, req);
         return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật dữ liệu homestay thành công !", null));
     }
@@ -63,9 +70,17 @@ public class HostHomestayController {
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<ApiResponse<?>> getHostHomestayStats() {
+    public ResponseEntity<ApiResponse<HostHomestayStatsResponseDto>> getHostHomestayStats() {
         String hostId = SecurityUtils.getCurrentUserId();
         var stats = getHostHomestayStatsQueryHandler.handle(hostId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy thống kê homestay thành công!", stats));
     }
+
+    @GetMapping("/getHostHomestay")
+    public ResponseEntity<ApiResponse<List<HostHomestayList>>> getHomestaList() {
+        String userID = SecurityUtils.getCurrentUserId();
+        List<HostHomestayList> list = getHostHomestayListHandler.handler(userID);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách homestay thành công !", list));
+    }
+
 }
