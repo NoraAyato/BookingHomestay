@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Menu,
   X,
@@ -13,20 +13,44 @@ import {
   MessageSquare,
   Star,
   DollarSign,
+  ChevronDown,
+  ChevronRight,
+  Sparkles,
+  Briefcase,
+  LayoutGrid,
+  DoorOpen,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getUserInfo } from "../../utils/session";
-import { getImageUrl } from "../../utils/imageUrl";
+import { getUserInfo } from "../../../utils/session";
+import { getImageUrl } from "../../../utils/imageUrl";
 
 const HostLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [homestayMenuOpen, setHomestayMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const userInfo = getUserInfo();
 
+  // Check if current route is in homestay submenu to keep it open
+  useEffect(() => {
+    const homestayRoutes = ["/host/homestays", "/host/rooms", "/host/services"];
+    if (homestayRoutes.some((route) => location.pathname.startsWith(route))) {
+      setHomestayMenuOpen(true);
+    }
+  }, [location.pathname]);
+
   const menuItems = [
     { path: "/host/dashboard", name: "Tổng quan", icon: Home },
-    { path: "/host/homestays", name: "Homestay của tôi", icon: Building },
+    {
+      name: "Quản lý Homestay",
+      icon: Building,
+      hasDropdown: true,
+      subItems: [
+        { path: "/host/homestays", name: "Homestay của tôi", icon: Building },
+        { path: "/host/rooms", name: "Quản lý Phòng", icon: DoorOpen },
+        { path: "/host/services", name: "Quản lý Dịch vụ", icon: Briefcase },
+      ],
+    },
     { path: "/host/bookings", name: "Quản lý đặt phòng", icon: Calendar },
     { path: "/host/promotions", name: "Khuyến mãi", icon: Gift },
     { path: "/host/reviews", name: "Đánh giá", icon: Star },
@@ -55,34 +79,91 @@ const HostLayout = ({ children }) => {
           </button>
         </div>
 
-        <nav className="mt-6 px-3">
-          {menuItems.map((item) => {
+        <nav className="mt-4 px-3 overflow-y-auto h-[calc(100vh-8rem)]">
+          {menuItems.map((item, index) => {
             const Icon = item.icon;
+
+            // Nếu có dropdown
+            if (item.hasDropdown) {
+              const isAnySubItemActive = item.subItems.some(
+                (subItem) => location.pathname === subItem.path
+              );
+
+              return (
+                <div key={index} className="mb-0.5">
+                  <button
+                    onClick={() => setHomestayMenuOpen(!homestayMenuOpen)}
+                    className={`flex items-center justify-between w-full px-2.5 py-2 rounded-md transition-colors text-sm ${
+                      isAnySubItemActive
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <Icon className="h-4 w-4 mr-2.5" />
+                      <span className="font-medium">{item.name}</span>
+                    </div>
+                    {homestayMenuOpen ? (
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    ) : (
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+
+                  {/* Dropdown menu */}
+                  {homestayMenuOpen && (
+                    <div className="mt-0.5 ml-3 pl-3 border-l-2 border-gray-200">
+                      {item.subItems.map((subItem) => {
+                        const SubIcon = subItem.icon;
+                        const isActive = location.pathname === subItem.path;
+
+                        return (
+                          <Link
+                            key={subItem.path}
+                            to={subItem.path}
+                            className={`flex items-center px-2 py-1.5 mb-0.5 rounded-md transition-colors text-sm ${
+                              isActive
+                                ? "bg-blue-100 text-blue-700 font-medium"
+                                : "text-gray-600 hover:bg-gray-50"
+                            }`}
+                          >
+                            <SubIcon className="h-3.5 w-3.5 mr-2" />
+                            <span className="text-xs">{subItem.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            // Menu item thông thường không có dropdown
             const isActive = location.pathname === item.path;
 
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center px-4 py-3 mb-2 rounded-lg transition-all duration-200 ${
+                className={`flex items-center px-2.5 py-2 mb-0.5 rounded-md transition-colors text-sm ${
                   isActive
-                    ? "bg-blue-50 text-blue-700 font-semibold shadow-sm"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-blue-100 text-blue-700 font-medium"
+                    : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
-                <Icon className="h-5 w-5 mr-3" />
-                {item.name}
+                <Icon className="h-4 w-4 mr-2.5" />
+                <span>{item.name}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="absolute bottom-0 w-full p-4 border-t bg-gray-50">
+        <div className="absolute bottom-0 w-full p-3 border-t bg-white">
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="flex items-center w-full px-2.5 py-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-md transition-colors text-sm"
           >
-            <LogOut className="h-5 w-5 mr-3" />
+            <LogOut className="h-4 w-4 mr-2.5" />
             Đăng xuất
           </button>
         </div>
