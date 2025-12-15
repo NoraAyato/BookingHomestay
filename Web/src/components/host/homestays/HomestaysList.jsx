@@ -160,10 +160,10 @@ const HomestaysList = ({
                 <div className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     <CheckCircle className="h-3 w-3 text-green-600" />
-                    <p className="text-xs text-gray-600">Phòng trống</p>
+                    <p className="text-xs text-gray-600">Tổng dịch vụ</p>
                   </div>
                   <p className="text-base font-bold text-green-600">
-                    {homestay.availableRooms || 0}
+                    {homestay.totalServices || 0}
                   </p>
                 </div>
               </div>
