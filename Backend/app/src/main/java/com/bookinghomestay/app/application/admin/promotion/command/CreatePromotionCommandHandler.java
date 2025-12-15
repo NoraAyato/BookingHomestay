@@ -2,6 +2,7 @@ package com.bookinghomestay.app.application.admin.promotion.command;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,12 +38,9 @@ public class CreatePromotionCommandHandler {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             KhuyenMai promotion = new KhuyenMai();
-            promotion.setMaKM("KM" + String.valueOf(System.currentTimeMillis()).substring(7));
+            promotion.setMaKM("KM" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
             promotion.setNoiDung(requestDto.getDescription());
-            promotion.setLoaiChietKhau(
-                    requestDto.getDiscountType() != null ? requestDto.getDiscountType() : "percentage");
-
-            // Convert String → Integer/BigDecimal/LocalDate/Boolean
+            promotion.setLoaiChietKhau(requestDto.getDiscountType());
             promotion.setChietKhau(BigDecimal.valueOf(Integer.parseInt(requestDto.getDiscountValue())));
             promotion.setNgayBatDau(requestDto.getStartDate().atStartOfDay());
             promotion.setNgayKetThuc(requestDto.getEndDate().atStartOfDay());
