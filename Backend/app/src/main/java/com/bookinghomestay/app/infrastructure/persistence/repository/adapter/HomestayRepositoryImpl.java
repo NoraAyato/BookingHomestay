@@ -71,4 +71,9 @@ public class HomestayRepositoryImpl implements IHomestayRepository {
     public void save(Homestay homestay) {
         jpaRepo.save(homestay);
     }
+
+    @Override
+    public List<Homestay> getHomestayByHostId(String hostId) {
+        return jpaRepo.findHomestaysByHostId(hostId);
+    }
 }
