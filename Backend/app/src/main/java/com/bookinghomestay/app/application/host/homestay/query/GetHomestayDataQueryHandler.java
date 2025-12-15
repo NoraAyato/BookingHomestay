@@ -37,17 +37,18 @@ public class GetHomestayDataQueryHandler {
                                         int totalReviews = hs.getDanhGias() != null ? hs.getDanhGias().size() : 0;
                                         int totalBookings = homestayService.countBookingByHomestay(hs);
                                         int revenue = (int) homestayService.calculateRevenueByHomestay(hs);
-                                        int availableRooms = homestayService.countAvailableRooms(hs);
+
                                         List<String> amenities = homestayService.getHomestayAmenities(hs);
                                         List<ServiceDataDto> services = hs.getDichVus() != null ? hs.getDichVus()
                                                         .stream()
-                                                        .map(dv -> new ServiceDataDto(dv.getMaDV(), hs.getIdHomestay(), hs.getTenHomestay(),
+                                                        .map(dv -> new ServiceDataDto(dv.getMaDV(), hs.getIdHomestay(),
+                                                                        hs.getTenHomestay(),
                                                                         dv.getTenDV(), dv.getDonGia().intValue(),
                                                                         dv.getMoTa(), dv.getHinhAnh()))
                                                         .collect(Collectors.toList()) : List.of();
                                         return HomestayMapper.toHostHomestayDataResponseDto(hs, averageRating,
                                                         totalReviews, totalBookings,
-                                                        revenue, availableRooms, amenities, services);
+                                                        revenue, amenities, services);
                                 })
                                 .collect(Collectors.toList());
                 return new PageResponse<>(dtoList, total, query.getPage(), query.getSize());

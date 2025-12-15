@@ -28,6 +28,6 @@ public class HostHomestayDataResponseDto {
     private String image;
     private List<String> amenities;
     private LocalDate createdAt;
-    private int availableRooms;
+    private int totalServices;
     private List<ServiceDataDto> services;
 }

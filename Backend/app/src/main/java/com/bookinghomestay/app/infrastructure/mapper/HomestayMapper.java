@@ -202,7 +202,7 @@ public class HomestayMapper {
         }
 
         public static HostHomestayDataResponseDto toHostHomestayDataResponseDto(Homestay homestay, double averageRating,
-                        int totalReviews, int totalBookings, int revenue, int availableRooms, List<String> amenities,
+                        int totalReviews, int totalBookings, int revenue, List<String> amenities,
                         List<ServiceDataDto> services) {
                 HostHomestayDataResponseDto dto = new HostHomestayDataResponseDto();
                 dto.setId(homestay.getIdHomestay());
@@ -221,7 +221,7 @@ public class HomestayMapper {
                 dto.setCreatedAt(homestay.getNgayTao().toLocalDate());
                 dto.setAmenities(amenities);
                 dto.setServices(services);
-                dto.setAvailableRooms(availableRooms);
+                dto.setTotalServices(homestay.getDichVus() != null ? homestay.getDichVus().size() : 0);
                 return dto;
         }
 }
