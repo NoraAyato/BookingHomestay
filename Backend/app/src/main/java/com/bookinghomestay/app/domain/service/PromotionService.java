@@ -39,9 +39,9 @@ public class PromotionService {
             System.out.println("Thời gian khuyến mãi không hợp lệ");
             throw new BusinessException("Thời gian khuyến mãi không hợp lệ");
         }
-
+        int countUsedPromotions = khuyenMai.getHoaDons() != null ? khuyenMai.getHoaDons().size() : 0;
         // 3. Kiểm tra số lượng khuyến mãi còn lại
-        if (khuyenMai.getSoLuong() != null && khuyenMai.getSoLuong().compareTo(BigDecimal.ZERO) <= 0) {
+        if (khuyenMai.getSoLuong() != null && khuyenMai.getSoLuong().intValue() < countUsedPromotions) {
             System.out.println("Số lượng khuyến mãi còn lại không hợp lệ");
             throw new BusinessException("Số lượng khuyến mãi còn lại không hợp lệ");
         }

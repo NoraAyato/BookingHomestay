@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.bookinghomestay.app.application.admin.promotion.dto.PromotionDataResponseDto;
+import com.bookinghomestay.app.application.host.promotion.dto.HostPromotionDataResponseDto;
 import com.bookinghomestay.app.application.promotion.dto.AvailablePromotionResponseDto;
 import com.bookinghomestay.app.application.promotion.dto.MyPromotionResponeDto;
 
@@ -58,5 +59,29 @@ public class PromotionMapper {
                 khuyenMai.getNoiDung(),
                 khuyenMai.getNgayKetThuc().toString(),
                 khuyenMai.getHinhAnh());
+    }
+
+    public static HostPromotionDataResponseDto toHostPromotionDataDto(KhuyenMai khuyenMai, String title) {
+        HostPromotionDataResponseDto dto = new HostPromotionDataResponseDto();
+        dto.setCode(khuyenMai.getMaKM());
+        dto.setId(khuyenMai.getMaKM());
+        dto.setTitle(title);
+        dto.setType(khuyenMai.getLoaiChietKhau());
+        dto.setValue(khuyenMai.getChietKhau() != null ? khuyenMai.getChietKhau().intValue() : 0);
+        dto.setUsageLimit(khuyenMai.getSoLuong() != null ? khuyenMai.getSoLuong().intValue() : 0);
+        dto.setUsageCount(khuyenMai.getHoaDons() != null ? khuyenMai.getHoaDons().size() : 0);
+        dto.setMinBookingAmount(khuyenMai.getToiThieu() != null ? khuyenMai.getToiThieu().intValue() : 0);
+        dto.setStartDate(khuyenMai.getNgayBatDau() != null ? khuyenMai.getNgayBatDau().toLocalDate() : null);
+        dto.setEndDate(khuyenMai.getNgayKetThuc() != null ? khuyenMai.getNgayKetThuc().toLocalDate() : null);
+        dto.setStatus(khuyenMai.getTrangThai());
+        dto.setBookedTimes(khuyenMai.getSoDemToiThieu() != null ? khuyenMai.getSoDemToiThieu().intValue() : 0);
+        dto.setMinNights(khuyenMai.getSoDemToiThieu() != null ? khuyenMai.getSoDemToiThieu().intValue() : 0);
+        dto.setCreatedBy(khuyenMai.getNguoiTao() != null && khuyenMai.getNguoiTao().getLastName() != null
+                ? khuyenMai.getNguoiTao().getLastName()
+                : "");
+        dto.setCreatedDate(khuyenMai.getNgayTao() != null ? khuyenMai.getNgayTao().toLocalDate() : null);
+        dto.setForNewCustomer(khuyenMai.isChiApDungChoKhachMoi());
+        dto.setImage(khuyenMai.getHinhAnh());
+        return dto;
     }
 }
