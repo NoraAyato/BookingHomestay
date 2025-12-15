@@ -66,8 +66,6 @@ public class HostPromotionController {
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String status) {
-        System.out.println("Query params - search: " + search + ", page: " + page + ", size: " + size +
-                ", startDate: " + startDate + ", endDate: " + endDate + ", type: " + type + ", status: " + status);
         String userId = SecurityUtils.getCurrentUserId();
         PageResponse<HostPromotionDataResponseDto> promotions = getPromotionDataQueryHandler
                 .handle(new HostGetPromotionQuery(search, page, size, status, type, startDate, endDate, userId));
@@ -79,7 +77,6 @@ public class HostPromotionController {
             @RequestPart("data") HostCreatePromotionRequestDto requestDto,
             @RequestPart(value = "image", required = false) MultipartFile image,
             @RequestPart(value = "homestayIds", required = false) List<String> homestayIds) {
-        System.out.println("-----" + requestDto.toString());
         String userId = SecurityUtils.getCurrentUserId();
         createPromotionCommandHandler.handle(requestDto, userId, homestayIds, image);
         return ResponseEntity.ok(new ApiResponse<>(true, "Tạo khuyến mãi thành công", null));
