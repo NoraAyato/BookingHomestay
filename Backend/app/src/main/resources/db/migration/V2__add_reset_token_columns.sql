@@ -1,1 +1,1 @@
-select * from loaiphong;
+select * from phieu_dat_phong

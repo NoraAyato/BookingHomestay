@@ -25,11 +25,11 @@ public class FirebaseConfig {
             return FirebaseApp.getInstance();
         }
 
-        InputStream serviceAccount = new ClassPathResource("firebase/serviceAccountKey.json").getInputStream();
+        InputStream serviceAccount = new ClassPathResource("YourKeyJson").getInputStream();
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl("https://bookinghomestaychat-default-rtdb.asia-southeast1.firebasedatabase.app") 
+                .setDatabaseUrl("your-database-url")
                 .build();
 
         return FirebaseApp.initializeApp(options);
