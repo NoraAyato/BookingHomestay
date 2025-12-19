@@ -29,6 +29,7 @@ public class HomestayFactoryImpl implements HomestayFactory {
         homestay.setKhuVuc(area);
         homestay.setDiaChi(address);
         homestay.setHinhAnh(image);
+        homestay.setHostId(host.getUserId());
         homestay.setTrangThai("active");
         homestay.setNgayTao(LocalDateTime.now());
         return homestay;

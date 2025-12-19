@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequestMapping("/api/admin/newsmanager")
 @RequiredArgsConstructor
 @Slf4j
+@PreAuthorize("hasRole('Admin')")
 public class NewsManagerController {
     private final GetNewsDataQueryHandler getNewsDataQueryHandler;
     private final GetNewsStatsQueryHandler getNewsStatsQueryHandler;

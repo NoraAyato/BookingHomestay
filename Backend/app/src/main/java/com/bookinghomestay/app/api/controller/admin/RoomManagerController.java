@@ -1,6 +1,7 @@
 package com.bookinghomestay.app.api.controller.admin;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/api/admin/roomsmanager")
 @RequiredArgsConstructor
 @Slf4j
+@PreAuthorize("hasRole('Admin')")
 public class RoomManagerController {
     private final GetRoomTypeDataQueryHandler getRoomTypeDataQueryHandler;
     private final UpdateRoomTypeCommandHandler updateRoomTypeCommandHandler;

@@ -12,6 +12,8 @@ import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IKhuyenMaiRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
+import com.bookinghomestay.app.domain.service.NotificationService;
+import com.bookinghomestay.app.domain.service.PromotionService;
 import com.bookinghomestay.app.infrastructure.file.FileStorageService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,8 @@ public class CreatePromotionCommandHandler {
     private final IKhuyenMaiRepository khuyenMaiRepository;
     private final FileStorageService fileStorageService;
     private final IUserRepository userRepository;
+    private final NotificationService notificationService;
+    private final PromotionService promotionService;
 
     public void handler(CreatePromotionRequestDto requestDto, MultipartFile image, String userId) {
         try {
@@ -68,6 +72,8 @@ public class CreatePromotionCommandHandler {
             }
 
             khuyenMaiRepository.save(promotion);
+            notificationService.sendNotificationToAll(promotionService.getPromotionTitle(promotion),
+                    promotion.getNoiDung(), promotion.getMaKM(), 2L);
         } catch (Exception e) {
             throw new RuntimeException("Tạo khuyến mãi thất bại: " + e.getMessage());
         }
