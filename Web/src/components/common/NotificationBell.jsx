@@ -34,9 +34,25 @@ const NotificationBell = () => {
       await markAsRead(notification.id);
     }
 
-    // Navigate đến link
-    if (notification.link) {
-      navigate(notification.link);
+    // Xác định link dựa trên type
+    let targetLink = null;
+
+    switch (notification.type) {
+      case "promotion":
+        targetLink = "/user/promotions";
+        break;
+      case "booking":
+      case "payment":
+        targetLink = "/user/booking-history";
+        break;
+      default:
+        // Không navigate nếu không xác định được type
+        targetLink = null;
+    }
+
+    // Navigate nếu có link
+    if (targetLink) {
+      navigate(targetLink);
       setShowNotifications(false);
     }
   };
@@ -117,7 +133,8 @@ const NotificationBell = () => {
               const config = getNotificationConfig(notification.type);
               const icon = config.icon;
               const color = config.color;
-              const link = config.link;
+              // Chỉ dùng link từ notification backend, không fallback
+              const link = notification.link;
 
               return (
                 <button

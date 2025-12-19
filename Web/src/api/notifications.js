@@ -37,7 +37,7 @@ export const markNotificationAsRead = async (notificationId) => {
  */
 export const markAllNotificationsAsRead = async () => {
   return await http.put(
-    "/api/notifications/read-all",
+    "/api/notifications/mark-all-read",
     {},
     {
       requireAuth: true,
