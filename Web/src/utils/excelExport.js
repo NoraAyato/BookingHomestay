@@ -102,3 +102,89 @@ export const exportToExcel = (data, sheetName, fileName, columnWidths) => {
   // Save file
   XLSX.writeFile(wb, fileName);
 };
+
+/**
+ * Export bookings to Excel file
+ * @param {Array} bookings - Array of booking objects
+ * @param {string} fileName - Optional custom file name
+ */
+export const exportBookingsToExcel = (bookings, fileName) => {
+  if (!bookings || bookings.length === 0) {
+    throw new Error("Không có dữ liệu để xuất");
+  }
+
+  // Format currency for Excel
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("vi-VN", {
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  // Calculate nights
+  const calculateNights = (checkIn, checkOut) => {
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const diffTime = Math.abs(end - start);
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  // Prepare data for export
+  const exportData = bookings.map((booking, index) => ({
+    STT: index + 1,
+    "Mã booking": booking.id || "",
+    "Khách hàng": booking.guestName || "",
+    Email: booking.guestEmail || "",
+    "Số điện thoại": booking.guestPhone || "",
+    Homestay: booking.homestayName || "",
+    "Ngày đặt": formatTimestamp(booking.bookingDate),
+    "Check-in": booking.checkIn || "",
+    "Check-out": booking.checkOut || "",
+    "Số đêm": calculateNights(booking.checkIn, booking.checkOut),
+    "Trạng thái": booking.status || "",
+    "Thanh toán": booking.paymentStatus || "",
+    "Tổng tiền": formatCurrency(booking.totalAmount || 0),
+    "Phí dịch vụ": formatCurrency(booking.feeAmount || 0),
+    "Doanh thu": formatCurrency(
+      (booking.totalAmount || 0) - (booking.feeAmount || 0)
+    ),
+    "Số phòng": booking.bookedRooms?.length || 0,
+    "Lý do hủy": booking.cancellationReason || "",
+  }));
+
+  // Create worksheet
+  const ws = XLSX.utils.json_to_sheet(exportData);
+
+  // Set column widths
+  ws["!cols"] = [
+    { wch: 5 }, // STT
+    { wch: 25 }, // Mã booking
+    { wch: 20 }, // Khách hàng
+    { wch: 25 }, // Email
+    { wch: 15 }, // Số điện thoại
+    { wch: 25 }, // Homestay
+    { wch: 20 }, // Ngày đặt
+    { wch: 12 }, // Check-in
+    { wch: 12 }, // Check-out
+    { wch: 8 }, // Số đêm
+    { wch: 15 }, // Trạng thái
+    { wch: 15 }, // Thanh toán
+    { wch: 15 }, // Tổng tiền
+    { wch: 15 }, // Phí dịch vụ
+    { wch: 15 }, // Doanh thu
+    { wch: 10 }, // Số phòng
+    { wch: 30 }, // Lý do hủy
+  ];
+
+  // Create workbook
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Danh sách booking");
+
+  // Generate filename with timestamp
+  const defaultFileName = `Bao_cao_booking_${format(
+    new Date(),
+    "dd-MM-yyyy_HH-mm-ss"
+  )}.xlsx`;
+
+  // Save file
+  XLSX.writeFile(wb, fileName || defaultFileName);
+};
