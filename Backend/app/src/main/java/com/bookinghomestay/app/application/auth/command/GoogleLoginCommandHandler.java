@@ -6,6 +6,7 @@ import com.bookinghomestay.app.domain.repository.IUserLoginRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.domain.service.RefreshTokenService;
 import com.bookinghomestay.app.infrastructure.security.JwtTokenProvider;
+import com.bookinghomestay.app.infrastructure.service.ActivityLogHelper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -26,6 +27,7 @@ public class GoogleLoginCommandHandler {
     private final IUserLoginRepository userLoginRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final ActivityLogHelper activityLogHelper;
 
     public AuthResponseDto handle(GoogleLoginCommand command) {
         String idTokenStr = command.getIdToken();
@@ -55,6 +57,7 @@ public class GoogleLoginCommandHandler {
         } else {
             user = userRepository.findByEmail(email).orElseGet(() -> {
                 User newUser = new User(email, name);
+                activityLogHelper.logUserRegistered(newUser.getUserId(), email);
                 return userRepository.save(newUser);
             });
 
@@ -67,7 +70,7 @@ public class GoogleLoginCommandHandler {
         String accessToken = jwtTokenProvider.generateToken(user.getUserId(), user.getRole().getRoleName());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
         refreshTokenService.save(user.getUserId(), refreshToken, 60 * 24 * 3);
-
+        // activityLogHelper.logUserLogin(user.getUserName(), user.getUserId());
         return new AuthResponseDto(accessToken, refreshToken);
     }
 }
