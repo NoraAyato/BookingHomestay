@@ -3,8 +3,10 @@ package com.bookinghomestay.app.application.payment.command;
 import com.bookinghomestay.app.domain.exception.ResourceNotFoundException;
 import com.bookinghomestay.app.domain.model.ThanhToan;
 import com.bookinghomestay.app.domain.repository.IThanhToanRepository;
+import com.bookinghomestay.app.domain.service.NotificationService;
 import com.bookinghomestay.app.domain.service.PaymentService;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
+import com.bookinghomestay.app.infrastructure.service.ActivityLogHelper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,8 @@ public class HandlePaymentCallbackCommandHandler {
     private final PaymentService paymentService;
     private final IThanhToanRepository thanhToanRepository;
     private final PendingRoomService pendingRoomService;
+    private final ActivityLogHelper activityLogHelper;
+    private final NotificationService notificationService;
 
     @Transactional
     public boolean handle(Map<String, String> callbackParams) {
@@ -34,7 +38,7 @@ public class HandlePaymentCallbackCommandHandler {
 
             // 2. Get payment transaction
             String orderId = callbackParams.get("orderId");
-         
+
             ThanhToan thanhToan = thanhToanRepository.findById(orderId)
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giao dịch thanh toán"));
 
@@ -49,11 +53,16 @@ public class HandlePaymentCallbackCommandHandler {
             }
             thanhToan.getHoaDon().getPhieudatphong().setTrangThai("Booked");
             thanhToanRepository.save(thanhToan);
-
+            activityLogHelper.logPaymentSuccess(thanhToan.getMaTT(), orderId);
+            notificationService.sendNotificationToUser(
+                    thanhToan.getHoaDon().getPhieudatphong().getNguoiDung().getUserId(),
+                    "Thanh toán hóa đơn " + orderId, "Thanh toán thành công cho đơn đặt phòng: "
+                            + thanhToan.getHoaDon().getPhieudatphong().getMaPDPhong(),
+                    null, 1L);
             return true;
 
         } catch (Exception e) {
-            return false;
+            throw new RuntimeException("Lỗi xử lý thanh toán: " + e.getMessage(), e);
         }
     }
 }

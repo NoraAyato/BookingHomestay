@@ -30,49 +30,78 @@ public class BookingAddPromotionHandler {
 
     @Transactional
     public void handle(BookingAddPromotionCommand command) {
-        try {
+        // Validate input
+        validateCommand(command);
 
-            PhieuDatPhong booking = bookingRepository.findById(command.getBookingId())
-                    .orElseThrow(() -> new IllegalArgumentException("Đơn đặt phòng không tồn tại"));
-            HoaDon hoaDon = booking.getHoadon();
-            if (hoaDon == null) {
-                throw new IllegalStateException("Đơn đặt phòng chưa có hóa đơn");
-            }
-            if (hoaDon.getKhuyenMai() != null) {
-                throw new IllegalStateException("Đơn đặt phòng đã có khuyến mãi áp dụng");
-            }
-            // Tạo hóa đơn
-            final KhuyenMai khuyenMai;
-            if (command.getPromotionCode() != null) {
-                Optional<KhuyenMai> promotionOpt = promotionRepository.getKhuyenMaiById(command.getPromotionCode());
-                if (promotionOpt.isPresent()) {
-                    khuyenMai = promotionOpt.get();
-                    // Validate khuyến mãi cho từng phòng
-                    boolean isValid = booking.getChiTietDatPhongs().stream()
-                            .allMatch(item -> promotionService.isPromotionAvailableForUser(
-                                    khuyenMai,
-                                    booking.getNguoiDung(),
-                                    item.getMaPhong(),
-                                    item.getNgayDen(),
-                                    item.getNgayDi(),
-                                    bookingDomainService.calculateTotalAmount(booking),
-                                    userService.countBookingComplete(booking.getNguoiDung())));
+        // Lấy thông tin booking và hóa đơn
+        PhieuDatPhong booking = bookingRepository.findById(command.getBookingId())
+                .orElseThrow(() -> new IllegalArgumentException("Đơn đặt phòng không tồn tại"));
 
-                    if (!isValid) {
-                        throw new IllegalArgumentException("Khuyến mãi không khả dụng cho booking này!");
-                    }
-                } else {
-                    throw new IllegalArgumentException("Không tìm thấy khuyến mãi !");
-                }
-            } else {
-                khuyenMai = null;
-            }
-
-            BigDecimal total = bookingDomainService.calculateTotalAmountWithPromotion(booking, khuyenMai);
-            invoiceFactory.addPromotion(hoaDon, khuyenMai, total);
-            bookingRepository.save(booking);
-        } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi thêm khuyến mãi vào đơn đặt phòng: " + e.getMessage(), e);
+        HoaDon hoaDon = booking.getHoadon();
+        if (hoaDon == null) {
+            throw new IllegalStateException("Đơn đặt phòng chưa có hóa đơn");
         }
+
+        if (hoaDon.getKhuyenMai() != null) {
+            throw new IllegalStateException("Đơn đặt phòng đã có khuyến mãi áp dụng");
+        }
+
+        // Lấy và validate khuyến mãi
+        KhuyenMai khuyenMai = getAndValidatePromotion(command.getPromotionCode(), booking);
+
+        // Tính toán và cập nhật hóa đơn
+        BigDecimal total = bookingDomainService.calculateTotalAmountWithPromotion(booking, khuyenMai);
+        if (total.compareTo(BigDecimal.ZERO) <= 0) {
+            total = BigDecimal.ONE.multiply(new BigDecimal(1000));
+        }
+        invoiceFactory.addPromotion(hoaDon, khuyenMai, total);
+        bookingRepository.save(booking);
+    }
+
+    /**
+     * Validate command input
+     */
+    private void validateCommand(BookingAddPromotionCommand command) {
+        if (command == null) {
+            throw new IllegalArgumentException("Command không được null");
+        }
+        if (command.getBookingId() == null || command.getBookingId().trim().isEmpty()) {
+            throw new IllegalArgumentException("Booking ID không được để trống");
+        }
+        if (command.getPromotionCode() == null || command.getPromotionCode().trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã khuyến mãi không được để trống");
+        }
+    }
+
+    /**
+     * Lấy và validate khuyến mãi cho booking
+     */
+    private KhuyenMai getAndValidatePromotion(String promotionCode, PhieuDatPhong booking) {
+        // Lấy khuyến mãi
+        KhuyenMai khuyenMai = promotionRepository.getKhuyenMaiById(promotionCode)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khuyến mãi: " + promotionCode));
+
+        // Validate chi tiết đặt phòng
+        if (booking.getChiTietDatPhongs() == null || booking.getChiTietDatPhongs().isEmpty()) {
+            throw new IllegalStateException("Booking không có chi tiết đặt phòng");
+        }
+
+        // Lấy thông tin chung (chỉ tính 1 lần)
+        BigDecimal totalAmount = bookingDomainService.calculateTotalAmount(booking);
+        int completedBookingCount = userService.countBookingComplete(booking.getNguoiDung());
+
+        // Validate khuyến mãi cho từng phòng
+        for (var item : booking.getChiTietDatPhongs()) {
+            promotionService.isPromotionAvailableForUser(
+                    khuyenMai,
+                    booking.getNguoiDung(),
+                    item.getMaPhong(),
+                    item.getNgayDen(),
+                    item.getNgayDi(),
+                    totalAmount,
+                    completedBookingCount);
+        }
+
+        return khuyenMai;
     }
 }

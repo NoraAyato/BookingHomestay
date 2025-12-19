@@ -31,35 +31,74 @@ public class GetAvailablePromotionQueryHandler {
     private final UserService userService;
 
     public List<AvailablePromotionResponseDto> handle(GetAvailablePromotionQuery query) {
+        // Validate input
+        if (query.getMaPDPhong() == null || query.getMaPDPhong().trim().isEmpty()) {
+            throw new BusinessException("Mã phiếu đặt phòng không được để trống");
+        }
 
+        if (query.getUserId() == null || query.getUserId().trim().isEmpty()) {
+            throw new BusinessException("User ID không được để trống");
+        }
+
+        // Lấy thông tin user
         var user = userRepository.findById(query.getUserId())
                 .orElseThrow(() -> new BusinessException("User not found"));
 
-        boolean isNewCustomer = userService.countBookingComplete(user) > 0 ? false : true;
-        var booking = bookingRepository.findById(query.getMaPDPhong());
+        // Kiểm tra khách hàng mới (chưa có booking hoàn thành)
+        boolean isNewCustomer = userService.countBookingComplete(user) == 0;
 
-        String maPhong = "";
-        if (booking.isPresent()) {
-            maPhong = booking.get().getChiTietDatPhongs().get(0).getMaPhong();
+        // Lấy thông tin booking
+        var booking = bookingRepository.findById(query.getMaPDPhong())
+                .orElseThrow(() -> new BusinessException("Không tìm thấy phiếu đặt phòng"));
+
+        // Kiểm tra chi tiết đặt phòng
+        if (booking.getChiTietDatPhongs() == null || booking.getChiTietDatPhongs().isEmpty()) {
+            throw new BusinessException("Phiếu đặt phòng không có chi tiết");
         }
-        var ngayDen = booking.get().getChiTietDatPhongs().get(0).getNgayDen().toLocalDate();
-        var ngayDi = booking.get().getChiTietDatPhongs().get(0).getNgayDi().toLocalDate();
+
+        var chiTietDatPhong = booking.getChiTietDatPhongs().get(0);
+        String maPhong = chiTietDatPhong.getMaPhong();
+        LocalDate ngayDen = chiTietDatPhong.getNgayDen().toLocalDate();
+        LocalDate ngayDi = chiTietDatPhong.getNgayDi().toLocalDate();
+
+        // Lấy khuyến mãi của phòng cụ thể
         List<KhuyenMai> allPromos = khuyenMaiRepository.getAllPromotionsForRoom(maPhong);
+
+        // Nếu phòng không có khuyến mãi riêng, lấy khuyến mãi áp dụng chung
         if (allPromos.isEmpty()) {
-            allPromos = khuyenMaiRepository.getAll();
+            allPromos = khuyenMaiRepository.getAll().stream()
+                    .filter(KhuyenMai::isApDungChoTatCaPhong)
+                    .toList();
         }
+
+        LocalDate today = LocalDate.now();
+
+        // Filter khuyến mãi hợp lệ
         var validPromos = allPromos.stream()
-                .filter(km -> !LocalDate.now().isAfter(km.getNgayKetThuc().toLocalDate()))
-                .filter(km -> !LocalDate.now().isBefore(km.getNgayBatDau().toLocalDate()))
-                .filter(km -> km.getTrangThai().equalsIgnoreCase("active"))
+                // Kiểm tra trạng thái
+                .filter(km -> "active".equalsIgnoreCase(km.getTrangThai()))
+                // Kiểm tra thời gian hiệu lực
+                .filter(km -> !today.isAfter(km.getNgayKetThuc().toLocalDate()))
+                .filter(km -> !today.isBefore(km.getNgayBatDau().toLocalDate()))
+                // Kiểm tra số ngày đặt trước
                 .filter(km -> km.getSoNgayDatTruoc() == null ||
-                        ChronoUnit.DAYS.between(LocalDate.now(), ngayDen) >= km.getSoNgayDatTruoc())
+                        ChronoUnit.DAYS.between(today, ngayDen) >= km.getSoNgayDatTruoc())
+                // Kiểm tra số đêm tối thiểu
                 .filter(km -> km.getSoDemToiThieu() == null ||
                         ChronoUnit.DAYS.between(ngayDen, ngayDi) >= km.getSoDemToiThieu())
-                .filter(km -> km.getSoLuong().intValue() > (km.getHoaDons() != null ? km.getHoaDons().size() : 0))
+                // Kiểm tra số lượng còn lại
+                .filter(km -> {
+                    if (km.getSoLuong() == null)
+                        return true;
+                    int usedCount = (km.getHoaDons() != null) ? km.getHoaDons().size() : 0;
+                    return km.getSoLuong().intValue() > usedCount;
+                })
+                // Kiểm tra điều kiện khách mới
                 .filter(km -> !km.isChiApDungChoKhachMoi() || isNewCustomer)
+                // Map sang DTO
                 .map(km -> PromotionMapper.toAvailableDto(km, promotionService.getPromotionTitle(km)))
                 .toList();
+
         return validPromos;
     }
 
