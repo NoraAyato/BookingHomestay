@@ -11,7 +11,12 @@ import {
   cancelBooking as cancelBookingApi,
 } from "../api/bookings";
 
-import { handleApiResponse } from "../utils/apiHelper";
+import {
+  isAuthError,
+  showErrorToastIfNotAuth,
+  handleApiResponse,
+} from "../utils/apiHelper";
+import { showToast } from "../components/common/Toast";
 import { convertToLocalDateTime } from "../utils/date";
 
 export function useBookings() {
@@ -247,15 +252,17 @@ export function useBookings() {
     setError(null);
     try {
       const response = await confirmMoMoPayment(paymentParams);
-      const isSuccess = handleApiResponse(
-        response,
-        "Xác nhận thanh toán thành công!",
-        "Không thể xác nhận thanh toán"
-      );
 
-      if (isSuccess) {
+      // Check auth error
+      if (isAuthError(response)) {
+        setLoading(false);
+        return null;
+      }
+
+      if (response.success) {
         return response.data || {};
       } else {
+        showErrorToastIfNotAuth(response, "Không thể xác nhận thanh toán");
         setError(response.message || "Không thể xác nhận thanh toán");
         return null;
       }

@@ -195,15 +195,11 @@ const Homestays = () => {
 
   // Navigation handlers
   const handleViewRooms = (homestay) => {
-    navigate("/host/rooms", {
-      state: { homestayId: homestay.id, homestayName: homestay.name },
-    });
+    navigate(`/host/rooms?homestayId=${homestay.id}`);
   };
 
   const handleViewServices = (homestay) => {
-    navigate("/host/services", {
-      state: { homestayId: homestay.id, homestayName: homestay.name },
-    });
+    navigate(`/host/services?homestayId=${homestay.id}`);
   };
 
   // Close location dropdown when clicking outside

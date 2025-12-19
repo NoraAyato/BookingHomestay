@@ -75,7 +75,6 @@ export function useHomestayData() {
         const response = await getAllHomestays();
         if (response.success && Array.isArray(response.data)) {
           setAllHomestays(response.data);
-          console.log("All homestays:", response);
         } else {
           throw new Error(
             response.message || "Không thể lấy danh sách homestay"

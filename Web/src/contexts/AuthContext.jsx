@@ -251,9 +251,7 @@ export function AuthProvider({ children }) {
 
     disconnectSocket();
 
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 2000);
+    window.location.href = "/";
   };
 
   const value = {

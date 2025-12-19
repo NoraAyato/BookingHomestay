@@ -125,7 +125,13 @@ const PaymentPage = () => {
   // Calculate final prices
   const discount = calculateDiscount(); // Giảm giá chỉ áp dụng cho phòng
   const finalRoomPrice = totalRoomPrice - discount; // Giá phòng sau giảm
-  const finalDepositAmount = Math.floor((finalRoomPrice * 15) / 100); // 15% tiền cọc chỉ tính từ tiền phòng
+  let finalDepositAmount = Math.floor((finalRoomPrice * 15) / 100); // 15% tiền cọc chỉ tính từ tiền phòng
+
+  // Đảm bảo tiền cọc tối thiểu 1,000đ
+  if (finalDepositAmount <= 0) {
+    finalDepositAmount = 1000;
+  }
+
   const totalPrice = finalRoomPrice + servicesPrice; // Tổng = (Phòng sau giảm) + Dịch vụ
   const remainingAmount = totalPrice - finalDepositAmount; // Còn lại = Tổng - Tiền cọc
 

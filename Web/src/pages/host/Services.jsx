@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import HostLayout from "../../components/host/common/HostLayout";
 import Pagination from "../../components/host/common/Pagination";
 import ServiceList from "../../components/host/services/ServiceList";
@@ -12,6 +12,11 @@ import { Search, Plus, Briefcase, Filter, Home } from "lucide-react";
 
 const Services = () => {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  // Get homestayId from URL query params
+  const homestayIdFromUrl = searchParams.get("homestayId");
+
   const { homestaysSelectList, selectListLoading } = useHostHomestays();
   const {
     services,
@@ -21,6 +26,7 @@ const Services = () => {
     setPage,
     setSearch,
     setHomestayId,
+    refresh,
     createService,
     updateService,
     deleteService,
@@ -28,8 +34,10 @@ const Services = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Homestay filter states
-  const [homestayFilter, setHomestayFilter] = useState("all");
+  // Homestay filter states - initialize from URL params if available
+  const [homestayFilter, setHomestayFilter] = useState(
+    homestayIdFromUrl || "all"
+  );
   const [homestaySearchTerm, setHomestaySearchTerm] = useState("");
   const [showHomestayDropdown, setShowHomestayDropdown] = useState(false);
 
@@ -39,13 +47,19 @@ const Services = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
 
-  // Set homestay filter from navigation state
-  useEffect(() => {
-    if (location.state?.homestayId) {
-      setHomestayFilter(location.state.homestayId);
-      setPage(1); // Reset to first page
+  // Track if component has mounted to skip initial effect
+  const isInitialMount = useRef(true);
+
+  // Initialize homestayId from URL params on mount
+  useLayoutEffect(() => {
+    if (homestayIdFromUrl) {
+      setHomestayId(homestayIdFromUrl);
+      setPage(1);
     }
-  }, [location.state, setPage]);
+  }, []); // Only run once on mount
+
+  // Debug: Track homestayFilter changes
+  useEffect(() => {}, [homestayFilter]);
 
   // Debounce search
   useEffect(() => {
@@ -55,8 +69,14 @@ const Services = () => {
     return () => clearTimeout(timer);
   }, [searchTerm, setSearch]);
 
-  // Update homestay filter
+  // Update homestay filter (skip initial mount to avoid double fetch)
   useEffect(() => {
+    // Skip on initial mount since useLayoutEffect already set it
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     if (homestayFilter === "all") {
       setHomestayId("");
     } else {

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getActivityLogs } from "../../api/admin/activityLogs";
 import { subscribe, unsubscribe, onStompConnected } from "../../api/socket";
 import { handleApiResponse } from "../../utils/apiHelper";
+import { exportActivityLogsToExcel } from "../../utils/excelExport";
 
 /**
  * Custom hook for managing activity logs with filters and pagination
@@ -20,6 +21,7 @@ export const useActivityLogs = (
   const [hasMore, setHasMore] = useState(false);
   const [total, setTotal] = useState(0);
   const [newActivitiesCount, setNewActivitiesCount] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Filters state
   const [filters, setFilters] = useState({
@@ -166,6 +168,74 @@ export const useActivityLogs = (
     setNewActivitiesCount(0);
   }, []);
 
+  /**
+   * Xuất báo cáo activity logs
+   * @param {number} days - Số ngày muốn xuất (0 = hôm nay, 7 = 7 ngày, etc.)
+   */
+  const exportActivities = useCallback(
+    async (days = 7) => {
+      setIsExporting(true);
+      try {
+        // Calculate date range
+        const today = new Date();
+
+        let startDateObj, endDateObj;
+        if (days === 0) {
+          // Hôm nay - từ 00:00:00 đến 23:59:59
+          startDateObj = new Date(today.setHours(0, 0, 0, 0));
+          endDateObj = new Date(today.setHours(23, 59, 59, 999));
+        } else {
+          // N days ago
+          endDateObj = new Date();
+          endDateObj.setHours(23, 59, 59, 999);
+
+          startDateObj = new Date();
+          startDateObj.setDate(today.getDate() - days);
+          startDateObj.setHours(0, 0, 0, 0);
+        }
+
+        // Convert to ISO DateTime format (YYYY-MM-DDTHH:mm:ss)
+        const startDate = startDateObj.toISOString().slice(0, 19);
+        const endDate = endDateObj.toISOString().slice(0, 19);
+
+        // Fetch all activities - chỉ gửi limit và date range
+        const response = await getActivityLogs({
+          limit: 1000,
+          startDate: startDate,
+          endDate: endDate,
+        });
+
+        if (response.success && response.data.activities.length > 0) {
+          exportActivityLogsToExcel(response.data.activities);
+          handleApiResponse(
+            { success: true },
+            `Đã xuất ${response.data.activities.length} hoạt động thành công`,
+            ""
+          );
+          return { success: true, count: response.data.activities.length };
+        } else {
+          handleApiResponse(
+            { success: false },
+            "",
+            "Không có dữ liệu để xuất trong khoảng thời gian này"
+          );
+          return { success: false, message: "Không có dữ liệu" };
+        }
+      } catch (error) {
+        console.error("Error exporting activities:", error);
+        handleApiResponse(
+          { success: false },
+          "",
+          "Có lỗi xảy ra khi xuất báo cáo"
+        );
+        return { success: false, message: error.message };
+      } finally {
+        setIsExporting(false);
+      }
+    },
+    [filters]
+  );
+
   // Fetch on mount and when filters change
   useEffect(() => {
     fetchActivities(false);
@@ -200,6 +270,7 @@ export const useActivityLogs = (
     total,
     filters,
     newActivitiesCount,
+    isExporting,
 
     // Methods
     loadMore,
@@ -208,6 +279,7 @@ export const useActivityLogs = (
     resetFilters,
     search,
     clearNewActivitiesCount,
+    exportActivities,
   };
 };
 

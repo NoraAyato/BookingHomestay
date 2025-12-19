@@ -41,6 +41,7 @@ export const useHostServices = () => {
         throw new Error(response?.message || "Lỗi khi tải dữ liệu dịch vụ");
       }
     } catch (err) {
+      console.error("❌ [useHostServices] Error:", err);
       setError(err.message || "Đã xảy ra lỗi khi tải dữ liệu dịch vụ");
       console.error("Error fetching services:", err);
     } finally {
