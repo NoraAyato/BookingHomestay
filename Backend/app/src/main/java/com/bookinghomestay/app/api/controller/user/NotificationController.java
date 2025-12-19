@@ -31,6 +31,7 @@ public class NotificationController {
     private final GetUnreadNotificationsQueryHandler getUnreadNotificationsHandler;
     private final GetUnreadCountQueryHandler getUnreadCountHandler;
     private final SetReadNotificationHandler setReadNotificationHandler;
+
     /**
      * Get all notifications for current user
      */
@@ -95,44 +96,4 @@ public class NotificationController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Đánh dấu tất cả đã đọc thành công", null));
     }
 
-    /**
-     * Send notification to specific user (Admin only)
-     */
-    @PostMapping("/send-to-user")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<NotificationDto>> sendToUser(
-            @Valid @RequestBody SendNotificationRequest request) {
-        log.info("Sending notification to user: {}", request.getTargetUserId());
-
-        SendNotificationToUserCommand command = new SendNotificationToUserCommand(
-                request.getTargetUserId(),
-                request.getTieuDe(),
-                request.getNoiDung(),
-                request.getMaLienKet(),
-                request.getNotificationTypeId());
-
-        NotificationDto dto = sendToUserHandler.handle(command);
-
-        return ResponseEntity.ok(new ApiResponse<>(true, "Gửi thông báo thành công", dto));
-    }
-
-    /**
-     * Broadcast notification to all users (Admin only)
-     */
-    @PostMapping("/broadcast")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<NotificationDto>> broadcastToAll(
-            @Valid @RequestBody SendNotificationRequest request) {
-        log.info("Broadcasting notification to all users");
-
-        SendNotificationToAllCommand command = new SendNotificationToAllCommand(
-                request.getTieuDe(),
-                request.getNoiDung(),
-                request.getMaLienKet(),
-                request.getNotificationTypeId());
-
-        NotificationDto dto = sendToAllHandler.handle(command);
-
-        return ResponseEntity.ok(new ApiResponse<>(true, "Phát thông báo đến tất cả người dùng thành công", dto));
-    }
 }

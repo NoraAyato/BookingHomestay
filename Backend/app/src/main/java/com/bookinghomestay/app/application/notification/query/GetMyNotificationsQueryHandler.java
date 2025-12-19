@@ -25,7 +25,9 @@ public class GetMyNotificationsQueryHandler {
         log.info("Handling GetMyNotificationsQuery for user: {}", query.getUserId());
 
         List<UserNotification> notifications = userNotificationRepository
-                .findByUser_UserId(query.getUserId());
+                .findByUser_UserId(query.getUserId()).stream()
+                .sorted((n1, n2) -> n2.getNotification().getNgayGui().compareTo(n1.getNotification().getNgayGui()))
+                .toList();
 
         return NotificationMapper.toDtoList(notifications);
     }
