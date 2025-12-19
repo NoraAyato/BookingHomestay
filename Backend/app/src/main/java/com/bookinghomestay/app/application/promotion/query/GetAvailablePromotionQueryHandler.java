@@ -56,6 +56,7 @@ public class GetAvailablePromotionQueryHandler {
                         ChronoUnit.DAYS.between(LocalDate.now(), ngayDen) >= km.getSoNgayDatTruoc())
                 .filter(km -> km.getSoDemToiThieu() == null ||
                         ChronoUnit.DAYS.between(ngayDen, ngayDi) >= km.getSoDemToiThieu())
+                .filter(km -> km.getSoLuong().intValue() > (km.getHoaDons() != null ? km.getHoaDons().size() : 0))
                 .filter(km -> !km.isChiApDungChoKhachMoi() || isNewCustomer)
                 .map(km -> PromotionMapper.toAvailableDto(km, promotionService.getPromotionTitle(km)))
                 .toList();

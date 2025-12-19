@@ -2,7 +2,7 @@ package com.bookinghomestay.app.application.booking.command;
 
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
-import com.bookinghomestay.app.domain.repository.IPhongRepository;
+import com.bookinghomestay.app.domain.repository.IRoomRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
 import com.bookinghomestay.app.infrastructure.service.ActivityLogHelper;
@@ -20,7 +20,7 @@ public class CreateBookingCommandHandler {
 
     private final PendingRoomService pendingRoomService;
     private final IBookingRepository bookingRepository;
-    private final IPhongRepository phongRepository;
+    private final IRoomRepository phongRepository;
     private final IUserRepository userRepository;
     private final BookingFactory bookingFactory;
     private final ActivityLogHelper activityLogHelper;
@@ -40,7 +40,7 @@ public class CreateBookingCommandHandler {
             throw new BusinessException("Phòng đã được giữ hoặc đang được đặt!");
         }
 
-        var phongOptional = phongRepository.findById(command.getMaPhong());
+        var phongOptional = phongRepository.getById(command.getMaPhong());
         if (phongOptional.isEmpty()) {
             pendingRoomService.releaseRoom(
                     command.getMaPhong(),

@@ -58,6 +58,7 @@
     {
       "id": "HS001",
       "name": "Villa Sapa Dreams",
+      "locationId": "LOC001",
       "location": "Sapa, Lào Cai",
       "address": "123 Đường Fansipan, Sa Pa, Lào Cai",
       "description": "Villa sang trọng với view núi tuyệt đẹp, phòng ốc rộng rãi, tiện nghi đầy đủ",
@@ -66,11 +67,7 @@
       "reviews": 45,
       "totalBookings": 67,
       "revenue": 58000000,
-      "images": [
-        "/api/placeholder/400/300",
-        "/api/placeholder/400/300",
-        "/api/placeholder/400/300"
-      ],
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
       "amenities": [
         "WiFi",
         "Bếp",
@@ -82,64 +79,45 @@
       "createdAt": "2023-06-15",
       "totalRooms": 4,
       "availableRooms": 3,
-      "rooms": [
+      "services": [
         {
-          "id": "R001",
-          "name": "Phòng Deluxe View Núi",
-          "type": "deluxe",
-          "status": "available",
-          "pricePerNight": 1200000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 35,
-          "amenities": ["WiFi", "Điều hòa", "TV", "View núi"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV001",
+          "name": "Đưa đón sân bay",
+          "description": "Dịch vụ đưa đón từ sân bay Nội Bài về homestay",
+          "price": 500000,
+          "unit": "lượt",
+          "icon": "car"
         },
         {
-          "id": "R002",
-          "name": "Phòng Suite Cao Cấp",
-          "type": "suite",
-          "status": "available",
-          "pricePerNight": 1800000,
-          "maxGuests": 4,
-          "bedrooms": 2,
-          "bathrooms": 2,
-          "size": 60,
-          "amenities": ["WiFi", "Điều hòa", "TV", "Bếp nhỏ", "Ban công"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV002",
+          "name": "Tour leo núi Fansipan",
+          "description": "Tour 1 ngày chinh phục đỉnh Fansipan có hướng dẫn viên",
+          "price": 1200000,
+          "unit": "người",
+          "icon": "mountain"
         },
         {
-          "id": "R003",
-          "name": "Phòng Standard",
-          "type": "standard",
-          "status": "booked",
-          "pricePerNight": 900000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 25,
-          "amenities": ["WiFi", "Điều hòa", "TV"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV003",
+          "name": "Ăn sáng buffet",
+          "description": "Buffet sáng phong phú với món Việt và Âu",
+          "price": 150000,
+          "unit": "người/ngày",
+          "icon": "utensils"
         },
         {
-          "id": "R004",
-          "name": "Phòng Family",
-          "type": "family",
-          "status": "available",
-          "pricePerNight": 2200000,
-          "maxGuests": 6,
-          "bedrooms": 3,
-          "bathrooms": 2,
-          "size": 80,
-          "amenities": ["WiFi", "Điều hòa", "TV", "Bếp", "Phòng khách"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV004",
+          "name": "Spa & Massage",
+          "description": "Dịch vụ massage thư giãn toàn thân 60 phút",
+          "price": 300000,
+          "unit": "người",
+          "icon": "spa"
         }
       ]
     },
     {
       "id": "HS002",
       "name": "Cozy Da Lat House",
+      "locationId": "LOC002",
       "location": "Đà Lạt, Lâm Đồng",
       "address": "456 Đường Trần Phú, Phường 4, Đà Lạt",
       "description": "Ngôi nhà ấm cúng giữa lòng Đà Lạt, gần chợ và trung tâm",
@@ -148,56 +126,42 @@
       "reviews": 28,
       "totalBookings": 42,
       "revenue": 32000000,
-      "images": ["/api/placeholder/400/300", "/api/placeholder/400/300"],
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop",
       "amenities": ["WiFi", "Bếp", "Lò sưởi", "Sân vườn", "BBQ"],
       "createdAt": "2023-08-20",
       "totalRooms": 3,
       "availableRooms": 2,
-      "rooms": [
+      "services": [
         {
-          "id": "R005",
-          "name": "Phòng Double",
-          "type": "double",
-          "status": "available",
-          "pricePerNight": 800000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 30,
-          "amenities": ["WiFi", "Lò sưởi", "TV"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV005",
+          "name": "Thuê xe máy",
+          "description": "Thuê xe máy tự động Honda Vision theo ngày",
+          "price": 150000,
+          "unit": "xe/ngày",
+          "icon": "bike"
         },
         {
-          "id": "R006",
-          "name": "Phòng Twin",
-          "type": "twin",
-          "status": "booked",
-          "pricePerNight": 850000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 28,
-          "amenities": ["WiFi", "Lò sưởi", "TV"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV006",
+          "name": "Tour thành phố",
+          "description": "Tour tham quan các điểm đến nổi tiếng Đà Lạt",
+          "price": 800000,
+          "unit": "người",
+          "icon": "map"
         },
         {
-          "id": "R007",
-          "name": "Phòng Garden View",
-          "type": "deluxe",
-          "status": "available",
-          "pricePerNight": 1000000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 32,
-          "amenities": ["WiFi", "Lò sưởi", "TV", "View vườn"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV007",
+          "name": "BBQ buổi tối",
+          "description": "Set BBQ nướng sân vườn cho 4-6 người",
+          "price": 500000,
+          "unit": "set",
+          "icon": "flame"
         }
       ]
     },
     {
       "id": "HS003",
       "name": "Beach House Nha Trang",
+      "locationId": "LOC003",
       "location": "Nha Trang, Khánh Hòa",
       "address": "789 Đường Trần Phú, Nha Trang",
       "description": "Căn hộ view biển tuyệt đẹp, chỉ cách bãi biển 50m",
@@ -206,86 +170,50 @@
       "reviews": 38,
       "totalBookings": 55,
       "revenue": 48000000,
-      "images": [
-        "/api/placeholder/400/300",
-        "/api/placeholder/400/300",
-        "/api/placeholder/400/300"
-      ],
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&h=600&fit=crop",
       "amenities": ["WiFi", "Điều hòa", "Bếp", "Ban công view biển", "Hồ bơi"],
       "createdAt": "2023-05-10",
       "totalRooms": 5,
       "availableRooms": 4,
-      "rooms": [
+      "services": [
         {
-          "id": "R008",
-          "name": "Phòng Sea View",
-          "type": "deluxe",
-          "status": "available",
-          "pricePerNight": 1500000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 40,
-          "amenities": ["WiFi", "Điều hòa", "TV", "Ban công view biển"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV008",
+          "name": "Thuê ván lướt sóng",
+          "description": "Cho thuê ván lướt sóng và phao bơi theo giờ",
+          "price": 100000,
+          "unit": "giờ",
+          "icon": "waves"
         },
         {
-          "id": "R009",
-          "name": "Suite Honeymoon",
-          "type": "suite",
-          "status": "available",
-          "pricePerNight": 2500000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 55,
-          "amenities": ["WiFi", "Điều hòa", "TV", "Jacuzzi", "View biển"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV009",
+          "name": "Tour lặn biển",
+          "description": "Tour lặn ngắm san hô tại đảo Hòn Mun kèm thiết bị",
+          "price": 600000,
+          "unit": "người",
+          "icon": "fish"
         },
         {
-          "id": "R010",
-          "name": "Phòng Standard",
-          "type": "standard",
-          "status": "booked",
-          "pricePerNight": 1200000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 30,
-          "amenities": ["WiFi", "Điều hòa", "TV"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV010",
+          "name": "Bữa tối hải sản",
+          "description": "Set hải sản tươi sống nướng BBQ tại bãi biển",
+          "price": 800000,
+          "unit": "set",
+          "icon": "utensils"
         },
         {
-          "id": "R011",
-          "name": "Phòng Family Ocean",
-          "type": "family",
-          "status": "available",
-          "pricePerNight": 3000000,
-          "maxGuests": 4,
-          "bedrooms": 2,
-          "bathrooms": 2,
-          "size": 70,
-          "amenities": ["WiFi", "Điều hòa", "TV", "Bếp", "Ban công lớn"],
-          "images": ["/api/placeholder/300/200"]
-        },
-        {
-          "id": "R012",
-          "name": "Phòng Pool View",
-          "type": "deluxe",
-          "status": "available",
-          "pricePerNight": 1600000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 38,
-          "amenities": ["WiFi", "Điều hòa", "TV", "View hồ bơi"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV011",
+          "name": "Thuê xe đạp",
+          "description": "Xe đạp thể thao để khám phá thành phố",
+          "price": 50000,
+          "unit": "xe/ngày",
+          "icon": "bike"
         }
       ]
     },
     {
       "id": "HS004",
       "name": "Hoi An Traditional House",
+      "locationId": "LOC004",
       "location": "Hội An, Quảng Nam",
       "address": "321 Đường Nguyễn Thái Học, Hội An",
       "description": "Nhà cổ truyền thống Hội An, gần phố cổ",
@@ -294,56 +222,42 @@
       "reviews": 31,
       "totalBookings": 38,
       "revenue": 35000000,
-      "images": ["/api/placeholder/400/300", "/api/placeholder/400/300"],
+      "image": "https://images.unsplash.com/photo-1601918774946-25832a4be0d6?w=800&h=600&fit=crop",
       "amenities": ["WiFi", "Điều hòa", "Bếp", "Sân vườn", "Xe đạp miễn phí"],
       "createdAt": "2023-07-05",
       "totalRooms": 3,
       "availableRooms": 3,
-      "rooms": [
+      "services": [
         {
-          "id": "R013",
-          "name": "Phòng Traditional",
-          "type": "deluxe",
-          "status": "available",
-          "pricePerNight": 1100000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 32,
-          "amenities": ["WiFi", "Điều hòa", "Trang trí cổ điển"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV012",
+          "name": "Xe đạp miễn phí",
+          "description": "Xe đạp cổ điển để khám phá phố cổ Hội An",
+          "price": 0,
+          "unit": "miễn phí",
+          "icon": "bike"
         },
         {
-          "id": "R014",
-          "name": "Phòng Garden",
-          "type": "deluxe",
-          "status": "available",
-          "pricePerNight": 1300000,
-          "maxGuests": 3,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 35,
-          "amenities": ["WiFi", "Điều hòa", "View sân vườn"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV013",
+          "name": "Tour phố cổ",
+          "description": "Hướng dẫn tham quan các điểm di tích lịch sử",
+          "price": 400000,
+          "unit": "nhóm",
+          "icon": "map"
         },
         {
-          "id": "R015",
-          "name": "Phòng Lantern",
-          "type": "suite",
-          "status": "available",
-          "pricePerNight": 1800000,
-          "maxGuests": 4,
-          "bedrooms": 2,
-          "bathrooms": 1,
-          "size": 50,
-          "amenities": ["WiFi", "Điều hòa", "Ban công", "Trang trí đèn lồng"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV014",
+          "name": "Lớp nấu ăn truyền thống",
+          "description": "Học nấu món ăn truyền thống Hội An",
+          "price": 350000,
+          "unit": "người",
+          "icon": "chef"
         }
       ]
     },
     {
       "id": "HS005",
       "name": "Mountain View Lodge",
+      "locationId": "LOC005",
       "location": "Tam Đảo, Vĩnh Phúc",
       "address": "555 Đường Lên Núi, Tam Đảo",
       "description": "Nhà nghỉ trên núi với không khí trong lành",
@@ -352,37 +266,27 @@
       "reviews": 22,
       "totalBookings": 25,
       "revenue": 18000000,
-      "images": ["/api/placeholder/400/300"],
+      "image": "https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800&h=600&fit=crop",
       "amenities": ["WiFi", "Lò sưởi", "Bếp", "View núi"],
       "createdAt": "2023-09-12",
       "totalRooms": 2,
       "availableRooms": 2,
-      "rooms": [
+      "services": [
         {
-          "id": "R016",
-          "name": "Phòng Mountain View",
-          "type": "standard",
-          "status": "available",
-          "pricePerNight": 800000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 28,
-          "amenities": ["WiFi", "Lò sưởi", "View núi"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV015",
+          "name": "Hướng dẫn leo núi",
+          "description": "Hướng dẫn viên chuyên nghiệp cho tour leo núi",
+          "price": 800000,
+          "unit": "nhóm/ngày",
+          "icon": "mountain"
         },
         {
-          "id": "R017",
-          "name": "Phòng Forest View",
-          "type": "deluxe",
-          "status": "available",
-          "pricePerNight": 950000,
-          "maxGuests": 2,
-          "bedrooms": 1,
-          "bathrooms": 1,
-          "size": 30,
-          "amenities": ["WiFi", "Lò sưởi", "View rừng", "Ban công"],
-          "images": ["/api/placeholder/300/200"]
+          "id": "SV016",
+          "name": "Lửa trại",
+          "description": "Tổ chức lửa trại và BBQ tại khu vườn",
+          "price": 300000,
+          "unit": "lần",
+          "icon": "flame"
         }
       ]
     }

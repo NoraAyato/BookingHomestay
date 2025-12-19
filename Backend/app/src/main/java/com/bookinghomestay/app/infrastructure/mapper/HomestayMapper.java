@@ -13,6 +13,8 @@ import com.bookinghomestay.app.application.homestay.dto.HomestayTienNghiResponse
 import com.bookinghomestay.app.application.homestay.dto.HomestayTop5ResponeDto;
 import com.bookinghomestay.app.application.homestay.dto.RoomAvailabilityDto;
 import com.bookinghomestay.app.application.homestay.dto.RoomImagesDto;
+import com.bookinghomestay.app.application.host.homestay.dto.HostHomestayDataResponseDto;
+import com.bookinghomestay.app.application.host.service.dto.ServiceDataDto;
 import com.bookinghomestay.app.application.users.dto.HostDetailResponseDto;
 import com.bookinghomestay.app.domain.model.ChinhSach;
 import com.bookinghomestay.app.domain.model.DanhGia;
@@ -197,5 +199,29 @@ public class HomestayMapper {
                                 phong.getHinhAnhPhongs().stream()
                                                 .map(HinhAnhPhong::getUrlAnh)
                                                 .collect(Collectors.toList()));
+        }
+
+        public static HostHomestayDataResponseDto toHostHomestayDataResponseDto(Homestay homestay, double averageRating,
+                        int totalReviews, int totalBookings, int revenue, List<String> amenities,
+                        List<ServiceDataDto> services) {
+                HostHomestayDataResponseDto dto = new HostHomestayDataResponseDto();
+                dto.setId(homestay.getIdHomestay());
+                dto.setName(homestay.getTenHomestay());
+                dto.setLocationId(homestay.getKhuVuc().getMaKv());
+                dto.setLocation(homestay.getDiaChi() + ", " + homestay.getKhuVuc().getTenKv());
+                dto.setAddress(homestay.getDiaChi());
+                dto.setDescription(homestay.getGioiThieu());
+                dto.setStatus(homestay.getTrangThai());
+                dto.setImage(homestay.getHinhAnh());
+                dto.setRating(averageRating);
+                dto.setReviews(totalReviews);
+                dto.setRevenue(revenue);
+                dto.setTotalRooms(homestay.getPhongs() != null ? homestay.getPhongs().size() : 0);
+                dto.setTotalBookings(totalBookings);
+                dto.setCreatedAt(homestay.getNgayTao().toLocalDate());
+                dto.setAmenities(amenities);
+                dto.setServices(services);
+                dto.setTotalServices(homestay.getDichVus() != null ? homestay.getDichVus().size() : 0);
+                return dto;
         }
 }

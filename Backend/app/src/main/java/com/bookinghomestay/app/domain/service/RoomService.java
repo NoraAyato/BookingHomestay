@@ -2,11 +2,13 @@ package com.bookinghomestay.app.domain.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.bookinghomestay.app.domain.model.HinhAnhPhong;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.model.KhuyenMaiPhong;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
@@ -31,6 +33,13 @@ public class RoomService {
     public List<Phong> filterAvailableRooms(List<Phong> rooms, LocalDate checkIn, LocalDate checkOut) {
         return rooms.stream()
                 .filter(room -> isRoomAvailable(room, checkIn, checkOut))
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getImagesByRoom(Phong room) {
+        return room.getHinhAnhPhongs().stream()
+                .sorted(Comparator.comparing(HinhAnhPhong::isLaAnhChinh).reversed())
+                .map(h -> h.getUrlAnh())
                 .collect(Collectors.toList());
     }
 

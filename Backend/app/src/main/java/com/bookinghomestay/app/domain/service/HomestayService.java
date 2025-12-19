@@ -3,11 +3,13 @@ package com.bookinghomestay.app.domain.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.bookinghomestay.app.application.host.homestay.query.GetHomestayDataQuery;
 import com.bookinghomestay.app.domain.model.ChiTietDatPhong;
 import com.bookinghomestay.app.domain.model.ChiTietPhong;
 import com.bookinghomestay.app.domain.model.DanhGia;
@@ -25,6 +27,29 @@ public class HomestayService {
         int count = 0;
         for (Homestay homestay : khuVuc.getHomestays()) {
             count += countBookingByHomestay(homestay);
+        }
+        return count;
+    }
+
+    public int countAvailableRooms(Homestay homestay) {
+        int count = 0;
+        LocalDate today = LocalDate.now();
+        for (Phong phong : homestay.getPhongs()) {
+            if (phong.getTrangThai().equalsIgnoreCase("active")) {
+                boolean isBookedOrPendingToday = phong.getChiTietDatPhongs().stream().anyMatch(ctdp -> {
+                    PhieuDatPhong phieu = ctdp.getPhieuDatPhong();
+                    if (phieu == null)
+                        return false;
+                    boolean statusMatch = "Booked".equalsIgnoreCase(phieu.getTrangThai())
+                            || "Pending".equalsIgnoreCase(phieu.getTrangThai());
+                    LocalDate ngayDen = ctdp.getNgayDen().toLocalDate();
+                    LocalDate ngayDi = ctdp.getNgayDi().toLocalDate();
+                    return statusMatch && (!today.isBefore(ngayDen) && !today.isAfter(ngayDi));
+                });
+                if (!isBookedOrPendingToday) {
+                    count++;
+                }
+            }
         }
         return count;
     }
@@ -180,6 +205,59 @@ public class HomestayService {
     public long countActiveHomestays(List<Homestay> homestays) {
         return homestays.stream()
                 .count();
+    }
+
+    public List<Homestay> sortHomestays(List<Homestay> list, String sortBy) {
+        if (sortBy == null)
+            return list;
+        switch (sortBy) {
+            case "rating-desc":
+                return list.stream().sorted(Comparator.comparing(this::calculateAverageRating).reversed())
+                        .collect(Collectors.toList());
+            case "rating-asc":
+                return list.stream().sorted(Comparator.comparing(this::calculateAverageRating))
+                        .collect(Collectors.toList());
+            case "reviews-desc":
+                return list.stream()
+                        .sorted(Comparator.comparing(this::totalReviews)
+                                .reversed())
+                        .collect(Collectors.toList());
+            case "revenue-desc":
+                return list.stream()
+                        .sorted(Comparator.comparing(this::calculateRevenueByHomestay).reversed())
+                        .collect(Collectors.toList());
+            case "price-asc":
+                return list.stream().sorted(Comparator.comparing(this::caculateMinRoomPriceByHomestay))
+                        .collect(Collectors.toList());
+            case "price-desc":
+                return list.stream()
+                        .sorted(Comparator.comparing(this::caculateMinRoomPriceByHomestay).reversed())
+                        .collect(Collectors.toList());
+            case "name-asc":
+                return list.stream().sorted(Comparator.comparing(Homestay::getTenHomestay))
+                        .collect(Collectors.toList());
+            case "name-desc":
+                return list.stream().sorted(Comparator.comparing(Homestay::getTenHomestay).reversed())
+                        .collect(Collectors.toList());
+            default:
+                return list;
+        }
+    }
+
+    public boolean filterHomestay(Homestay homestay, GetHomestayDataQuery query) {
+        if (query.getSearch() != null && !query.getSearch().isEmpty()) {
+            if (!homestay.getTenHomestay().toLowerCase().contains(query.getSearch().toLowerCase()))
+                return false;
+        }
+        if (query.getLocationId() != null && !query.getLocationId().isEmpty()) {
+            if (!homestay.getKhuVuc().getMaKv().equals(query.getLocationId()))
+                return false;
+        }
+        if (query.getStatus() != null && !query.getStatus().isEmpty()) {
+            if (!homestay.getTrangThai().equalsIgnoreCase(query.getStatus()))
+                return false;
+        }
+        return true;
     }
 
     public BigDecimal getHomestayDiscountPrice(Homestay homestay) {
