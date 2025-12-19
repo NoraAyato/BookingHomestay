@@ -15,7 +15,9 @@ import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.domain.repository.IHomestayRepository;
 import com.bookinghomestay.app.domain.repository.IReviewRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
+import com.bookinghomestay.app.domain.service.ReviewService;
 import com.bookinghomestay.app.infrastructure.file.FileStorageService;
+import com.bookinghomestay.app.infrastructure.service.ActivityLogHelper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +30,8 @@ public class PostReviewCommandHandler {
     private final IUserRepository userRepository;
     private final IHomestayRepository homestayRepository;
     private final IBookingRepository bookingRepository;
+    private final ActivityLogHelper activityLogHelper;
+    private final ReviewService reviewService;
 
     public void handle(ReviewAddCommandDto commandDto) {
         try {
@@ -57,6 +61,8 @@ public class PostReviewCommandHandler {
                     commandDto.getCleanlinessRating(), commandDto.getUtilitiesRating(), commandDto.getServiceRating(),
                     commandDto.getComment(), relativePath);
             reviewRepository.save(review);
+            activityLogHelper.logReviewCreated(review.getIdDG(), review.getHomestay().getTenHomestay(),
+                    reviewService.calculateAverageRating(review));
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi thêm đánh giá: " + commandDto.toString(), e);
         }

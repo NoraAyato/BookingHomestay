@@ -1,5 +1,7 @@
 package com.bookinghomestay.app.application.host.promotion.query;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.bookinghomestay.app.application.admin.promotion.dto.PromotionStatsResponseDto;

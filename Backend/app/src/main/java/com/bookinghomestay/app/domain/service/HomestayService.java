@@ -19,6 +19,7 @@ import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.model.KhuyenMaiPhong;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.model.Phong;
+import com.bookinghomestay.app.domain.model.User;
 
 @Service
 public class HomestayService {
@@ -52,6 +53,14 @@ public class HomestayService {
             }
         }
         return count;
+    }
+
+    public int caculateTotalBookingByHost(User host) {
+        int totalBookings = 0;
+        for (Homestay homestay : host.getHomestays()) {
+            totalBookings += countBookingByHomestay(homestay);
+        }
+        return totalBookings;
     }
 
     public double calculateRevenueByHomestay(Homestay homestay) {

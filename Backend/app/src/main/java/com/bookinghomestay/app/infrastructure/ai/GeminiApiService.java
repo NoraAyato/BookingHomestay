@@ -61,16 +61,38 @@ public class GeminiApiService {
                 String responseBody = response.body() != null ? response.body().string() : "No response body";
 
                 if (!response.isSuccessful()) {
-                    log.error("Gemini API error: {} - {} - Body: {}", response.code(), response.message(),
-                            responseBody);
+                    log.error("❌ Gemini API error - Code: {} | Message: {} | Body: {}",
+                            response.code(), response.message(), responseBody);
 
-                    // Handle quota exceeded error (429)
-                    if (response.code() == 429) {
-                        return GeminiResponse.error(
-                                "Xin lỗi, hệ thống AI đang tạm thời quá tải. Vui lòng thử lại sau vài giây hoặc liên hệ admin để nâng cấp API quota.");
+                    // Parse error message from response body
+                    String userFriendlyError = extractErrorMessage(responseBody, response.code());
+
+                    // Handle specific error codes
+                    switch (response.code()) {
+                        case 429:
+                            return GeminiResponse.error(
+                                    "Xin lỗi, hệ thống AI đang tạm thời quá tải. Vui lòng thử lại sau vài giây hoặc liên hệ admin để nâng cấp API quota.");
+
+                        case 403:
+                            return GeminiResponse.error(
+                                    "Xin lỗi, hệ thống AI tạm thời không khả dụng do vấn đề bảo mật API key. Vui lòng liên hệ admin để được hỗ trợ. 🔐");
+
+                        case 401:
+                            return GeminiResponse.error(
+                                    "Xin lỗi, hệ thống AI không thể xác thực. Vui lòng liên hệ admin để kiểm tra cấu hình.");
+
+                        case 400:
+                            return GeminiResponse.error(
+                                    "Xin lỗi, yêu cầu không hợp lệ. Vui lòng thử lại với câu hỏi khác.");
+
+                        case 500:
+                        case 503:
+                            return GeminiResponse.error(
+                                    "Xin lỗi, hệ thống AI đang bảo trì. Vui lòng thử lại sau ít phút. ⚙️");
+
+                        default:
+                            return GeminiResponse.error(userFriendlyError);
                     }
-
-                    return GeminiResponse.error("API request failed: " + response.message() + " - " + responseBody);
                 }
 
                 return parseGeminiResponse(responseBody);
@@ -164,18 +186,19 @@ public class GeminiApiService {
 
             if (root.has("candidates") && root.get("candidates").size() > 0) {
                 JsonNode candidate = root.get("candidates").get(0);
-                
+
                 // Check for content filtering
                 if (candidate.has("finishReason")) {
                     String finishReason = candidate.get("finishReason").asText();
                     log.debug("Finish reason: {}", finishReason);
-                    
-                    if (finishReason.equals("SAFETY") || finishReason.equals("RECITATION") || finishReason.equals("OTHER")) {
+
+                    if (finishReason.equals("SAFETY") || finishReason.equals("RECITATION")
+                            || finishReason.equals("OTHER")) {
                         log.warn("Content filtered by Gemini: {}", finishReason);
                         return GeminiResponse.error("Nội dung bị lọc bởi AI. Vui lòng thử lại với câu hỏi khác.");
                     }
                 }
-                
+
                 if (candidate.has("content") && candidate.get("content").has("parts")) {
                     JsonNode parts = candidate.get("content").get("parts");
                     if (parts.size() > 0 && parts.get(0).has("text")) {
@@ -205,7 +228,8 @@ public class GeminiApiService {
         // Check if context contains homestay data
         boolean hasHomestayData = sessionContext != null && sessionContext.contains("=== HOMESTAY AVAILABLE ===");
         boolean hasNoHomestayData = sessionContext != null && sessionContext.contains("=== NO HOMESTAY FOUND ===");
-        boolean noLocationSpecified = sessionContext != null && sessionContext.contains("=== NO LOCATION SPECIFIED ===");
+        boolean noLocationSpecified = sessionContext != null
+                && sessionContext.contains("=== NO LOCATION SPECIFIED ===");
 
         // Case 1: User didn't specify location - Ask for it
         if (noLocationSpecified) {
@@ -217,14 +241,14 @@ public class GeminiApiService {
 
                     YOU MUST OUTPUT IN VIETNAMESE - ASK USER TO SPECIFY LOCATION:
                     Dạ, chúng tôi có homestay ở nhiều địa điểm đẹp! 🏡
-                    
+
                     Bạn muốn tìm homestay ở khu vực nào ạ? Ví dụ:
                     🌊 Vịnh Hạ Long
                     ⛰️ Sapa
                     🌸 Đà Lạt
                     🏖️ Phú Quốc
                     🏙️ Hội An
-                    
+
                     Hoặc bạn có thể cho tôi biết địa điểm cụ thể bạn quan tâm nhé!
                     """, sessionContext);
         }
@@ -268,24 +292,24 @@ public class GeminiApiService {
                         1. If user asks about a SPECIFIC homestay by name, ONLY show that homestay's amenities
                         2. If user asks generally about "homestays in [location]", show all
                         3. Always include [ID: ...] and [Hình ảnh: ...] for each homestay
-                        
+
                         OUTPUT IN VIETNAMESE - FOCUS ON AMENITIES ONLY:
-                        
+
                         Example for specific homestay:
                         "Dạ, Biệt thự Sơn Thủy có các tiện nghi sau:
                         ✨ [List amenities]
                         [ID: ...]
                         [Hình ảnh: ...]
-                        
+
                         Bạn muốn biết thêm thông tin gì về homestay này không?"
-                        
+
                         Example for multiple homestays:
                         "Dạ, các homestay ở [location] có tiện nghi như sau:
-                        
+
                         1. [Homestay 1]:
                         ✨ [Amenities]
                         [ID: ...]
-                        
+
                         2. [Homestay 2]:
                         ✨ [Amenities]
                         [ID: ...]"
@@ -303,7 +327,7 @@ public class GeminiApiService {
                         💰 Giá từ: [Min Price]/đêm
                         🛏️ Phòng:
                            - [Room name]: [Price] VNĐ/đêm (sức chứa: [capacity] người)
-                        
+
                         (List all rooms with prices)
                         """, sessionContext);
             } else if ("ask_info".equals(intent)) {
@@ -321,7 +345,7 @@ public class GeminiApiService {
                         💰 Giá từ: [Min Price]/đêm
                         ✨ Tiện nghi: [Key amenities]
                         🛏️ Có [X] loại phòng
-                        
+
                         Bạn muốn biết chi tiết về phần nào nhất nhỉ?
                         """, sessionContext);
             } else if ("ask_policy".equals(intent)) {
@@ -336,9 +360,9 @@ public class GeminiApiService {
                         1. If user asks about a SPECIFIC homestay by name, ONLY show that homestay's policies
                         2. If user asks generally about "policies in [location]", show all
                         3. Always include [ID: ...] for each homestay
-                        
+
                         OUTPUT IN VIETNAMESE - FOCUS ON POLICIES ONLY:
-                        
+
                         Example for specific homestay:
                         "Dạ, chính sách của Biệt thự Sơn Thủy như sau:
                         📋 Chính sách:
@@ -347,59 +371,45 @@ public class GeminiApiService {
                            - Hủy phòng: [Cancellation policy]
                            - Lưu ý khác: [Other rules]
                         [ID: ...]
-                        
+
                         Bạn cần biết thêm thông tin gì không?"
-                        
+
                         Example for multiple homestays:
                         "Dạ, chính sách của các homestay ở [location]:
-                        
+
                         1. [Homestay 1]:
                         📋 Chính sách:
                            - Nhận phòng: ...
                            - Trả phòng: ...
                         [ID: ...]
-                        
+
                         2. [Homestay 2]:
                         📋 Chính sách: ...
                         [ID: ...]"
                         """, sessionContext);
             } else {
-                // Default: search_homestay - show full details
+                // Default: search_homestay - show full details with COMPACT prompt
                 return String.format("""
-                        YOU MUST OUTPUT ONLY THE HOMESTAY LIST. DO NOT ASK QUESTIONS.
-
                         DATA:
                         %s
 
-                        OUTPUT IN VIETNAMESE (REQUIRED FORMAT - MUST include ID and Image):
-                        Dạ, có [X] homestay:
+                        NHIỆM VỤ: Giới thiệu homestay bằng tiếng Việt, BẮT BUỘC gồm ID và link ảnh.
 
-                        🏠 [Name] - [Location]
-                        📍 [Address]
-                        💰 Giá từ: [Min Price]/đêm
-                        🖼️ Hình ảnh: [Image URL]
-                        🆔 ID: [Homestay ID]
-                        ✨ Tiện nghi: [Amenities list from data]
-                        🛏️ Phòng: [Room list with prices]
-
-                        (Repeat for all homestays)
+                        FORMAT:
+                        🏠 [Tên] - [Khu vực]
+                        📍 [Địa chỉ]
+                        💰 Giá: [số] VNĐ/đêm
+                        🖼️ [Link ảnh]
+                        🆔 [ID]
+                        ✨ Tiện nghi: [danh sách]
+                        🛏️ Phòng: [thông tin phòng]
                         """, sessionContext);
             }
         } else {
-            // No data, can ask for more info
+            // No data, can ask for more info - VERY SHORT PROMPT
             return String.format("""
-                    Bạn là trợ lý AI chuyên hỗ trợ đặt phòng homestay.
-
-                    Nhiệm vụ: Hiểu nhu cầu và hỗ trợ tìm homestay phù hợp.
-
-                    Nguyên tắc:
-                    - Trả lời bằng tiếng Việt
-                    - Thân thiện, ngắn gọn
-                    - Hỏi thêm thông tin nếu cần (địa điểm, giá, số người...)
-
+                    Trợ lý đặt phòng homestay. Trả lời tiếng Việt, thân thiện, ngắn gọn.
                     Tin nhắn: %s
-
-                    Trả lời:
                     """, userMessage);
         }
     }
@@ -431,29 +441,31 @@ public class GeminiApiService {
      * Build booking information extraction prompt
      */
     private String buildBookingExtractionPrompt(String userMessage) {
-        return String.format("""
-                Trích xuất thông tin đặt phòng từ tin nhắn sau và trả về dưới dạng JSON:
+        return String.format(
+                """
+                        Trích xuất thông tin đặt phòng từ tin nhắn sau và trả về dưới dạng JSON:
 
-                {
-                    "homestayName": "TÊN HOMESTAY CỤ THỂ nếu user hỏi về 1 homestay cụ thể (ví dụ: 'Biệt thự Sơn Thủy', 'Villa Sapa')",
-                    "location": "địa điểm/khu vực (nếu có, ví dụ: 'Hạ Long', 'Đà Lạt', 'Sapa')",
-                    "check_in_date": "ngày nhận phòng (YYYY-MM-DD nếu có)",
-                    "check_out_date": "ngày trả phòng (YYYY-MM-DD nếu có)",
-                    "guests": "số lượng khách (số nếu có)",
-                    "budget": "ngân sách (số nếu có)",
-                    "preferences": ["yêu cầu đặc biệt"]
-                }
+                        {
+                            "homestayName": "TÊN HOMESTAY CỤ THỂ nếu user hỏi về 1 homestay cụ thể (ví dụ: 'Biệt thự Sơn Thủy', 'Villa Sapa')",
+                            "location": "địa điểm/khu vực (nếu có, ví dụ: 'Hạ Long', 'Đà Lạt', 'Sapa')",
+                            "check_in_date": "ngày nhận phòng (YYYY-MM-DD nếu có)",
+                            "check_out_date": "ngày trả phòng (YYYY-MM-DD nếu có)",
+                            "guests": "số lượng khách (số nếu có)",
+                            "budget": "ngân sách (số nếu có)",
+                            "preferences": ["yêu cầu đặc biệt"]
+                        }
 
-                LƯU Ý QUAN TRỌNG:
-                - Nếu user hỏi VỀ MỘT HOMESTAY CỤ THỂ (ví dụ: "Biệt thự Sơn Thủy ở Hạ Long có tiện nghi gì"), 
-                  thì "homestayName" = "Biệt thự Sơn Thủy", "location" = "Hạ Long"
-                - Nếu user hỏi CHUNG (ví dụ: "Homestay ở Hạ Long có gì"), 
-                  thì "homestayName" = null, "location" = "Hạ Long"
+                        LƯU Ý QUAN TRỌNG:
+                        - Nếu user hỏi VỀ MỘT HOMESTAY CỤ THỂ (ví dụ: "Biệt thự Sơn Thủy ở Hạ Long có tiện nghi gì"),
+                          thì "homestayName" = "Biệt thự Sơn Thủy", "location" = "Hạ Long"
+                        - Nếu user hỏi CHUNG (ví dụ: "Homestay ở Hạ Long có gì"),
+                          thì "homestayName" = null, "location" = "Hạ Long"
 
-                Tin nhắn: "%s"
+                        Tin nhắn: "%s"
 
-                Chỉ trả về JSON hợp lệ:
-                """, userMessage);
+                        Chỉ trả về JSON hợp lệ:
+                        """,
+                userMessage);
     }
 
     /**
@@ -498,6 +510,45 @@ public class GeminiApiService {
         }
 
         return new HashMap<>();
+    }
+
+    /**
+     * Extract user-friendly error message from API error response
+     */
+    private String extractErrorMessage(String responseBody, int statusCode) {
+        try {
+            JsonNode root = objectMapper.readTree(responseBody);
+
+            // Check for error object
+            if (root.has("error")) {
+                JsonNode error = root.get("error");
+
+                // Get error message
+                if (error.has("message")) {
+                    String errorMsg = error.get("message").asText();
+
+                    // Map specific error messages to user-friendly Vietnamese
+                    if (errorMsg.contains("API key") && errorMsg.contains("leaked")) {
+                        return "Xin lỗi, hệ thống AI tạm thời không khả dụng do vấn đề bảo mật API key. Vui lòng liên hệ admin. 🔐";
+                    }
+                    if (errorMsg.contains("quota")) {
+                        return "Xin lỗi, hệ thống AI đã vượt quá giới hạn sử dụng. Vui lòng thử lại sau hoặc liên hệ admin.";
+                    }
+                    if (errorMsg.contains("permission") || errorMsg.contains("Permission")) {
+                        return "Xin lỗi, không có quyền truy cập vào dịch vụ AI. Vui lòng liên hệ admin.";
+                    }
+
+                    // Return generic error for other cases (don't expose technical details)
+                    log.warn("Gemini API error message: {}", errorMsg);
+                    return "Xin lỗi, hệ thống AI gặp sự cố tạm thời. Vui lòng thử lại sau. 🤖";
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse error message from response: {}", e.getMessage());
+        }
+
+        // Fallback error message
+        return "Xin lỗi, tôi gặp sự cố khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.";
     }
 
     /**

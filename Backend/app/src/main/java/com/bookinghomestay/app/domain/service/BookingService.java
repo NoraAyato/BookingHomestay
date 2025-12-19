@@ -58,6 +58,15 @@ public class BookingService {
         return true;
     }
 
+    public List<PhieuDatPhong> findBookingByHostId(String hostId, List<PhieuDatPhong> allBookings) {
+        List<PhieuDatPhong> bookings = allBookings.stream()
+                .filter(booking -> booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getNguoiDung()
+                        .getUserId().equalsIgnoreCase(hostId))
+                .distinct()
+                .toList();
+        return bookings;
+    }
+
     public boolean isReviewed(PhieuDatPhong booking, String userId) {
         return booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getDanhGias().stream()
                 .anyMatch(dg -> dg.getPhieuDatPhong() != null
@@ -180,7 +189,8 @@ public class BookingService {
                             ctdp.getNgayDen().toLocalDate(),
                             ctdp.getNgayDi().toLocalDate());
                     BigDecimal serviceTotalForRoom = ctdp.getChiTietDichVus().stream()
-                            .map(ctdv -> ctdv.getDichVu().getDonGia())
+                            .map(ctdv -> ctdv.getDichVu().getDonGia()
+                                    .multiply(BigDecimal.valueOf(ctdv.getSoLuong().intValue())))
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
                     return serviceTotalForRoom.multiply(BigDecimal.valueOf(nights));
                 })

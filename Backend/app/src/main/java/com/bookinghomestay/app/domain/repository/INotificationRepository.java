@@ -6,7 +6,7 @@ import java.util.Optional;
 import com.bookinghomestay.app.domain.model.Notification;
 import com.bookinghomestay.app.domain.model.UserNotification;
 
-public interface INoficationRepository {
+public interface INotificationRepository {
 
     List<UserNotification> findByUser_UserId(String userId);
 

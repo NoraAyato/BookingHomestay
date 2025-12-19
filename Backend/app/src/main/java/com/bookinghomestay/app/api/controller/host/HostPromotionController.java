@@ -54,7 +54,7 @@ public class HostPromotionController {
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<PromotionStatsResponseDto>> getPromotionStats() {
         String userId = SecurityUtils.getCurrentUserId();
-        PromotionStatsResponseDto stats = getPromotionStatsQueryHandler.handle();
+        PromotionStatsResponseDto stats = getPromotionStatsQueryHandler.handle(userId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy thống kê khuyến mãi thành công",
                 stats));
     }

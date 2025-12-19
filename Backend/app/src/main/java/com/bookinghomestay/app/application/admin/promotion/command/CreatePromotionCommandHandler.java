@@ -2,6 +2,7 @@ package com.bookinghomestay.app.application.admin.promotion.command;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,8 @@ import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IKhuyenMaiRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
+import com.bookinghomestay.app.domain.service.NotificationService;
+import com.bookinghomestay.app.domain.service.PromotionService;
 import com.bookinghomestay.app.infrastructure.file.FileStorageService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,8 @@ public class CreatePromotionCommandHandler {
     private final IKhuyenMaiRepository khuyenMaiRepository;
     private final FileStorageService fileStorageService;
     private final IUserRepository userRepository;
+    private final NotificationService notificationService;
+    private final PromotionService promotionService;
 
     public void handler(CreatePromotionRequestDto requestDto, MultipartFile image, String userId) {
         try {
@@ -37,12 +42,9 @@ public class CreatePromotionCommandHandler {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             KhuyenMai promotion = new KhuyenMai();
-            promotion.setMaKM("KM" + String.valueOf(System.currentTimeMillis()).substring(7));
+            promotion.setMaKM("KM" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
             promotion.setNoiDung(requestDto.getDescription());
-            promotion.setLoaiChietKhau(
-                    requestDto.getDiscountType() != null ? requestDto.getDiscountType() : "percentage");
-
-            // Convert String → Integer/BigDecimal/LocalDate/Boolean
+            promotion.setLoaiChietKhau(requestDto.getDiscountType());
             promotion.setChietKhau(BigDecimal.valueOf(Integer.parseInt(requestDto.getDiscountValue())));
             promotion.setNgayBatDau(requestDto.getStartDate().atStartOfDay());
             promotion.setNgayKetThuc(requestDto.getEndDate().atStartOfDay());
@@ -70,6 +72,8 @@ public class CreatePromotionCommandHandler {
             }
 
             khuyenMaiRepository.save(promotion);
+            notificationService.sendNotificationToAll(promotionService.getPromotionTitle(promotion),
+                    promotion.getNoiDung(), promotion.getMaKM(), 2L);
         } catch (Exception e) {
             throw new RuntimeException("Tạo khuyến mãi thất bại: " + e.getMessage());
         }

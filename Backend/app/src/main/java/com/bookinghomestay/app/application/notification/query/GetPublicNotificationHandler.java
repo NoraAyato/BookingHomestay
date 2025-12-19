@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.bookinghomestay.app.application.notification.dto.NotificationDto;
 import com.bookinghomestay.app.domain.model.Notification;
-import com.bookinghomestay.app.domain.repository.INoficationRepository;
+import com.bookinghomestay.app.domain.repository.INotificationRepository;
 import com.bookinghomestay.app.infrastructure.mapper.NotificationMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GetPublicNotificationHandler {
 
-    private final INoficationRepository notificationRepository;
+    private final INotificationRepository notificationRepository;
 
     public List<NotificationDto> handle() {
         List<Notification> publicNotifications = notificationRepository.findPublicNotifications();

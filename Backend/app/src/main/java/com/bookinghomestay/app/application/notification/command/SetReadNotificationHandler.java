@@ -2,14 +2,14 @@ package com.bookinghomestay.app.application.notification.command;
 
 import org.springframework.stereotype.Service;
 
-import com.bookinghomestay.app.domain.repository.INoficationRepository;
+import com.bookinghomestay.app.domain.repository.INotificationRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class SetReadNotificationHandler {
-    private final INoficationRepository repository;
+    private final INotificationRepository repository;
 
     public void handle(SetReadNotificationCommand command) {
         try {

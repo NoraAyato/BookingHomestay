@@ -29,9 +29,9 @@ public class NotificationMapper {
         if (notification == null) {
             return null;
         }
-
+        System.out.println("Mapping notification ID: " + notification.toString());
         NotificationDto dto = new NotificationDto();
-        dto.setId(notification.getId());
+        dto.setId(userNotification.getId());
         dto.setTitle(notification.getTieuDe());
         dto.setMessage(notification.getNoiDung());
         dto.setLink(notification.getMaLienKet());

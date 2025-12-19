@@ -6,6 +6,9 @@ import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IRoleRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.infrastructure.security.JwtTokenProvider;
+import com.bookinghomestay.app.infrastructure.service.ActivityLogHelper;
+
+import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
@@ -13,21 +16,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class RegisterUserCommandHandler {
 
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final IRoleRepository roleRepository;
-
-    public RegisterUserCommandHandler(IUserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            JwtTokenProvider jwtTokenProvider, IRoleRepository RoleRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.roleRepository = RoleRepository;
-    }
+    private final ActivityLogHelper activityLogHelper;
 
     public AuthResponseDto handle(RegisterUserCommand command) {
 
@@ -48,6 +44,7 @@ public class RegisterUserCommandHandler {
         user.setStatus("ACTIVE");
 
         userRepository.save(user);
+        activityLogHelper.logUserRegistered(user.getUserId(), user.getEmail());
         String accessToken = jwtTokenProvider.generateToken(user.getUserId(), user.getRole().getRoleName());
         return new AuthResponseDto(accessToken, null);
     }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.bookinghomestay.app.domain.model.Notification;
 import com.bookinghomestay.app.domain.model.UserNotification;
-import com.bookinghomestay.app.domain.repository.INoficationRepository;
+import com.bookinghomestay.app.domain.repository.INotificationRepository;
 import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaNoficationRepository;
 import com.bookinghomestay.app.infrastructure.persistence.repository.jpa.JpaNotificationRepository;
 
@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class NoficationRepositoryImpl implements INoficationRepository {
+public class NoficationRepositoryImpl implements INotificationRepository {
 
     private final JpaNoficationRepository jpaNoficationRepository;
     private final JpaNotificationRepository jpaNotificationRepository;

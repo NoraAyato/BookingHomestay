@@ -66,7 +66,6 @@ public class UserController {
     @PutMapping("/me/update-profile")
     public ResponseEntity<ApiResponse<Void>> updateProfile(@Valid @RequestBody UpdateProfileRequestDto dto) {
         String userId = SecurityUtils.getCurrentUserId();
-
         updateUserProfileCommandHandler.handle(new UpdateUserProfileCommand(
                 userId,
                 dto.getFirstName(),

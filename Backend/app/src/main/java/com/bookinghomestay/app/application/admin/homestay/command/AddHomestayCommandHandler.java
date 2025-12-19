@@ -16,6 +16,7 @@ import com.bookinghomestay.app.domain.repository.IKhuVucRepository;
 import com.bookinghomestay.app.domain.repository.IPoliciesRepository;
 import com.bookinghomestay.app.domain.repository.IUserRepository;
 import com.bookinghomestay.app.infrastructure.file.FileStorageService;
+import com.bookinghomestay.app.infrastructure.service.ActivityLogHelper;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class AddHomestayCommandHandler {
     private final IKhuVucRepository areaRepository;
     private final IUserRepository userRepository;
     private final IPoliciesRepository policiesRepository;
+    private final ActivityLogHelper activityLogHelper;
 
     @Transactional
     public void handle(AddHomestayRequestDto command) {
@@ -52,7 +54,7 @@ public class AddHomestayCommandHandler {
             homestayRepository.save(homestay);
             ChinhSach policy = policieFactory.createPolicie(homestay);
             policiesRepository.save(policy);
-
+            activityLogHelper.logHomestayCreated(homestay.getIdHomestay(), homestay.getTenHomestay());
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi thêm homestay: " + e.getMessage(), e);
         }
