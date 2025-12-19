@@ -14,25 +14,28 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class GetHostReviewsStatsHandler {
-    private final IReviewRepository reviewRepository;
+        private final IReviewRepository reviewRepository;
 
-    public ReviewsStatsResponseDto handle(String userId) {
-        List<DanhGia> reviews = reviewRepository.getAll().stream()
-                .filter(dg -> dg.getHomestay().getNguoiDung().getUserId().equalsIgnoreCase(userId))
-                .toList();
-        int totalReviews = reviews.size();
-        int positiveReviewsCount = (int) reviews.stream()
-                .filter(review -> (review.getDichVu() + review.getSachSe() + review.getTienIch()) / 3.0 >= 4)
-                .count();
-        int negativeReviewsCount = (int) reviews.stream()
-                .filter(review -> (review.getDichVu() + review.getSachSe() + review.getTienIch()) / 3.0 < 3)
-                .count();
-        LocalDateTime currentEnd = LocalDateTime.now();
-        LocalDateTime currentStart = currentEnd.minusDays(30);
-        int newReviewsCount = (int) reviews.stream()
-                .filter(review -> review.getNgayDanhGia().isAfter(currentStart)
-                        && review.getNgayDanhGia().isBefore(currentEnd))
-                .count();
-        return new ReviewsStatsResponseDto(totalReviews, positiveReviewsCount, negativeReviewsCount, newReviewsCount);
-    }
+        public ReviewsStatsResponseDto handle(String userId) {
+                List<DanhGia> reviews = reviewRepository.getAll().stream()
+                                .filter(dg -> dg.getHomestay().getNguoiDung().getUserId().equalsIgnoreCase(userId))
+                                .toList();
+                int totalReviews = reviews.size();
+                int positiveReviewsCount = (int) reviews.stream()
+                                .filter(review -> (review.getDichVu() + review.getSachSe() + review.getTienIch())
+                                                / 3.0 >= 4)
+                                .count();
+                int negativeReviewsCount = (int) reviews.stream()
+                                .filter(review -> (review.getDichVu() + review.getSachSe() + review.getTienIch())
+                                                / 3.0 < 3)
+                                .count();
+                LocalDateTime currentEnd = LocalDateTime.now();
+                LocalDateTime currentStart = currentEnd.minusDays(30);
+                int newReviewsCount = (int) reviews.stream()
+                                .filter(review -> review.getNgayDanhGia().isAfter(currentStart)
+                                                && review.getNgayDanhGia().isBefore(currentEnd))
+                                .count();
+                return new ReviewsStatsResponseDto(totalReviews, negativeReviewsCount, positiveReviewsCount,
+                                newReviewsCount);
+        }
 }
