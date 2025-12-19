@@ -189,6 +189,15 @@ export const useAIChat = () => {
         return { success: false, message: "Tin nhắn không được để trống" };
       }
 
+      // ⭐ FIX: Prevent double sending - check if already sending
+      if (isSending) {
+        console.warn("⚠️ Already sending a message, ignoring duplicate call");
+        return {
+          success: false,
+          message: "Đang gửi tin nhắn, vui lòng đợi...",
+        };
+      }
+
       setIsSending(true);
       setError(null);
 
@@ -294,7 +303,7 @@ export const useAIChat = () => {
         setIsSending(false);
       }
     },
-    [currentSessionId, messages]
+    [currentSessionId, messages, isSending] // ⭐ FIX: Thêm isSending vào dependencies
   );
 
   const loadMoreMessages = useCallback(async () => {

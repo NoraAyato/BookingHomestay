@@ -25,6 +25,7 @@ const ChatBox = ({
   hostAvatar,
   onClose,
   isAIChat = false,
+  isHostMode = false, // Thêm prop để biết đây là host chat với customer
 }) => {
   const { user } = useAuth();
 
@@ -37,7 +38,7 @@ const ChatBox = ({
     initConversation,
     isFirebaseAuthenticated,
   } = !isAIChat
-    ? useChatBox(hostId, homestayId)
+    ? useChatBox(hostId, homestayId, isHostMode)
     : {
         conversationId: "ai-chat",
         loading: false,
@@ -110,7 +111,9 @@ const ChatBox = ({
     if (isAIChat && !aiChatHooks.initialized) {
       aiChatHooks.initializeChat();
     }
-  }, [isAIChat, aiChatHooks.initialized, aiChatHooks.initializeChat]);
+    // ⭐ FIX: Chỉ depend vào isAIChat và initialized, không depend vào function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAIChat, aiChatHooks.initialized]);
 
   // Không dùng auto-scroll detection nữa, chỉ dùng nút manual để tránh conflict
 

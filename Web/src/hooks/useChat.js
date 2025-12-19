@@ -5,9 +5,11 @@ import {
   listenToMessages,
   sendMessage as sendMessageApi,
   createOrGetConversation,
+  createConversationWithCustomer,
   listenToUserPresence,
   markConversationAsRead,
 } from "../api/chat";
+import { isAuthError, showErrorToastIfNotAuth } from "../utils/apiHelper";
 
 /**
  * Hook để quản lý danh sách conversations
@@ -80,6 +82,15 @@ export const useMessages = (conversationId) => {
       setSending(true);
       try {
         const response = await sendMessageApi(conversationId, content);
+        // Check auth error
+        if (isAuthError(response)) {
+          setSending(false);
+          return response;
+        }
+
+        if (!response.success) {
+          showErrorToastIfNotAuth(response, "Không thể gửi tin nhắn");
+        }
         setSending(false);
         return response;
       } catch (err) {
@@ -117,9 +128,12 @@ export const useMessages = (conversationId) => {
 };
 
 /**
- * Hook để quản lý chatbox với host
+ * Hook để quản lý chatbox - Support cả User và Host
+ * @param {string} targetId - hostId (nếu user chat) hoặc customerId (nếu host chat)
+ * @param {string} homestayId - ID của homestay
+ * @param {boolean} isHost - true nếu đang chat với tư cách host
  */
-export const useChatBox = (hostId, homestayId) => {
+export const useChatBox = (targetId, homestayId, isHost = false) => {
   const [conversationId, setConversationId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -144,18 +158,29 @@ export const useChatBox = (hostId, homestayId) => {
   }, []);
 
   const initConversation = useCallback(async () => {
-    if (!hostId || !homestayId) {
-      return { success: false, message: "Missing hostId or homestayId" };
+    if (!targetId || !homestayId) {
+      return { success: false, message: "Missing targetId or homestayId" };
     }
 
     setLoading(true);
     try {
-      const response = await createOrGetConversation(hostId, homestayId);
+      // Gọi API khác nhau tùy theo role
+      const response = isHost
+        ? await createConversationWithCustomer(targetId, homestayId)
+        : await createOrGetConversation(targetId, homestayId);
+
+      // Check auth error
+      if (isAuthError(response)) {
+        setLoading(false);
+        return response;
+      }
+
       if (response.success && response.data?.conversationId) {
         setConversationId(response.data.conversationId);
         console.log("✅ Conversation initialized:", response);
         return { success: true, conversationId: response.data.conversationId };
       } else {
+        showErrorToastIfNotAuth(response, "Không thể tạo conversation");
         setError(response.message);
         return { success: false, message: response.message };
       }
@@ -165,7 +190,7 @@ export const useChatBox = (hostId, homestayId) => {
     } finally {
       setLoading(false);
     }
-  }, [hostId, homestayId]);
+  }, [targetId, homestayId, isHost]);
 
   return {
     conversationId,
