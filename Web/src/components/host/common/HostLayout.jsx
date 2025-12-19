@@ -23,6 +23,7 @@ import {
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getUserInfo } from "../../../utils/session";
 import { getImageUrl } from "../../../utils/imageUrl";
+import MessengerButton from "../../chat/MessengerButton";
 
 const HostLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -54,10 +55,10 @@ const HostLayout = ({ children }) => {
     { path: "/host/bookings", name: "Quản lý đặt phòng", icon: Calendar },
     { path: "/host/promotions", name: "Khuyến mãi", icon: Gift },
     { path: "/host/reviews", name: "Đánh giá", icon: Star },
-    { path: "/host/revenue", name: "Doanh thu", icon: DollarSign },
-    { path: "/host/messages", name: "Tin nhắn", icon: MessageSquare },
-    { path: "/host/analytics", name: "Phân tích", icon: BarChart3 },
-    { path: "/host/settings", name: "Cài đặt", icon: Settings },
+    // { path: "/host/revenue", name: "Doanh thu", icon: DollarSign },
+    // { path: "/host/messages", name: "Tin nhắn", icon: MessageSquare },
+    // { path: "/host/analytics", name: "Phân tích", icon: BarChart3 },
+    // { path: "/host/settings", name: "Cài đặt", icon: Settings },
   ];
 
   const handleLogout = () => {
@@ -196,13 +197,6 @@ const HostLayout = ({ children }) => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors">
-                <Bell className="h-6 w-6" />
-                <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  5
-                </span>
-              </button>
-
               <div className="flex items-center space-x-3 border-l pl-4">
                 {userInfo?.picture ? (
                   <img
@@ -233,6 +227,9 @@ const HostLayout = ({ children }) => {
           {children}
         </main>
       </div>
+
+      {/* Messenger Button */}
+      <MessengerButton />
     </div>
   );
 };

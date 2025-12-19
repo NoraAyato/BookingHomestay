@@ -45,6 +45,7 @@ export const useHostRooms = () => {
         throw new Error(response?.message || "Lỗi khi tải dữ liệu phòng");
       }
     } catch (err) {
+      console.error("❌ [useHostRooms] Error:", err);
       setError(err.message || "Đã xảy ra lỗi khi tải dữ liệu phòng");
       console.error("Error fetching rooms:", err);
     } finally {
