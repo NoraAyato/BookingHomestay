@@ -127,7 +127,7 @@ const Promotions = () => {
   const getStatusBadge = (status) => {
     const statusMap = {
       Active: { label: "Đang hoạt động", color: "bg-green-100 text-green-800" },
-      Inactive: { label: "Tạm dừng", color: "bg-amber-100 text-amber-800" },
+      Inactive: { label: "Vô hiệu", color: "bg-amber-100 text-amber-800" },
     };
     const statusInfo = statusMap[status] || statusMap.Active;
     return (
