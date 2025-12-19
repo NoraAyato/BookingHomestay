@@ -9,7 +9,7 @@ const RoomsList = ({ rooms, onSelectRoom, selectedRoom }) => {
   const indexOfFirstRoom = indexOfLastRoom - roomsPerPage;
   const currentRooms = rooms.slice(indexOfFirstRoom, indexOfLastRoom);
   const totalPages = Math.ceil(rooms.length / roomsPerPage);
-
+  console.log("RoomsList rendered with rooms:", rooms);
   return (
     <>
       <div className="space-y-4">
@@ -71,7 +71,7 @@ const RoomsList = ({ rooms, onSelectRoom, selectedRoom }) => {
               </div>
             )}
             {/* Discount tag */}
-            {room.discountPrice && (
+            {room.discountPrice && room.discountPrice < room.price && (
               <div className="absolute top-7 right-0 z-10 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-bl-md">
                 -{Math.round(100 - (room.discountPrice * 100) / room.price)}%
               </div>
@@ -119,7 +119,7 @@ const RoomsList = ({ rooms, onSelectRoom, selectedRoom }) => {
                   </div>
                   <div className="text-right flex flex-col justify-center">
                     <div>
-                      {room.discountPrice ? (
+                      {room.discountPrice && room.discountPrice < room.price ? (
                         <>
                           <p className="text-gray-400 text-sm line-through">
                             {room.price.toLocaleString("vi-VN")}đ

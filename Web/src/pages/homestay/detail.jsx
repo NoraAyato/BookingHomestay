@@ -332,15 +332,25 @@ const HomestayDetail = () => {
     tags,
   } = homestay;
   console.log(host);
+
+  // Helper function: Chỉ coi là có khuyến mãi khi discountPrice < price
+  const hasValidDiscount = (price, discountPrice) => {
+    return discountPrice && discountPrice < price;
+  };
+
   // Calculate display price based on homestay price or selected room price
   const displayPrice = selectedRoom
-    ? selectedRoom.discountPrice || selectedRoom.price
-    : discountPrice || price;
+    ? hasValidDiscount(selectedRoom.price, selectedRoom.discountPrice)
+      ? selectedRoom.discountPrice
+      : selectedRoom.price
+    : hasValidDiscount(price, discountPrice)
+    ? discountPrice
+    : price;
 
   const totalPrice = totalNights * displayPrice;
 
-  // Calculate discount percentage if discount price exists
-  const discountPercentage = discountPrice
+  // Calculate discount percentage if discount price exists and valid
+  const discountPercentage = hasValidDiscount(price, discountPrice)
     ? Math.round(100 - (discountPrice * 100) / price)
     : 0;
 
@@ -581,36 +591,7 @@ const HomestayDetail = () => {
                   <p className="text-gray-500 text-sm mb-2">
                     Thành viên từ {host.joined}
                   </p>
-                  <div className="flex items-center text-sm text-gray-600 mb-3 flex-wrap">
-                    <div className="flex items-center mr-4">
-                      <svg
-                        className="w-4 h-4 text-gray-500 mr-1"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span>Tỷ lệ phản hồi: {host.responseRate}%</span>
-                    </div>
-                    <div className="flex items-center">
-                      <svg
-                        className="w-4 h-4 text-gray-500 mr-1"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span>Thời gian phản hồi: {host.responseTime}</span>
-                    </div>
-                  </div>
+                  <div className="flex items-center text-sm text-gray-600 mb-3 flex-wrap"></div>
                   <p className="text-gray-600">
                     Xin chào! Tôi là {host.hostName}, rất vui được đón tiếp bạn
                     tại homestay của tôi. Tôi luôn cố gắng cung cấp trải nghiệm
@@ -645,7 +626,10 @@ const HomestayDetail = () => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   {selectedRoom ? (
-                    selectedRoom.discountPrice ? (
+                    hasValidDiscount(
+                      selectedRoom.price,
+                      selectedRoom.discountPrice
+                    ) ? (
                       <>
                         <p className="text-gray-400 text-sm line-through">
                           {formatPrice(selectedRoom.price)}đ{" "}
@@ -673,7 +657,7 @@ const HomestayDetail = () => {
                         <span className="text-sm font-normal">/đêm</span>
                       </p>
                     )
-                  ) : discountPrice ? (
+                  ) : hasValidDiscount(price, discountPrice) ? (
                     <>
                       <div className="mb-1 text-sm text-gray-500">
                         Giá chỉ từ
