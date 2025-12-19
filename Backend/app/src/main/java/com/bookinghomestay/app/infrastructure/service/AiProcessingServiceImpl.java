@@ -38,9 +38,9 @@ public class AiProcessingServiceImpl implements AiProcessingService {
             // Build enhanced context with homestay data if needed
             String enhancedContext = sessionContext;
             List<HomestayDocument> homestays = new ArrayList<>(); // Store for structured response
-            
-            if ("search_homestay".equals(intent) || "ask_price".equals(intent) || "ask_info".equals(intent) 
-                || "ask_amenities".equals(intent) || "ask_policy".equals(intent) || "ask_location".equals(intent)) {
+
+            if ("search_homestay".equals(intent) || "ask_price".equals(intent) || "ask_info".equals(intent)
+                    || "ask_amenities".equals(intent) || "ask_policy".equals(intent) || "ask_location".equals(intent)) {
                 Map<String, Object> bookingInfo = extractBookingInfo(userMessage);
                 log.info("Extracted booking info: {}", bookingInfo);
 
@@ -74,7 +74,7 @@ public class AiProcessingServiceImpl implements AiProcessingService {
                 if (!homestays.isEmpty()) {
                     metadata.put("homestays", homestays); // Store homestays for structured response
                 }
-                
+
                 // Create AI message response
                 return AiMessage.builder()
                         .messageId(UUID.randomUUID().toString())
@@ -237,22 +237,23 @@ public class AiProcessingServiceImpl implements AiProcessingService {
             if (bookingInfo.containsKey("homestayName") && bookingInfo.get("homestayName") != null) {
                 String homestayNameQuery = bookingInfo.get("homestayName").toString().toLowerCase();
                 log.info("Filtering by SPECIFIC homestay name: {}", homestayNameQuery);
-                
+
                 String normalizedQuery = normalizeVietnamese(homestayNameQuery);
-                
+
                 List<HomestayDocument> filtered = allHomestays.stream()
                         .filter(h -> {
-                            if (h.getTenHomestay() == null) return false;
+                            if (h.getTenHomestay() == null)
+                                return false;
                             String homestayName = h.getTenHomestay().toLowerCase();
                             String normalizedName = normalizeVietnamese(homestayName);
-                            
+
                             // Match by homestay name (fuzzy)
-                            return normalizedName.contains(normalizedQuery) 
-                                || normalizedQuery.contains(normalizedName);
+                            return normalizedName.contains(normalizedQuery)
+                                    || normalizedQuery.contains(normalizedName);
                         })
                         .limit(1) // Only return the SPECIFIC homestay asked
                         .collect(Collectors.toList());
-                
+
                 log.info("Found {} homestay(s) matching name '{}'", filtered.size(), homestayNameQuery);
                 return filtered;
             }
@@ -293,10 +294,22 @@ public class AiProcessingServiceImpl implements AiProcessingService {
                 return new ArrayList<>();
             }
 
-            // No location filter specified - DO NOT return random homestays
-            // This prevents performance issues and forces user to specify location
-            log.warn("No location specified in booking info, returning EMPTY list to ask user for location");
-            return new ArrayList<>();
+            // No location filter specified - Return top homestays (for general inquiry)
+            // Show sample homestays when user asks generally without specific location
+            log.info("No location specified, returning TOP {} homestays with best ratings",
+                    Math.min(5, allHomestays.size()));
+
+            // Sort by rating and return top homestays
+            return allHomestays.stream()
+                    .filter(h -> "Active".equals(h.getTrangThai())) // Only active homestays
+                    .sorted((h1, h2) -> {
+                        // Sort by rating (descending)
+                        double rating1 = h1.getRating() != null ? h1.getRating().getAverageRating() : 0.0;
+                        double rating2 = h2.getRating() != null ? h2.getRating().getAverageRating() : 0.0;
+                        return Double.compare(rating2, rating1);
+                    })
+                    .limit(5) // Show top 5 homestays
+                    .collect(Collectors.toList());
 
         } catch (Exception e) {
             log.error("Error searching homestays", e);
@@ -344,67 +357,61 @@ public class AiProcessingServiceImpl implements AiProcessingService {
                         "User did not specify a location.\n" +
                         "AI MUST ask user to specify location (Vịnh Hạ Long, Sapa, Đà Lạt, Phú Quốc, etc.)\n";
             }
-            
+
             // Case 2: User specified location but no homestay found
             return String.format("=== NO HOMESTAY FOUND ===\n" +
                     "Không tìm thấy homestay nào tại '%s'.\n" +
                     "Requested location: %s\n", location, location);
         }
 
+        // Optimize context - only include essential info to reduce token usage
         StringBuilder context = new StringBuilder();
         context.append("=== HOMESTAY AVAILABLE ===\n");
 
-        for (int i = 0; i < Math.min(homestays.size(), 4); i++) {
+        for (int i = 0; i < Math.min(homestays.size(), 3); i++) { // Limit to 3 homestays max
             HomestayDocument h = homestays.get(i);
 
-            // Include ID and Image for frontend
-            context.append(
-                    String.format("\n%d. ID: %s\n", i + 1, h.getIdHomestay() != null ? h.getIdHomestay() : "N/A"));
-            context.append(String.format("   Tên: %s\n", h.getTenHomestay()));
-            context.append(String.format("   Địa điểm: %s\n",
+            // Compact format to save tokens
+            context.append(String.format("\n%d. %s\n", i + 1, h.getTenHomestay()));
+            context.append(String.format("   ID: %s\n", h.getIdHomestay() != null ? h.getIdHomestay() : "N/A"));
+            context.append(String.format("   Khu vực: %s\n",
                     h.getKhuVuc() != null ? h.getKhuVuc().getTenKhuVuc() : "N/A"));
             context.append(String.format("   Địa chỉ: %s\n", h.getDiaChi() != null ? h.getDiaChi() : "N/A"));
-            context.append(String.format("   Hình ảnh: %s\n", h.getHinhAnh() != null ? h.getHinhAnh() : "N/A"));
+            context.append(String.format("   Ảnh: %s\n", h.getHinhAnh() != null ? h.getHinhAnh() : "N/A"));
 
-            // Show amenities
+            // Amenities - shortened
             if (h.getAmenities() != null && !h.getAmenities().isEmpty()) {
                 context.append("   Tiện nghi: ");
-                context.append(String.join(", ", h.getAmenities()));
+                // Only show first 5 amenities
+                List<String> topAmenities = h.getAmenities().stream().limit(5).collect(Collectors.toList());
+                context.append(String.join(", ", topAmenities));
+                if (h.getAmenities().size() > 5) {
+                    context.append(String.format(" (+%d tiện nghi khác)", h.getAmenities().size() - 5));
+                }
                 context.append("\n");
             }
 
-            // Show policies
+            // Policies - compact format
             if (h.getPolicies() != null) {
-                context.append("   Chính sách:\n");
-                var policies = h.getPolicies();
-                if (policies.getNhanPhong() != null) {
-                    context.append(String.format("     - Nhận phòng: %s\n", policies.getNhanPhong()));
-                }
-                if (policies.getTraPhong() != null) {
-                    context.append(String.format("     - Trả phòng: %s\n", policies.getTraPhong()));
-                }
-                if (policies.getHuyPhong() != null) {
-                    context.append(String.format("     - Hủy phòng: %s\n", policies.getHuyPhong()));
-                }
-                if (policies.getKhac() != null && !policies.getKhac().isEmpty()) {
-                    context.append(String.format("     - Khác: %s\n", policies.getKhac()));
-                }
+                var p = h.getPolicies();
+                context.append(String.format("   Chính sách: Nhận %s, Trả %s, Hủy: %s\n",
+                        p.getNhanPhong() != null ? p.getNhanPhong() : "N/A",
+                        p.getTraPhong() != null ? p.getTraPhong() : "N/A",
+                        p.getHuyPhong() != null ? p.getHuyPhong() : "N/A"));
             }
 
-            // Show 2 cheapest rooms
+            // Only show 2 cheapest rooms in compact format
             if (h.getRooms() != null && !h.getRooms().isEmpty()) {
-                context.append("   Phòng:\n");
-                h.getRooms().stream()
+                context.append("   Phòng: ");
+                String roomsStr = h.getRooms().stream()
                         .sorted((r1, r2) -> r1.getGiaPhong().compareTo(r2.getGiaPhong()))
                         .limit(2)
-                        .forEach(room -> {
-                            context.append(String.format("     - %s: %,.0f VNĐ/đêm (%d người)\n",
-                                    room.getTenPhong(), room.getGiaPhong(), room.getSucChua()));
-                        });
+                        .map(room -> String.format("%s (%,.0fđ, %d người)",
+                                room.getTenPhong(), room.getGiaPhong(), room.getSucChua()))
+                        .collect(Collectors.joining(", "));
+                context.append(roomsStr).append("\n");
             }
         }
-
-        context.append("\n[Lưu ý: PHẢI bao gồm ID và link hình ảnh trong câu trả lời để frontend xử lý]\n");
 
         return context.toString();
     }

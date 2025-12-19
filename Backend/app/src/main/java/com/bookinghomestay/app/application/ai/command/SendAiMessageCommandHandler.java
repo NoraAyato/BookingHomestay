@@ -49,7 +49,7 @@ public class SendAiMessageCommandHandler {
                                         user.getUserName(),
                                         user.getPicture());
 
-                        // Create user message
+                        // Create user message (but DON'T save yet - wait for AI response first)
                         AiMessage userMessage = AiMessage.builder()
                                         .messageId(UUID.randomUUID().toString())
                                         .sessionId(session.getSessionId())
@@ -61,10 +61,7 @@ public class SendAiMessageCommandHandler {
                                         .detectedIntent(aiProcessingService.detectIntent(command.getMessage()))
                                         .build();
 
-                        // Add user message to session
-                        session = aiChatService.addMessageToSession(session.getSessionId(), userMessage);
-
-                        // Process message and generate AI response
+                        // Process message and generate AI response FIRST
                         AiMessage aiResponse = aiProcessingService.processUserMessage(
                                         command.getMessage(),
                                         session.getSessionContext());
@@ -84,8 +81,19 @@ public class SendAiMessageCommandHandler {
                                         .confidenceScore(aiResponse.getConfidenceScore())
                                         .build();
 
-                        // Add AI response to session
-                        session = aiChatService.addMessageToSession(session.getSessionId(), aiResponseWithSession);
+                        // Only save BOTH messages to DB if AI response is successful
+                        if (aiResponse.getType() != AiMessage.MessageType.ERROR_MESSAGE) {
+                                // Save user message first
+                                session = aiChatService.addMessageToSession(session.getSessionId(), userMessage);
+                                // Then save AI response
+                                session = aiChatService.addMessageToSession(session.getSessionId(),
+                                                aiResponseWithSession);
+                                log.info("✅ Both user message and AI response saved to session: {}",
+                                                session.getSessionId());
+                        } else {
+                                log.warn("⚠️ AI error response - NEITHER user message NOR AI error saved to DB. Error: {}",
+                                                aiResponse.getContent());
+                        }
 
                         // Create response DTO
                         return AiChatResponse.builder()
@@ -110,31 +118,31 @@ public class SendAiMessageCommandHandler {
         private AiChatResponse.MessageDto toMessageDto(AiMessage message) {
                 String content = message.getContent();
                 AiStructuredResponse structuredData = null;
-                
+
                 // If this is AI response with homestay data, create structured response
-                if (message.isFromAi() && message.getMetadata() != null 
-                    && message.getMetadata().containsKey("homestays")) {
-                    try {
-                        @SuppressWarnings("unchecked")
-                        List<HomestayDocument> homestays = (List<HomestayDocument>) message.getMetadata().get("homestays");
-                        String intent = (String) message.getMetadata().get("intent");
-                        
-                        structuredData = responseStructureService.structureResponse(
-                            message.getContent(), 
-                            intent, 
-                            homestays
-                        );
-                        
-                        // Remove content when we have structured data
-                        content = null;
-                        
-                        log.info("Created structured response with {} data cards", 
-                                structuredData.getData() != null ? structuredData.getData().size() : 0);
-                    } catch (Exception e) {
-                        log.warn("Failed to create structured response, fallback to plain text", e);
-                    }
+                if (message.isFromAi() && message.getMetadata() != null
+                                && message.getMetadata().containsKey("homestays")) {
+                        try {
+                                @SuppressWarnings("unchecked")
+                                List<HomestayDocument> homestays = (List<HomestayDocument>) message.getMetadata()
+                                                .get("homestays");
+                                String intent = (String) message.getMetadata().get("intent");
+
+                                structuredData = responseStructureService.structureResponse(
+                                                message.getContent(),
+                                                intent,
+                                                homestays);
+
+                                // Remove content when we have structured data
+                                content = null;
+
+                                log.info("Created structured response with {} data cards",
+                                                structuredData.getData() != null ? structuredData.getData().size() : 0);
+                        } catch (Exception e) {
+                                log.warn("Failed to create structured response, fallback to plain text", e);
+                        }
                 }
-                
+
                 return AiChatResponse.MessageDto.builder()
                                 .messageId(message.getMessageId())
                                 .senderId(message.getSenderId())
