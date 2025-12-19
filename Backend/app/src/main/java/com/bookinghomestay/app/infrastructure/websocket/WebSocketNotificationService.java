@@ -20,8 +20,6 @@ public class WebSocketNotificationService {
 
     public void sendNotificationToUser(String userId, NotificationDto notification) {
         try {
-            // Send to /user/{userId}/queue/notifications
-            // Client subscribes to /user/queue/notifications
             messagingTemplate.convertAndSendToUser(
                     userId,
                     "/queue/notifications",

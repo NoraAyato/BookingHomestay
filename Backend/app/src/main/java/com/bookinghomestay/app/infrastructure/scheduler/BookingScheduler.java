@@ -3,6 +3,7 @@ package com.bookinghomestay.app.infrastructure.scheduler;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 import com.bookinghomestay.app.domain.repository.IBookingRepository;
 import com.bookinghomestay.app.domain.service.PendingRoomService;
+import com.bookinghomestay.app.infrastructure.service.ActivityLogHelper;
 
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class BookingScheduler {
 
     private final IBookingRepository bookingRepository;
     private final PendingRoomService pendingRoomService;
+    private final ActivityLogHelper activityLogHelper;
 
     @Scheduled(fixedRate = 60000)
     @Transactional
@@ -29,11 +31,8 @@ public class BookingScheduler {
         List<PhieuDatPhong> expiredBookings = bookingRepository.findPendingExpired(cutoff);
 
         if (expiredBookings.isEmpty()) {
-            log.debug("No expired bookings to process");
             return;
         }
-        log.info("Found {} expired bookings to check", expiredBookings.size());
-
         int skipped = 0;
         List<PhieuDatPhong> bookingsToCancel = new ArrayList<>();
         for (PhieuDatPhong booking : expiredBookings) {
@@ -60,16 +59,17 @@ public class BookingScheduler {
                 if (booking.getHoadon() != null) {
                     booking.getHoadon().setTrangThai("Cancelled");
                 }
+                activityLogHelper.logBookingCancelled(booking.getMaPDPhong(),
+                        "Hệ thống tự động hủy đặt phòng do quá thời gian giữ phòng.");
                 bookingsToCancel.add(booking);
             } catch (Exception e) {
                 log.error("Error processing booking {}", booking.getMaPDPhong(), e);
             }
         }
         if (!bookingsToCancel.isEmpty()) {
+
             bookingRepository.saveAll(bookingsToCancel);
-            log.info("Batch cancelled {} bookings. Skipped {} still on hold.", bookingsToCancel.size(), skipped);
-        } else {
-            log.info("No bookings cancelled. Skipped {} still on hold.", skipped);
+
         }
     }
 }

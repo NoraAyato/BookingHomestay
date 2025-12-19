@@ -4,6 +4,8 @@ import com.bookinghomestay.app.application.admin.booking.dto.BookingDataResponse
 import com.bookinghomestay.app.application.booking.dto.booking.BookingDetailResponseDto;
 import com.bookinghomestay.app.application.booking.dto.booking.BookingPaymentResponseDto;
 import com.bookinghomestay.app.application.booking.dto.booking.BookingResponseDto;
+import com.bookinghomestay.app.application.host.bookings.dto.BookedRoom;
+import com.bookinghomestay.app.application.host.bookings.dto.HostBookingDataResponseDto;
 import com.bookinghomestay.app.domain.model.HoaDon;
 import com.bookinghomestay.app.domain.model.PhieuDatPhong;
 
@@ -11,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BookingMapper {
 
@@ -122,6 +125,39 @@ public class BookingMapper {
 
         }
 
+        return dto;
+    }
+
+    public static HostBookingDataResponseDto toHostBookingDataResponseDto(PhieuDatPhong booking,
+            BigDecimal totalAmount, List<BookedRoom> bookedRooms, BigDecimal feeAmount) {
+        HostBookingDataResponseDto dto = new HostBookingDataResponseDto();
+        dto.setId(booking.getMaPDPhong());
+        dto.setGuestId(booking.getNguoiDung().getUserId());
+        dto.setGuestName(booking.getNguoiDung().getFirstName() + " " + booking.getNguoiDung().getLastName());
+        dto.setGuestEmail(booking.getNguoiDung().getEmail());
+        dto.setGuestPhone(booking.getNguoiDung().getPhoneNumber());
+        dto.setGuestAvatar(booking.getNguoiDung().getPicture());
+
+        if (booking.getChiTietDatPhongs() != null && !booking.getChiTietDatPhongs().isEmpty()) {
+            dto.setHomestayId(booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getIdHomestay());
+            dto.setHomestayName(booking.getChiTietDatPhongs().get(0).getPhong().getHomestay().getTenHomestay());
+            dto.setCheckIn(booking.getChiTietDatPhongs().get(0).getNgayDen().toLocalDate());
+            dto.setCheckOut(booking.getChiTietDatPhongs().get(0).getNgayDi().toLocalDate());
+        }
+        dto.setFeeAmount(feeAmount.doubleValue());
+        dto.setBookingDate(booking.getNgayLap().toLocalDate());
+        dto.setStatus(booking.getTrangThai());
+        dto.setPaymentStatus(
+                booking.getHoadon() != null && booking.getHoadon().getThanhToans() != null
+                        && !booking.getHoadon().getThanhToans().isEmpty()
+                                ? booking.getHoadon().getThanhToans().get(0).getTrangThai()
+                                : null);
+        dto.setTotalAmount(totalAmount.doubleValue());
+        dto.setCancellationReason(
+                booking.getPhieuHuyPhongs() != null && !booking.getPhieuHuyPhongs().isEmpty()
+                        ? booking.getPhieuHuyPhongs().get(0).getLyDo()
+                        : null);
+        dto.setBookedRooms(bookedRooms);
         return dto;
     }
 

@@ -196,15 +196,15 @@ public class ActivityLogHelper {
     /**
      * Log user login
      */
-    public void logUserLogin() {
-        String username = SecurityUtils.getCurrentUsername();
+    public void logUserLogin(String userName, String userId) {
+
         log(
                 ActivityType.USER,
                 ActivityAction.LOGIN,
                 "Đăng nhập hệ thống",
-                String.format("Người dùng %s đã đăng nhập", username),
+                String.format("Người dùng %s đã đăng nhập", userName),
                 "User",
-                SecurityUtils.getCurrentUserId(),
+                userId,
                 null,
                 null);
     }
