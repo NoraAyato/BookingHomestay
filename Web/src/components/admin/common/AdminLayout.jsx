@@ -20,11 +20,13 @@ import {
   Sparkles,
   Briefcase,
   LayoutGrid,
+  BellRing,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getUserInfo } from "../../../utils/session";
 import { getImageUrl } from "../../../utils/imageUrl";
 import { useAuth } from "../../../hooks/useAuth";
+import MessengerButton from "../../chat/MessengerButton";
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -71,6 +73,11 @@ const AdminLayout = ({ children }) => {
     { path: "/admin/news", name: "Tin tức", icon: FileText },
     { path: "/admin/reviews", name: "Đánh giá", icon: MessageSquare },
     { path: "/admin/activity-logs", name: "Lịch sử hoạt động", icon: Activity },
+    {
+      path: "/admin/broadcast-notification",
+      name: "Gửi thông báo",
+      icon: BellRing,
+    },
     // { path: "/admin/settings", name: "Cài đặt", icon: Settings },
   ];
 
@@ -233,6 +240,9 @@ const AdminLayout = ({ children }) => {
           {children}
         </main>
       </div>
+
+      {/* Messenger Button */}
+      <MessengerButton />
     </div>
   );
 };

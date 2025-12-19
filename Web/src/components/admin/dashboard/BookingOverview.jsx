@@ -12,23 +12,25 @@ import { Loader2, AlertCircle } from "lucide-react";
 
 const BookingOverview = ({ period }) => {
   const { data, loading, error } = useBookingStatus(period);
-
   // Map API status names to Vietnamese and assign colors
   const getStatusConfig = (apiData) => {
     if (!apiData) return [];
 
     const statusMap = {
-      Booked: { name: "Đã xác nhận", color: "#10b981" },
-      Cancelled: { name: "Đã hủy", color: "#ef4444" },
-      Pending: { name: "Chờ xử lý", color: "#f59e0b" },
-      Completed: { name: "Hoàn thành", color: "#3b82f6" },
+      booked: { name: "Đã xác nhận", color: "#10b981" },
+      cancelled: { name: "Đã hủy", color: "#ef4444" },
+      pending: { name: "Chờ xử lý", color: "#f59e0b" },
+      completed: { name: "Hoàn thành", color: "#3b82f6" },
     };
 
-    return apiData.map((item) => ({
-      name: statusMap[item.name]?.name || item.name,
-      value: item.value, // Already parsed in hook
-      color: statusMap[item.name]?.color || "#6b7280",
-    }));
+    return apiData.map((item) => {
+      const statusKey = item.name?.toLowerCase();
+      return {
+        name: statusMap[statusKey]?.name || item.name,
+        value: item.value, // Already parsed in hook
+        color: statusMap[statusKey]?.color || "#6b7280",
+      };
+    });
   };
 
   const bookingStatusData = getStatusConfig(data);
