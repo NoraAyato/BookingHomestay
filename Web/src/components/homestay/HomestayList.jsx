@@ -141,23 +141,29 @@ const HomestayList = ({
                   {homestay.location}
                 </p>
 
-                {homestay.amenities && homestay.amenities.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {homestay.amenities.slice(0, 3).map((amenity, index) => (
-                      <span
-                        key={index}
-                        className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
-                      >
-                        {amenity}
-                      </span>
-                    ))}
-                    {homestay.amenities.length > 3 && (
-                      <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                        +{homestay.amenities.length - 3}
-                      </span>
-                    )}
-                  </div>
-                )}
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {homestay.amenities && homestay.amenities.length > 0 ? (
+                    <>
+                      {homestay.amenities.slice(0, 3).map((amenity, index) => (
+                        <span
+                          key={index}
+                          className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
+                        >
+                          {amenity}
+                        </span>
+                      ))}
+                      {homestay.amenities.length > 3 && (
+                        <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                          +{homestay.amenities.length - 3}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="inline-block bg-gray-50 text-gray-400 text-xs px-2 py-1 rounded italic">
+                      Không có tiện nghi
+                    </span>
+                  )}
+                </div>
 
                 <div className="flex justify-between items-start pt-2 border-t border-gray-100">
                   <div>

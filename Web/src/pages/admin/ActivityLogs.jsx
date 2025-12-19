@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AdminLayout from "../../components/admin/common/AdminLayout";
+import ExportOptionsModal from "../../components/admin/common/ExportOptionsModal";
 import {
   Calendar,
   User,
@@ -27,11 +28,11 @@ import {
 } from "../../api/admin/activityLogs";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { exportActivityLogsToExcel } from "../../utils/excelExport";
 
 const ActivityLogs = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [tempFilters, setTempFilters] = useState({
     activityType: "",
     action: "",
@@ -48,12 +49,14 @@ const ActivityLogs = () => {
     total,
     filters,
     newActivitiesCount,
+    isExporting,
     loadMore,
     refresh,
     updateFilters,
     resetFilters,
     search,
     clearNewActivitiesCount,
+    exportActivities,
   } = useActivityLogs({}, true); // Enable real-time with notification
 
   // Handle refresh with new activities
@@ -62,13 +65,18 @@ const ActivityLogs = () => {
     refresh();
   };
 
-  // Export to Excel
-  const handleExportToExcel = () => {
-    try {
-      exportActivityLogsToExcel(activities);
-    } catch (error) {
-      alert(error.message);
-    }
+  // Export modal handlers
+  const handleOpenExportModal = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const handleCloseExportModal = () => {
+    setIsExportModalOpen(false);
+  };
+
+  const handleExport = async (days) => {
+    await exportActivities(days);
+    handleCloseExportModal();
   };
 
   // Icon mapping
@@ -202,8 +210,8 @@ const ActivityLogs = () => {
               Làm mới
             </button>
             <button
-              onClick={handleExportToExcel}
-              disabled={loading || activities.length === 0}
+              onClick={handleOpenExportModal}
+              disabled={loading}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="h-4 w-4" />
@@ -631,6 +639,14 @@ const ActivityLogs = () => {
             </div>
           )}
         </div>
+
+        {/* Export Options Modal */}
+        <ExportOptionsModal
+          isOpen={isExportModalOpen}
+          onClose={handleCloseExportModal}
+          onExport={handleExport}
+          isExporting={isExporting}
+        />
       </div>
     </AdminLayout>
   );

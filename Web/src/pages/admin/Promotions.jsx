@@ -5,6 +5,7 @@ import PromotionsList from "../../components/admin/promotions/PromotionsList";
 import PromotionDetailModal from "../../components/admin/promotions/PromotionDetailModal";
 import PromotionCreateModal from "../../components/admin/promotions/PromotionCreateModal";
 import PromotionUpdateModal from "../../components/admin/promotions/PromotionUpdateModal";
+import PromotionDeleteModal from "../../components/admin/promotions/PromotionDeleteModal";
 import DateRangePicker from "../../components/common/DateRangePicker";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { usePromotionManager } from "../../hooks/admin/usePromotionManager";
@@ -34,8 +35,10 @@ const Promotions = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const pageSize = 5;
 
   // Debounce search term (2 seconds)
@@ -52,6 +55,7 @@ const Promotions = () => {
     refetchStats,
     addPromotion,
     updatePromotion,
+    deletePromotion,
   } = usePromotionManager();
 
   // Fetch promotions when filters change (use debounced search)
@@ -121,7 +125,7 @@ const Promotions = () => {
   const getStatusBadge = (status) => {
     const statusMap = {
       active: { label: "Đang hoạt động", color: "bg-green-100 text-green-800" },
-      inactive: { label: "Tạm dừng", color: "bg-gray-100 text-gray-800" },
+      inactive: { label: "Vô hiệu", color: "bg-gray-100 text-gray-800" },
     };
     const statusInfo = statusMap[status] || statusMap.active;
     return (
@@ -241,8 +245,45 @@ const Promotions = () => {
   };
 
   const handleDeletePromotion = (promotion) => {
-    console.log("Delete promotion:", promotion);
-    // TODO: Implement delete confirmation
+    setSelectedPromotion(promotion);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async (id) => {
+    setDeleteLoading(true);
+    try {
+      const result = await deletePromotion(id);
+
+      if (result.success) {
+        // Close modal
+        setIsDeleteModalOpen(false);
+        setSelectedPromotion(null);
+
+        // Refetch data - go to page 1 if current page becomes empty
+        const newTotal = pagination.total - 1;
+        const newTotalPages = Math.ceil(newTotal / pageSize);
+        const pageToFetch = currentPage > newTotalPages ? 1 : currentPage;
+
+        const params = {
+          search: debouncedSearchTerm,
+          page: pageToFetch,
+          size: pageSize,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+          status: statusFilter !== "all" ? statusFilter : undefined,
+        };
+        await fetchPromotions(params);
+        await refetchStats();
+
+        if (pageToFetch !== currentPage) {
+          setCurrentPage(pageToFetch);
+        }
+      }
+    } catch (err) {
+      console.error("Error deleting promotion:", err);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
   if (loading && promotions.length === 0) {
     return (
@@ -463,6 +504,18 @@ const Promotions = () => {
         }}
         onUpdate={handleUpdatePromotion}
         isLoading={updateLoading}
+      />
+
+      {/* Delete Modal */}
+      <PromotionDeleteModal
+        promotion={selectedPromotion}
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedPromotion(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteLoading}
       />
     </AdminLayout>
   );

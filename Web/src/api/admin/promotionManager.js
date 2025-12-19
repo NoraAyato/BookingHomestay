@@ -132,3 +132,10 @@ export const updatePromotion = (id, data) => {
     requireAuth: true,
   });
 };
+
+// Xóa khuyến mãi
+export const deletePromotion = (id) => {
+  return http.post(`/api/admin/promotionmanager/delete/${id}`, {
+    requireAuth: true,
+  });
+};

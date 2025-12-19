@@ -201,8 +201,27 @@ const request = async (endpoint, options = {}) => {
 };
 
 const http = {
-  get: (endpoint, options = {}) =>
-    request(endpoint, { ...options, method: "GET" }),
+  get: (endpoint, options = {}) => {
+    // Xử lý params cho GET request
+    let url = endpoint;
+    if (options.params) {
+      const queryString = new URLSearchParams(
+        Object.entries(options.params).reduce((acc, [key, value]) => {
+          if (value !== undefined && value !== null) {
+            acc[key] = value;
+          }
+          return acc;
+        }, {})
+      ).toString();
+      if (queryString) {
+        url = `${endpoint}?${queryString}`;
+      }
+      // Xóa params khỏi options để không gây lỗi
+      const { params, ...restOptions } = options;
+      return request(url, { ...restOptions, method: "GET" });
+    }
+    return request(url, { ...options, method: "GET" });
+  },
   post: (endpoint, body, options = {}) =>
     request(endpoint, {
       ...options,

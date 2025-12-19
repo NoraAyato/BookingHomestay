@@ -4,6 +4,7 @@ import {
   getPromotions,
   createPromotion,
   updatePromotion,
+  deletePromotion,
 } from "../../api/admin/promotionManager";
 import { getImageUrl } from "../../utils/imageUrl";
 import { handleApiResponse } from "../../utils/apiHelper";
@@ -157,6 +158,42 @@ export const usePromotionManager = () => {
     [fetchStats]
   );
 
+  // Delete promotion
+  const deletePromotionData = useCallback(
+    async (id) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await deletePromotion(id);
+
+        const success = handleApiResponse(
+          response,
+          "Xóa khuyến mãi thành công!",
+          "Không thể xóa khuyến mãi"
+        );
+
+        if (success) {
+          // Refresh stats
+          await fetchStats();
+          return { success: true };
+        }
+        return { success: false };
+      } catch (err) {
+        console.error("Error deleting promotion:", err);
+        setError(err.message || "Không thể xóa khuyến mãi");
+        handleApiResponse(
+          { success: false, message: err.message },
+          null,
+          "Không thể xóa khuyến mãi"
+        );
+        return { success: false };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchStats]
+  );
+
   // Initial fetch
   useEffect(() => {
     fetchStats();
@@ -173,5 +210,6 @@ export const usePromotionManager = () => {
     refetchStats: fetchStats,
     addPromotion: addPromotionData,
     updatePromotion: updatePromotionData,
+    deletePromotion: deletePromotionData,
   };
 };

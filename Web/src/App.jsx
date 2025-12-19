@@ -26,6 +26,10 @@ import HomestayDetail from "./pages/homestay/detail";
 import MessengerButton from "./components/chat/MessengerButton";
 import AIChatButton from "./components/chat/AIChatButton";
 
+// Error pages
+import NotFound from "./pages/error/NotFound";
+import AccessDenied from "./pages/error/AccessDenied";
+
 // Lazy load admin pages
 const Dashboard = React.lazy(() => import("./pages/admin/Dashboard"));
 const AdminHomestays = React.lazy(() => import("./pages/admin/Homestays"));
@@ -51,6 +55,9 @@ const AdminActivityLogs = React.lazy(() =>
 const AdminNewsCategories = React.lazy(() =>
   import("./pages/admin/NewsCategories")
 );
+const AdminBroadcastNotification = React.lazy(() =>
+  import("./pages/admin/BroadcastNotification")
+);
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 
 // Lazy load host pages
@@ -60,6 +67,7 @@ const HostRooms = React.lazy(() => import("./pages/host/Rooms"));
 const HostServices = React.lazy(() => import("./pages/host/Services"));
 const HostBookings = React.lazy(() => import("./pages/host/Bookings"));
 const HostPromotions = React.lazy(() => import("./pages/host/Promotions"));
+const HostReviews = React.lazy(() => import("./pages/host/Reviews"));
 function App() {
   return (
     <AuthProvider>
@@ -267,6 +275,14 @@ function App() {
               }
             />
             <Route
+              path="/admin/broadcast-notification"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminBroadcastNotification />
+                </Suspense>
+              }
+            />
+            <Route
               path="/admin/settings"
               element={
                 <Suspense fallback={<LoadingSpinner />}>
@@ -328,6 +344,21 @@ function App() {
                 </Suspense>
               }
             />
+            <Route
+              path="/host/reviews"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <HostReviews />
+                </Suspense>
+              }
+            />
+
+            {/* Error Pages */}
+            <Route path="/access-denied" element={<AccessDenied />} />
+            <Route path="/404" element={<NotFound />} />
+
+            {/* Catch all - 404 */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
         {!hideLayout && <Footer />}

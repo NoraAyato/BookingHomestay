@@ -115,6 +115,31 @@ export const createOrGetConversation = async (hostId, homestayId) => {
 };
 
 /**
+ * Tạo conversation với khách hàng (Host API)
+ * POST /api/host/chat/conversations
+ */
+export const createConversationWithCustomer = async (
+  customerId,
+  homestayId
+) => {
+  try {
+    const response = await http.post(
+      "/api/host/chat/conversations",
+      {
+        customerId,
+        homestayId,
+      },
+      { requireAuth: true }
+    );
+
+    return response;
+  } catch (error) {
+    console.error("Error creating conversation with customer:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+/**
  * Gửi message
  * POST /api/chat/messages
  */

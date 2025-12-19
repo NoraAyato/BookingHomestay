@@ -21,8 +21,9 @@ const PromotionsList = ({
     return promoEndDate < currentDate;
   };
 
-  // Get status badge with expired check
+  // Get status badge with expired and inactive check
   const getPromotionStatusBadge = (promotion) => {
+    // Check expired first (highest priority)
     if (isExpired(promotion.endDate)) {
       return (
         <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
@@ -30,6 +31,16 @@ const PromotionsList = ({
         </span>
       );
     }
+
+    // Check inactive (ignore case)
+    if (promotion.status?.toLowerCase() === "inactive") {
+      return (
+        <span className="px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800">
+          Vô hiệu
+        </span>
+      );
+    }
+
     return getStatusBadge(promotion.status);
   };
 

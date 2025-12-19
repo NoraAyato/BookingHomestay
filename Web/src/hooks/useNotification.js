@@ -7,14 +7,15 @@ import {
   deleteNotification,
   deleteAllNotifications,
 } from "../api/notifications";
-import { handleApiResponse } from "../utils/apiHelper";
+import { isAuthError, handleApiResponse } from "../utils/apiHelper";
+import { showToast } from "../components/common/Toast";
 import {
   subscribe,
   unsubscribe,
   isConnected,
   onStompConnected,
 } from "../api/socket";
-import { showToast } from "../components/common/Toast";
+
 import { APICache } from "../utils/cache";
 
 export function useNotification() {
@@ -114,11 +115,19 @@ export function useNotification() {
       // Gọi API
       const response = await markNotificationAsRead(notificationId);
 
-      const isSuccess = handleApiResponse(
-        response,
-        null,
-        "Không thể đánh dấu đã đọc"
-      );
+      // Chỉ check auth error, không hiển thị toast
+      if (isAuthError(response)) {
+        // Rollback nếu auth error
+        setNotifications((prev) =>
+          prev.map((notif) =>
+            notif.id === notificationId ? { ...notif, read: false } : notif
+          )
+        );
+        setUnreadCount((prev) => prev + 1);
+        return false;
+      }
+
+      const isSuccess = response.success;
 
       if (!isSuccess) {
         // Rollback nếu API fail
@@ -156,11 +165,15 @@ export function useNotification() {
       // Gọi API
       const response = await markAllNotificationsAsRead();
 
-      const isSuccess = handleApiResponse(
-        response,
-        "Đã đánh dấu tất cả đã đọc",
-        "Không thể đánh dấu tất cả đã đọc"
-      );
+      // Chỉ check auth error, không hiển thị toast
+      if (isAuthError(response)) {
+        // Rollback nếu auth error
+        setNotifications(oldNotifications);
+        setUnreadCount(oldUnreadCount);
+        return false;
+      }
+
+      const isSuccess = response.success;
 
       if (!isSuccess) {
         // Rollback nếu API fail

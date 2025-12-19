@@ -27,56 +27,78 @@ export default function ServicesSection({
       </div>
 
       <div className="space-y-2 max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent">
-        {availableServices.map((service) => {
-          const isSelected = selectedServices.includes(service.id);
-
-          return (
-            <div
-              key={service.id}
-              onClick={() => onServiceToggle(service.id)}
-              className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                isSelected
-                  ? "border-blue-500 bg-blue-50 shadow-md"
-                  : "border-gray-300 hover:border-blue-300 bg-white hover:shadow-sm"
-              }`}
+        {availableServices.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+            <svg
+              className="w-16 h-16 mb-3 text-gray-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => {}}
-                    className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500 mt-4 flex-shrink-0"
-                  />
-                  <div className="flex items-center gap-3">
-                    {/* Display service image */}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
+            </svg>
+            <p className="text-sm font-medium">Chưa có dịch vụ nào</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Homestay này chưa cung cấp dịch vụ bổ sung
+            </p>
+          </div>
+        ) : (
+          availableServices.map((service) => {
+            const isSelected = selectedServices.includes(service.id);
 
-                    <img
-                      src={getImageUrl(service.image)}
-                      alt={service.name}
-                      className="w-12 h-12 rounded-md object-cover flex-shrink-0"
+            return (
+              <div
+                key={service.id}
+                onClick={() => onServiceToggle(service.id)}
+                className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                  isSelected
+                    ? "border-blue-500 bg-blue-50 shadow-md"
+                    : "border-gray-300 hover:border-blue-300 bg-white hover:shadow-sm"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => {}}
+                      className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500 mt-4 flex-shrink-0"
                     />
+                    <div className="flex items-center gap-3">
+                      {/* Display service image */}
 
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-900 text-sm">
-                        {service.name}
-                      </h4>
-                      <p className="text-xs text-gray-600 leading-snug">
-                        {service.description}
-                      </p>
+                      <img
+                        src={getImageUrl(service.image)}
+                        alt={service.name}
+                        className="w-12 h-12 rounded-md object-cover flex-shrink-0"
+                      />
+
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 text-sm">
+                          {service.name}
+                        </h4>
+                        <p className="text-xs text-gray-600 leading-snug">
+                          {service.description}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <div className="bg-blue-500 text-white px-2.5 py-1 rounded text-xs font-semibold whitespace-nowrap">
-                    {formatPrice(service.price)}
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <div className="bg-blue-500 text-white px-2.5 py-1 rounded text-xs font-semibold whitespace-nowrap">
+                      {formatPrice(service.price)}
+                    </div>
+                    <div className="text-xs text-gray-500">/ngày</div>
                   </div>
-                  <div className="text-xs text-gray-500">/ngày</div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );
