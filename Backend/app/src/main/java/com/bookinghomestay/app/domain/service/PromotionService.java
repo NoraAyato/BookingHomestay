@@ -41,9 +41,9 @@ public class PromotionService {
         }
         int countUsedPromotions = khuyenMai.getHoaDons() != null ? khuyenMai.getHoaDons().size() : 0;
         // 3. Kiểm tra số lượng khuyến mãi còn lại
-        if (khuyenMai.getSoLuong() != null && khuyenMai.getSoLuong().intValue() < countUsedPromotions) {
-            System.out.println("Số lượng khuyến mãi còn lại không hợp lệ");
-            throw new BusinessException("Số lượng khuyến mãi còn lại không hợp lệ");
+        if (khuyenMai.getSoLuong() != null && khuyenMai.getSoLuong().intValue() <= countUsedPromotions) {
+            System.out.println("Khuyến mãi đã hết lượt sử dụng");
+            throw new BusinessException("Khuyến mãi đã hết lượt sử dụng");
         }
 
         // 4. Kiểm tra khách mới
@@ -206,8 +206,10 @@ public class PromotionService {
         if (khuyenMai.isChiApDungChoKhachMoi()) {
             title += " cho khách hàng mới";
         }
-        if (khuyenMai.getToiThieu() != null) {
+        if (khuyenMai.getToiThieu() != null && khuyenMai.getToiThieu().compareTo(BigDecimal.ZERO) > 0) {
             title += " từ " + String.format("%,.0f", khuyenMai.getToiThieu()) + " VND";
+        } else {
+            title += " cho tất cả đơn đặt phòng";
         }
         return title;
     }

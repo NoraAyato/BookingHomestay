@@ -68,21 +68,63 @@ public class RoomService {
     }
 
     public BigDecimal getDiscountPriceOfRoom(Phong room) {
+        return getDiscountPriceOfRoom(room, null, null);
+    }
+
+    public BigDecimal getDiscountPriceOfRoom(Phong room, LocalDate checkIn, LocalDate checkOut) {
         BigDecimal originalPrice = room.getDonGia();
+        LocalDate now = LocalDate.now();
+
         List<KhuyenMai> khuyenMais = room.getKhuyenMaiPhongs().stream()
-                .map(KhuyenMaiPhong::getKhuyenMai).filter(km -> !km.isApDungChoTatCaPhong())
+                .map(KhuyenMaiPhong::getKhuyenMai)
+                // Chỉ lấy khuyến mãi còn hiệu lực
+                .filter(km -> "Active".equalsIgnoreCase(km.getTrangThai()))
+                .filter(km -> {
+                    LocalDate startDate = km.getNgayBatDau().toLocalDate();
+                    LocalDate endDate = km.getNgayKetThuc().toLocalDate();
+                    return !now.isBefore(startDate) && !now.isAfter(endDate);
+                })
+                // Kiểm tra số ngày đặt trước (nếu có checkIn)
+                .filter(km -> {
+                    if (checkIn == null || km.getSoNgayDatTruoc() == null)
+                        return true;
+                    long daysBeforeCheckIn = java.time.temporal.ChronoUnit.DAYS.between(now, checkIn);
+                    return daysBeforeCheckIn >= km.getSoNgayDatTruoc();
+                })
+                // Kiểm tra số đêm tối thiểu (nếu có checkIn và checkOut)
+                .filter(km -> {
+                    if (checkIn == null || checkOut == null || km.getSoDemToiThieu() == null)
+                        return true;
+                    long nights = java.time.temporal.ChronoUnit.DAYS.between(checkIn, checkOut);
+                    return nights >= km.getSoDemToiThieu();
+                })
+                // Kiểm tra quota còn lại
+                .filter(km -> {
+                    if (km.getSoLuong() == null)
+                        return true;
+                    int usedCount = (km.getHoaDons() != null) ? km.getHoaDons().size() : 0;
+                    return km.getSoLuong().intValue() > usedCount;
+                })
                 .distinct()
                 .collect(Collectors.toList());
+
         return khuyenMais.stream()
                 .map(km -> {
-                    if (km.getLoaiChietKhau().equals("percentage")) {
-                        return originalPrice
-                                .multiply(BigDecimal.ONE.subtract(km.getChietKhau().divide(BigDecimal.valueOf(100))));
+                    BigDecimal discountedPrice;
+                    if ("percentage".equalsIgnoreCase(km.getLoaiChietKhau())) {
+                        // Tính % chiết khấu với rounding mode
+                        BigDecimal discountPercent = km.getChietKhau()
+                                .divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
+                        discountedPrice = originalPrice
+                                .multiply(BigDecimal.ONE.subtract(discountPercent));
                     } else {
-                        return originalPrice.subtract(km.getChietKhau());
+                        // Chiết khấu cố định
+                        discountedPrice = originalPrice.subtract(km.getChietKhau());
                     }
+                    // Đảm bảo giá không âm
+                    return discountedPrice.max(BigDecimal.ZERO);
                 })
                 .min(BigDecimal::compareTo)
-                .orElse(null);
+                .orElse(originalPrice); // Trả về giá gốc nếu không có khuyến mãi
     }
 }

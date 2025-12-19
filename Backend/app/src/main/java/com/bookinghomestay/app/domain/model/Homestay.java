@@ -37,7 +37,8 @@ public class Homestay {
 
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao = LocalDateTime.now();
-
+    @Column(name = "user_id", nullable = false)
+    private String hostId;
     // Quan hệ nhiều-1 với KhuVuc
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_kv", nullable = false)
