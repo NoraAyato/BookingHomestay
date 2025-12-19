@@ -4,7 +4,7 @@ import {
   verifyPaymentStatus,
   getBookingForPayment,
 } from "../api/payment";
-import { handleApiResponse } from "../utils/apiHelper";
+import { isAuthError, showErrorToastIfNotAuth } from "../utils/apiHelper";
 
 export function usePayment() {
   const [paymentData, setPaymentData] = useState(null);
@@ -44,16 +44,17 @@ export function usePayment() {
           paymentMethod
         );
 
-        const isSuccess = handleApiResponse(
-          response,
-          "Khởi tạo thanh toán thành công!",
-          "Không thể khởi tạo thanh toán"
-        );
+        // Check auth error
+        if (isAuthError(response)) {
+          return response;
+        }
 
-        if (isSuccess && response.data) {
-          setPaymentData(response.data);
-        } else {
+        // Show error if not auth error
+        if (!response.success) {
+          showErrorToastIfNotAuth(response, "Không thể khởi tạo thanh toán");
           setError(response.message || "Không thể khởi tạo thanh toán");
+        } else if (response.data) {
+          setPaymentData(response.data);
         }
 
         return response;
