@@ -37,74 +37,99 @@ public class GeminiApiService {
     }
 
     /**
-     * Generate AI response using Gemini API
+     * Generate AI response using Gemini API with retry logic
      */
     public GeminiResponse generateContent(String prompt) {
-        try {
-            // Build request payload
-            Map<String, Object> requestBody = buildRequestBody(prompt);
-            String jsonBody = objectMapper.writeValueAsString(requestBody);
+        int maxRetries = 2;
+        int retryDelay = 2000; // 2 seconds
 
-            // Create HTTP request
-            String url = geminiConfig.getApiUrl() + "?key=" + geminiConfig.getApiKey();
-            log.info("Gemini API URL: {}", url);
-            log.info("Request body: {}", jsonBody);
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                log.info("🔄 Gemini API attempt {}/{}", attempt, maxRetries);
 
-            Request request = new Request.Builder()
-                    .url(url)
-                    .post(RequestBody.create(jsonBody, MediaType.get("application/json")))
-                    .addHeader("Content-Type", "application/json")
-                    .build();
+                // Build request payload
+                Map<String, Object> requestBody = buildRequestBody(prompt);
+                String jsonBody = objectMapper.writeValueAsString(requestBody);
 
-            // Execute request
-            try (Response response = httpClient.newCall(request).execute()) {
-                String responseBody = response.body() != null ? response.body().string() : "No response body";
+                // Create HTTP request
+                String url = geminiConfig.getApiUrl() + "?key=" + geminiConfig.getApiKey();
 
-                if (!response.isSuccessful()) {
-                    log.error("❌ Gemini API error - Code: {} | Message: {} | Body: {}",
-                            response.code(), response.message(), responseBody);
+                // Log token estimate
+                int estimatedTokens = prompt.length() / 4; // Rough estimate
+                log.info("📊 Estimated input tokens: ~{}", estimatedTokens);
 
-                    // Parse error message from response body
-                    String userFriendlyError = extractErrorMessage(responseBody, response.code());
+                Request request = new Request.Builder()
+                        .url(url)
+                        .post(RequestBody.create(jsonBody, MediaType.get("application/json")))
+                        .addHeader("Content-Type", "application/json")
+                        .build();
 
-                    // Handle specific error codes
-                    switch (response.code()) {
-                        case 429:
-                            return GeminiResponse.error(
-                                    "Xin lỗi, hệ thống AI đang tạm thời quá tải. Vui lòng thử lại sau vài giây hoặc liên hệ admin để nâng cấp API quota.");
+                // Execute request
+                try (Response response = httpClient.newCall(request).execute()) {
+                    String responseBody = response.body() != null ? response.body().string() : "No response body";
 
-                        case 403:
-                            return GeminiResponse.error(
-                                    "Xin lỗi, hệ thống AI tạm thời không khả dụng do vấn đề bảo mật API key. Vui lòng liên hệ admin để được hỗ trợ. 🔐");
+                    if (!response.isSuccessful()) {
+                        log.error("❌ Gemini API error - Code: {} | Message: {} | Body: {}",
+                                response.code(), response.message(), responseBody);
 
-                        case 401:
-                            return GeminiResponse.error(
-                                    "Xin lỗi, hệ thống AI không thể xác thực. Vui lòng liên hệ admin để kiểm tra cấu hình.");
+                        // Handle specific error codes
+                        if (response.code() == 429 && attempt < maxRetries) {
+                            log.warn("⏳ Rate limited, waiting {}ms before retry...", retryDelay);
+                            Thread.sleep(retryDelay);
+                            retryDelay *= 2; // Exponential backoff
+                            continue; // Retry
+                        }
 
-                        case 400:
-                            return GeminiResponse.error(
-                                    "Xin lỗi, yêu cầu không hợp lệ. Vui lòng thử lại với câu hỏi khác.");
+                        // Parse error message from response body
+                        String userFriendlyError = extractErrorMessage(responseBody, response.code());
 
-                        case 500:
-                        case 503:
-                            return GeminiResponse.error(
-                                    "Xin lỗi, hệ thống AI đang bảo trì. Vui lòng thử lại sau ít phút. ⚙️");
+                        switch (response.code()) {
+                            case 429:
+                                return GeminiResponse.error(
+                                        "Hệ thống AI tạm thời quá tải. Vui lòng đợi 5 giây rồi thử lại.");
 
-                        default:
-                            return GeminiResponse.error(userFriendlyError);
+                            case 403:
+                                return GeminiResponse.error(
+                                        "Lỗi API key. Vui lòng liên hệ admin.");
+
+                            case 401:
+                                return GeminiResponse.error(
+                                        "Lỗi xác thực API. Vui lòng liên hệ admin.");
+
+                            case 400:
+                                return GeminiResponse.error(
+                                        "Yêu cầu không hợp lệ. Vui lòng thử câu hỏi khác.");
+
+                            case 500:
+                            case 503:
+                                return GeminiResponse.error(
+                                        "Hệ thống AI đang bảo trì. Vui lòng thử lại sau.");
+
+                            default:
+                                return GeminiResponse.error(userFriendlyError);
+                        }
                     }
+
+                    log.info("✅ Gemini API success on attempt {}", attempt);
+                    return parseGeminiResponse(responseBody);
                 }
 
-                return parseGeminiResponse(responseBody);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Retry interrupted", e);
+                return GeminiResponse.error("Request interrupted");
+            } catch (IOException e) {
+                log.error("Error calling Gemini API on attempt {}", attempt, e);
+                if (attempt == maxRetries) {
+                    return GeminiResponse.error("Lỗi kết nối. Vui lòng thử lại.");
+                }
+            } catch (Exception e) {
+                log.error("Unexpected error in Gemini API", e);
+                return GeminiResponse.error("Lỗi không xác định: " + e.getMessage());
             }
-
-        } catch (IOException e) {
-            log.error("Error calling Gemini API", e);
-            return GeminiResponse.error("Network error: " + e.getMessage());
-        } catch (Exception e) {
-            log.error("Unexpected error in Gemini API", e);
-            return GeminiResponse.error("Unexpected error: " + e.getMessage());
         }
+
+        return GeminiResponse.error("Không thể kết nối sau nhiều lần thử.");
     }
 
     /**
