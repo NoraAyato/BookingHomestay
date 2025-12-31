@@ -23,6 +23,8 @@ public class GetReviewsDataQueryHandler {
         public PageResponse<ReviewsDataResponseDto> handle(GetReviewsDataQuery query) {
                 List<DanhGia> danhGias = reviewsRepository.getAll();
                 List<DanhGia> filtered = danhGias.stream()
+                                .filter(dg -> (query.getStatus() == null
+                                                || dg.getTrangThai() == query.getStatus()))
                                 .filter(dg -> (query.getRating() == null
                                                 || query.getRating() >= reviewService.calculateAverageRating(dg)))
                                 .filter(dg -> (query.getSearch() == null || query.getSearch().isEmpty()

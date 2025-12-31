@@ -32,6 +32,7 @@ public class UpdateHomestayInfoCommandHanler {
             if (command.getIdHost() != null) {
                 User user = userRepository.findById(command.getIdHost())
                         .orElseThrow(() -> new IllegalArgumentException("User không tồn tại !"));
+                homestay.setHostId(user.getUserId());
                 homestay.setNguoiDung(user);
             }
             updateIfNotNull(command.getAddress(), homestay::setDiaChi);

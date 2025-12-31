@@ -16,6 +16,7 @@ public class ReviewsDataResponseDto {
     private String homestayName;
     private String homestayId;
     private int rating;
+    private Boolean status;
     private String content;
     private LocalDate date;
     private String bookingId;

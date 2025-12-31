@@ -11,10 +11,6 @@ import com.bookinghomestay.app.common.util.PaginationUtil;
 import com.bookinghomestay.app.domain.model.DichVuHs;
 import com.bookinghomestay.app.domain.repository.IHomestayServiceRepository;
 import com.bookinghomestay.app.infrastructure.mapper.ServiceMapper;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Service
