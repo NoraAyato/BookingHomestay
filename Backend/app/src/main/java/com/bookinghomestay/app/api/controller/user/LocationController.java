@@ -6,7 +6,6 @@ import com.bookinghomestay.app.application.location.dto.LocationTop5ResponeDto;
 import com.bookinghomestay.app.application.location.query.GetAllLocationsQueryHandler;
 import com.bookinghomestay.app.application.location.query.GetAllTop5LocationsQueryHandler;
 import com.bookinghomestay.app.common.response.ApiResponse;
-import com.bookinghomestay.app.domain.repository.ISearchHomestayRepository;
 import com.bookinghomestay.app.domain.repository.ISearchLocationRepository;
 import com.bookinghomestay.app.infrastructure.elasticsearch.document.LocationSearchDocument;
 

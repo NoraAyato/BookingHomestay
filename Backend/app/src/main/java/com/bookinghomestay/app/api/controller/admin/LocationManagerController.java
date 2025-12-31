@@ -10,13 +10,11 @@ import com.bookinghomestay.app.application.admin.location.command.CreateLocation
 import com.bookinghomestay.app.application.admin.location.command.CreateLocationCommandHandler;
 import com.bookinghomestay.app.application.admin.location.command.UpdateLocationCommand;
 import com.bookinghomestay.app.application.admin.location.command.UpdateLocationCommandHandler;
-import com.bookinghomestay.app.application.admin.location.dto.CreateLocationRequestDto;
 import com.bookinghomestay.app.application.admin.location.dto.LocationInfoResponseDto;
 import com.bookinghomestay.app.application.admin.location.query.GetLocationInfoQuery;
 import com.bookinghomestay.app.application.admin.location.query.GetLocationInfoQueryHandler;
 import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.common.response.PageResponse;
-import com.google.api.services.storage.Storage.BucketAccessControls.Update;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 

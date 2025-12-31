@@ -12,33 +12,40 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class GetHostServiceDataQueryHandler {
-    private final IServiceRepository serviceRepository;
+        private final IServiceRepository serviceRepository;
 
-    public PageResponse<ServiceDataDto> handle(GetServiceDataQuery query) {
-        var filteredServices = serviceRepository.findAllServices().stream()
-                .filter(service -> service.getHomestay().getNguoiDung().getUserId().equalsIgnoreCase(query.getUserId()))
-                .filter(service -> (query.getHomestayId() == null
-                        || service.getHomestay().getIdHomestay().equalsIgnoreCase(query.getHomestayId())))
-                .filter(service -> (query.getSearch() == null
-                        || service.getTenDV().toLowerCase().contains(query.getSearch().toLowerCase())))
-                .toList();
+        public PageResponse<ServiceDataDto> handle(GetServiceDataQuery query) {
+                var filteredServices = serviceRepository.findAllServices().stream()
+                                .filter(service -> service.getHomestay().getNguoiDung().getUserId()
+                                                .equalsIgnoreCase(query.getUserId()))
+                                .filter(service -> (query.getHomestayId() == null
+                                                || service.getHomestay().getIdHomestay()
+                                                                .equalsIgnoreCase(query.getHomestayId())))
+                                .filter(service -> (query.getSearch() == null
+                                                || service.getTenDV().toLowerCase()
+                                                                .contains(query.getSearch().toLowerCase())))
+                                .filter(service -> (query.getStatus() == null
+                                                || service.getTrangThai().equalsIgnoreCase(query.getStatus())))
+                                .toList();
 
-        int total = filteredServices.size();
-        var pagedServices = PaginationUtil.paginate(filteredServices, query.getPage(), query.getSize());
+                int total = filteredServices.size();
+                var pagedServices = PaginationUtil.paginate(filteredServices, query.getPage(), query.getSize());
 
-        var serviceDtos = pagedServices.stream().map(service -> {
-            ServiceDataDto dto = new ServiceDataDto();
-            dto.setId(service.getMaDV());
-            dto.setHomestayName(
-                    service.getHomestay().getTenHomestay() + " " + service.getHomestay().getKhuVuc().getTenKv());
-            dto.setHomestayId(service.getHomestay().getIdHomestay());
-            dto.setName(service.getTenDV());
-            dto.setPrice(service.getDonGia() != null ? service.getDonGia().doubleValue() : 0);
-            dto.setDescription(service.getMoTa());
-            dto.setImage(service.getHinhAnh());
-            return dto;
-        }).toList();
+                var serviceDtos = pagedServices.stream().map(service -> {
+                        ServiceDataDto dto = new ServiceDataDto();
+                        dto.setId(service.getMaDV());
+                        dto.setStatus(service.getTrangThai());
+                        dto.setHomestayName(
+                                        service.getHomestay().getTenHomestay() + " "
+                                                        + service.getHomestay().getKhuVuc().getTenKv());
+                        dto.setHomestayId(service.getHomestay().getIdHomestay());
+                        dto.setName(service.getTenDV());
+                        dto.setPrice(service.getDonGia() != null ? service.getDonGia().doubleValue() : 0);
+                        dto.setDescription(service.getMoTa());
+                        dto.setImage(service.getHinhAnh());
+                        return dto;
+                }).toList();
 
-        return new PageResponse<>(serviceDtos, total, query.getPage(), query.getSize());
-    }
+                return new PageResponse<>(serviceDtos, total, query.getPage(), query.getSize());
+        }
 }

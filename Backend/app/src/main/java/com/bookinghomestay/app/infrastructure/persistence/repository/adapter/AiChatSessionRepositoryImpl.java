@@ -115,6 +115,7 @@ public class AiChatSessionRepositoryImpl implements IAiChatSessionRepository {
                 .messageIds(doc.getMessageIds())
                 .currentIntent(doc.getCurrentIntent())
                 .currentStep(doc.getCurrentStep())
+                .conversationContext(doc.getConversationContext()) // Map conversation context
                 .build();
     }
 
@@ -134,6 +135,7 @@ public class AiChatSessionRepositoryImpl implements IAiChatSessionRepository {
                 .messageIds(session.getMessageIds())
                 .currentIntent(session.getCurrentIntent())
                 .currentStep(session.getCurrentStep())
+                .conversationContext(session.getConversationContext()) // Map conversation context
                 .createdBy("ai-system")
                 .build();
     }

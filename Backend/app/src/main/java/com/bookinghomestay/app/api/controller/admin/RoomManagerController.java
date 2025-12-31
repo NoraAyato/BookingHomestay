@@ -17,8 +17,6 @@ import com.bookinghomestay.app.application.admin.room.query.GetRoomTypeDataQuery
 import com.bookinghomestay.app.application.admin.room.query.GetRoomTypeDataQueryHandler;
 import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.common.response.PageResponse;
-
-import co.elastic.clients.elasticsearch.ml.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

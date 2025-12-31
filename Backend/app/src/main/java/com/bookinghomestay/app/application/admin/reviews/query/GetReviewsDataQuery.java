@@ -18,4 +18,5 @@ public class GetReviewsDataQuery {
     private String search;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Boolean status;
 }

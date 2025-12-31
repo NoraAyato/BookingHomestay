@@ -55,7 +55,7 @@ public class GetStatsQueryHandler {
 
         return Arrays.asList(
                 DashboardStatDto.builder()
-                        .title("Doanh thu")
+                        .title("Hoa hồng")
                         .value(formatCurrency(currentRevenue))
                         .change(calculateChangePercent(currentRevenue, previousRevenue))
                         .trend(getDirection(currentRevenue, previousRevenue))

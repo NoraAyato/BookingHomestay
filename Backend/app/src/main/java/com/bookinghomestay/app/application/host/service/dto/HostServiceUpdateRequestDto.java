@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HostServiceUpdateRequestDto {
-    private String name;
     private String description;
     private MultipartFile image;
     private int price;

@@ -32,6 +32,7 @@ public class GetHomestayDichVuQueryHandler {
                         throw new BusinessException("Homestay không hợp lệ hoặc thiếu thông tin bắt buộc");
                 }
                 List<HomestayDichVuResponseDto> dichVuList = homestay.getDichVus().stream()
+                                .filter(sv -> sv.getTrangThai().equalsIgnoreCase("APPROVED"))
                                 .map(dv -> HomestayMapper.toServiceDto(dv))
                                 .toList();
                 return dichVuList;

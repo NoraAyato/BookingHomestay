@@ -20,4 +20,5 @@ public class GetHostReviewsDataQuery {
     private LocalDate startDate;
     private LocalDate endDate;
     private String userId;
+    private Boolean status;
 }

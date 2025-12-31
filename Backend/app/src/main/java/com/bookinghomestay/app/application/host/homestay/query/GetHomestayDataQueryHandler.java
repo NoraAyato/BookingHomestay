@@ -44,7 +44,8 @@ public class GetHomestayDataQueryHandler {
                                                         .map(dv -> new ServiceDataDto(dv.getMaDV(), hs.getIdHomestay(),
                                                                         hs.getTenHomestay(),
                                                                         dv.getTenDV(), dv.getDonGia().intValue(),
-                                                                        dv.getMoTa(), dv.getHinhAnh()))
+                                                                        dv.getMoTa(), dv.getHinhAnh(),
+                                                                        dv.getTrangThai()))
                                                         .collect(Collectors.toList()) : List.of();
                                         return HomestayMapper.toHostHomestayDataResponseDto(hs, averageRating,
                                                         totalReviews, totalBookings,

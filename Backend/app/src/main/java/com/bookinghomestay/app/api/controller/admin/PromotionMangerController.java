@@ -1,15 +1,11 @@
 package com.bookinghomestay.app.api.controller.admin;
 
 import java.time.LocalDate;
-
-import org.apache.catalina.security.SecurityUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.bookinghomestay.app.application.admin.promotion.command.CreatePromotionCommand;
 import com.bookinghomestay.app.application.admin.promotion.command.CreatePromotionCommandHandler;
 import com.bookinghomestay.app.application.admin.promotion.command.DeletePromotionCommandHandler;
 import com.bookinghomestay.app.application.admin.promotion.command.UpdatePromotionCommand;
@@ -24,7 +20,6 @@ import com.bookinghomestay.app.application.admin.promotion.query.GetPromotionSta
 import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.common.response.PageResponse;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
-import com.google.api.services.storage.Storage.BucketAccessControls.Delete;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

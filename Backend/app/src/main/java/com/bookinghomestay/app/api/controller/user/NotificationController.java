@@ -2,15 +2,12 @@ package com.bookinghomestay.app.api.controller.user;
 
 import com.bookinghomestay.app.application.notification.command.*;
 import com.bookinghomestay.app.application.notification.dto.NotificationDto;
-import com.bookinghomestay.app.application.notification.dto.SendNotificationRequest;
 import com.bookinghomestay.app.application.notification.query.*;
 import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,60 +20,44 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationController {
-
-    private final SendNotificationToUserCommandHandler sendToUserHandler;
-    private final SendNotificationToAllCommandHandler sendToAllHandler;
     private final MarkNotificationAsReadCommandHandler markAsReadHandler;
     private final GetMyNotificationsQueryHandler getMyNotificationsHandler;
     private final GetUnreadNotificationsQueryHandler getUnreadNotificationsHandler;
     private final GetUnreadCountQueryHandler getUnreadCountHandler;
     private final SetReadNotificationHandler setReadNotificationHandler;
 
-    /**
-     * Get all notifications for current user
-     */
+  
     @GetMapping
     public ResponseEntity<ApiResponse<List<NotificationDto>>> getMyNotifications() {
         String userId = SecurityUtils.getCurrentUserId();
-        log.info("Getting notifications for user: {}", userId);
-
         GetMyNotificationsQuery query = new GetMyNotificationsQuery(userId);
         List<NotificationDto> dtos = getMyNotificationsHandler.handle(query);
-
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách thông báo thành công", dtos));
     }
 
-    /**
-     * Get unread notifications for current user
-     */
+ 
     @GetMapping("/unread")
     public ResponseEntity<ApiResponse<List<NotificationDto>>> getUnreadNotifications() {
         String userId = SecurityUtils.getCurrentUserId();
-        log.info("Getting unread notifications for user: {}", userId);
-
+     
         GetUnreadNotificationsQuery query = new GetUnreadNotificationsQuery(userId);
         List<NotificationDto> dtos = getUnreadNotificationsHandler.handle(query);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách thông báo chưa đọc thành công", dtos));
     }
 
-    /**
-     * Get unread notification count
-     */
+  
     @GetMapping("/unread-count")
     public ResponseEntity<ApiResponse<Long>> getUnreadCount() {
         String userId = SecurityUtils.getCurrentUserId();
-        log.info("Getting unread count for user: {}", userId);
-
+      
         GetUnreadCountQuery query = new GetUnreadCountQuery(userId);
         Long count = getUnreadCountHandler.handle(query);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy số lượng thông báo chưa đọc thành công", count));
     }
 
-    /**
-     * Mark notification as read
-     */
+    
     @PutMapping("/{userNotificationId}/read")
     public ResponseEntity<ApiResponse<NotificationDto>> markAsRead(
             @PathVariable Long userNotificationId) {
@@ -92,7 +73,6 @@ public class NotificationController {
         String userId = SecurityUtils.getCurrentUserId();
         SetReadNotificationCommand command = new SetReadNotificationCommand(userId);
         setReadNotificationHandler.handle(command);
-        // Assuming you have a handler for this command
         return ResponseEntity.ok(new ApiResponse<>(true, "Đánh dấu tất cả đã đọc thành công", null));
     }
 

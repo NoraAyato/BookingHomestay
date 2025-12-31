@@ -4,6 +4,7 @@ import com.bookinghomestay.app.domain.model.ai.AiChatSession;
 import com.bookinghomestay.app.domain.model.ai.AiMessage;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -106,4 +107,18 @@ public interface AiChatService {
      * @return Session if exists and valid
      */
     Optional<AiChatSession> getValidSession(String sessionId);
+
+    /**
+     * Update conversation context (for context-aware AI)
+     * Stores last search results, location, intent, etc.
+     * 
+     * @param sessionId           Session ID
+     * @param conversationContext Context map containing:
+     *                            - lastSearchedLocation: String
+     *                            - lastHomestayIds: List<String>
+     *                            - lastIntent: String
+     *                            - lastQueryTimestamp: String
+     * @return Updated session
+     */
+    AiChatSession updateConversationContext(String sessionId, Map<String, Object> conversationContext);
 }

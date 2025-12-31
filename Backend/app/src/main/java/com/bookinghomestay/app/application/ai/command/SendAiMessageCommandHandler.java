@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +36,7 @@ public class SendAiMessageCommandHandler {
 
         public AiChatResponse handle(SendAiMessageCommand command) {
                 try {
-                        log.info("Processing AI message for user: {}", command.getUserId());
+                        log.info("🔷 Processing CONTEXT-AWARE AI message for user: {}", command.getUserId());
 
                         // Get user info from repository
                         Optional<User> userOpt = userRepository.findById(command.getUserId());
@@ -61,10 +63,13 @@ public class SendAiMessageCommandHandler {
                                         .detectedIntent(aiProcessingService.detectIntent(command.getMessage()))
                                         .build();
 
-                        // Process message and generate AI response FIRST
+                        // Process message with CONTEXT-AWARE version (pass session object)
+                        log.info("🤖 Processing with CONTEXT-AWARE AI (session has context: {})",
+                                        session.hasConversationContext());
+
                         AiMessage aiResponse = aiProcessingService.processUserMessage(
                                         command.getMessage(),
-                                        session.getSessionContext());
+                                        session); // Pass session object instead of string
 
                         // Set session ID for AI response
                         AiMessage aiResponseWithSession = AiMessage.builder()
@@ -88,6 +93,34 @@ public class SendAiMessageCommandHandler {
                                 // Then save AI response
                                 session = aiChatService.addMessageToSession(session.getSessionId(),
                                                 aiResponseWithSession);
+
+                                // UPDATE CONVERSATION CONTEXT if AI response contains homestays
+                                if (aiResponse.getMetadata() != null &&
+                                                aiResponse.getMetadata().containsKey("homestayIds")) {
+
+                                        Map<String, Object> newContext = new HashMap<>();
+
+                                        @SuppressWarnings("unchecked")
+                                        List<String> homestayIds = (List<String>) aiResponse.getMetadata()
+                                                        .get("homestayIds");
+                                        newContext.put("lastHomestayIds", homestayIds);
+
+                                        if (aiResponse.getMetadata().containsKey("searchLocation")) {
+                                                newContext.put("lastSearchedLocation",
+                                                                aiResponse.getMetadata().get("searchLocation"));
+                                        }
+
+                                        newContext.put("lastIntent", aiResponse.getDetectedIntent());
+                                        newContext.put("lastQueryTimestamp", LocalDateTime.now().toString());
+
+                                        // Save context to session
+                                        session = aiChatService.updateConversationContext(
+                                                        session.getSessionId(), newContext);
+
+                                        log.info("✅ Updated conversation context with {} homestays",
+                                                        homestayIds.size());
+                                }
+
                                 log.info("✅ Both user message and AI response saved to session: {}",
                                                 session.getSessionId());
                         } else {

@@ -18,6 +18,9 @@ public interface JpaDanhGiaRepository extends JpaRepository<DanhGia, String> {
     @Query("SELECT AVG(d.dichVu) FROM DanhGia d WHERE d.homestay.idHomestay = :homestayId")
     Double averageDichVuByHomestayId(@Param("homestayId") String homestayId);
 
+    @Query("SELECT d.homestay.idHomestay, AVG(d.dichVu) FROM DanhGia d WHERE d.homestay.idHomestay IN :homestayIds GROUP BY d.homestay.idHomestay")
+    List<Object[]> averageDichVuByHomestayIds(@Param("homestayIds") List<String> homestayIds);
+
     @Query("SELECT d FROM DanhGia d WHERE d.homestay.idHomestay = :homestayId AND d.phieuDatPhong.maPDPhong = :bookingId")
     Optional<DanhGia> findByIdHomestayAndBookingId(@Param("homestayId") String homestayId,
             @Param("bookingId") String bookingId);

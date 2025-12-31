@@ -10,8 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,6 +35,19 @@ public class DanhGiaRepositoryImpl implements IReviewRepository {
     @Override
     public Double averageHaiLongByHomestayId(String homestayId) {
         return jpaDanhGiaRepository.averageDichVuByHomestayId(homestayId);
+    }
+
+    @Override
+    public Map<String, Double> averageHaiLongByHomestayIds(List<String> homestayIds) {
+        if (homestayIds == null || homestayIds.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        List<Object[]> results = jpaDanhGiaRepository.averageDichVuByHomestayIds(homestayIds);
+        return results.stream()
+                .collect(Collectors.toMap(
+                        row -> (String) row[0],
+                        row -> (Double) row[1]));
     }
 
     @Override

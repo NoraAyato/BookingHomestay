@@ -1,5 +1,6 @@
 package com.bookinghomestay.app.domain.service;
 
+import com.bookinghomestay.app.domain.model.ai.AiChatSession;
 import com.bookinghomestay.app.domain.model.ai.AiMessage;
 
 import java.util.Map;
@@ -11,12 +12,25 @@ import java.util.Map;
 public interface AiProcessingService {
 
     /**
-     * Process user message and generate AI response
+     * Process user message and generate AI response (Context-aware version)
+     * 
+     * @param userMessage User input message
+     * @param session     Current chat session (contains conversation context)
+     * @return AI generated response
+     */
+    AiMessage processUserMessage(String userMessage, AiChatSession session);
+
+    /**
+     * Process user message and generate AI response (Legacy version with
+     * sessionContext string)
      * 
      * @param userMessage    User input message
      * @param sessionContext Current session context (booking preferences, etc.)
      * @return AI generated response
+     * @deprecated Use processUserMessage(String, AiChatSession) for context-aware
+     *             processing
      */
+    @Deprecated
     AiMessage processUserMessage(String userMessage, String sessionContext);
 
     /**

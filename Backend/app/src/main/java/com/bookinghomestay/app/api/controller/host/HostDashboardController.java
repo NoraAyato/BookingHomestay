@@ -7,7 +7,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bookinghomestay.app.application.admin.dashboard.dto.DashboardRevenueDto;
 import com.bookinghomestay.app.application.host.dashboard.dto.HostDashBoardStatsDto;
 import com.bookinghomestay.app.application.host.dashboard.dto.HostDashboardRevenueDto;
 import com.bookinghomestay.app.application.host.dashboard.dto.HostRecentBookingResponseDto;

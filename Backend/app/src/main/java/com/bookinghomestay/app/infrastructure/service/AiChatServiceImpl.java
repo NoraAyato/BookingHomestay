@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,6 +45,7 @@ public class AiChatServiceImpl implements AiChatService {
                 .messageIds(new ArrayList<>())
                 .currentIntent("general_chat")
                 .currentStep("greeting")
+                .conversationContext(new HashMap<>()) // Initialize empty conversation context
                 .build();
 
         AiChatSession savedSession = sessionRepository.save(session);
@@ -94,6 +97,7 @@ public class AiChatServiceImpl implements AiChatService {
                     .messageIds(session.getMessageIds())
                     .currentIntent(session.getCurrentIntent())
                     .currentStep("ended")
+                    .conversationContext(session.getConversationContext()) // Preserve context
                     .build();
 
             sessionRepository.save(updatedSession);
@@ -120,6 +124,7 @@ public class AiChatServiceImpl implements AiChatService {
                     .messageIds(session.getMessageIds())
                     .currentIntent(session.getCurrentIntent())
                     .currentStep(session.getCurrentStep())
+                    .conversationContext(session.getConversationContext()) // Preserve context
                     .build();
 
             return sessionRepository.save(updatedSession);
@@ -173,6 +178,7 @@ public class AiChatServiceImpl implements AiChatService {
                     .messageIds(messageIds)
                     .currentIntent(currentIntent)
                     .currentStep(session.getCurrentStep())
+                    .conversationContext(session.getConversationContext()) // Preserve context
                     .build();
 
             return sessionRepository.save(updatedSession);
@@ -235,6 +241,7 @@ public class AiChatServiceImpl implements AiChatService {
                     .messageIds(session.getMessageIds())
                     .currentIntent(session.getCurrentIntent())
                     .currentStep(session.getCurrentStep())
+                    .conversationContext(session.getConversationContext()) // Preserve context
                     .build();
 
             sessionRepository.save(updatedSession);
@@ -253,5 +260,39 @@ public class AiChatServiceImpl implements AiChatService {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public AiChatSession updateConversationContext(String sessionId, Map<String, Object> conversationContext) {
+        Optional<AiChatSession> sessionOpt = sessionRepository.findById(sessionId);
+
+        if (sessionOpt.isEmpty()) {
+            throw new IllegalArgumentException("Session not found: " + sessionId);
+        }
+
+        AiChatSession session = sessionOpt.get();
+
+        log.info("📝 Updating conversation context for session {}", sessionId);
+        log.info("Context data: {}", conversationContext);
+
+        AiChatSession updatedSession = AiChatSession.builder()
+                .sessionId(session.getSessionId())
+                .userId(session.getUserId())
+                .userName(session.getUserName())
+                .userAvatar(session.getUserAvatar())
+                .createdAt(session.getCreatedAt())
+                .lastActivityAt(LocalDateTime.now())
+                .status(session.getStatus())
+                .sessionContext(session.getSessionContext())
+                .messageIds(session.getMessageIds())
+                .currentIntent(session.getCurrentIntent())
+                .currentStep(session.getCurrentStep())
+                .conversationContext(conversationContext) // Update context
+                .build();
+
+        AiChatSession saved = sessionRepository.save(updatedSession);
+        log.info("✅ Conversation context updated successfully");
+
+        return saved;
     }
 }

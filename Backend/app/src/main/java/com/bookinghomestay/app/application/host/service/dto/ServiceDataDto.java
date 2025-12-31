@@ -15,4 +15,5 @@ public class ServiceDataDto {
     private double price;
     private String description;
     private String image;
+    private String status;
 }

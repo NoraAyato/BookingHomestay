@@ -30,9 +30,9 @@ public class GeminiConfig {
     private String model = "gemini-1.5-flash";
 
     /**
-     * Maximum number of tokens in response
+     * Maximum number of tokens in response (REDUCED to avoid rate limits)
      */
-    private Integer maxTokens = 1024;
+    private Integer maxTokens = 512;
 
     /**
      * Temperature for response creativity (0.0 to 1.0)

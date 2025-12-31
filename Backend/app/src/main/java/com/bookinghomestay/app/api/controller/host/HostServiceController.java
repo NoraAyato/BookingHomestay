@@ -1,5 +1,7 @@
 package com.bookinghomestay.app.api.controller.host;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,7 @@ import com.bookinghomestay.app.application.host.service.dto.HostServiceUpdateReq
 import com.bookinghomestay.app.application.host.service.dto.ServiceDataDto;
 import com.bookinghomestay.app.application.host.service.query.GetHostServiceDataQueryHandler;
 import com.bookinghomestay.app.application.host.service.query.GetServiceDataQuery;
+import com.bookinghomestay.app.application.host.service.query.GetServiceSuggestListHandler;
 import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.common.response.PageResponse;
 import com.bookinghomestay.app.infrastructure.security.SecurityUtils;
@@ -23,7 +26,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -37,17 +39,19 @@ public class HostServiceController {
     private final HostCreateServiceCommandHandler hostCreateServiceCommandHandler;
     private final HostUpdateServiceCommandHandler hostUpdateServiceCommandHandler;
     private final HostDeleteServiceCommandHandler hostDeleteServiceCommandHandler;
+    private final GetServiceSuggestListHandler getServiceSuggestListHandler;
 
     @GetMapping()
     public ResponseEntity<ApiResponse<PageResponse<ServiceDataDto>>> getServiceData(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String homestayId,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "6") int size) {
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(required = false) String status) {
         String userId = SecurityUtils.getCurrentUserId();
         var response = getServiceDataQueryHandler
                 .handle(new GetServiceDataQuery(
-                        search, homestayId, page, size, userId));
+                        search, homestayId, page, size, userId, status));
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy thông tin dịch vụ thành công !", response));
     }
 
@@ -72,4 +76,11 @@ public class HostServiceController {
         hostDeleteServiceCommandHandler.handle(id, userId);
         return ResponseEntity.ok(new ApiResponse<>(true, "Xóa dịch vụ thành công !", null));
     }
+
+    @GetMapping("/suggest-list")
+    public ResponseEntity<ApiResponse<List<String>>> getSuggestList() {
+        List<String> suggestions = getServiceSuggestListHandler.handle();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách gợi ý thành công !", suggestions));
+    }
+
 }

@@ -5,6 +5,7 @@ import com.bookinghomestay.app.domain.model.DanhGia;
 
 import java.lang.StackWalker.Option;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface IReviewRepository {
@@ -19,6 +20,8 @@ public interface IReviewRepository {
     int countByHomestayId(String homestayId);
 
     Double averageHaiLongByHomestayId(String homestayId);
+
+    Map<String, Double> averageHaiLongByHomestayIds(List<String> homestayIds);
 
     DanhGia save(DanhGia danhGia);
 

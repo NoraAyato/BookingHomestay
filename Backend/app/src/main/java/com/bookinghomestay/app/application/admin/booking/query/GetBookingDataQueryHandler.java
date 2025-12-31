@@ -25,7 +25,7 @@ public class GetBookingDataQueryHandler {
 
         public PageResponse<BookingDataResponseDto> handle(GetBookingDataQuery query) {
                 // Lấy tất cả booking
-                List<PhieuDatPhong> allBookings = bookingRepository.findAll();
+                List<PhieuDatPhong> allBookings = bookingRepository.findAllWithHoaDonAndThanhToan();
 
                 // BƯỚC 1: Filter trước
                 List<PhieuDatPhong> filteredBookings = allBookings.stream()
