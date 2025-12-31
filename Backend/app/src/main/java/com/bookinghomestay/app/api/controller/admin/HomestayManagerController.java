@@ -57,6 +57,7 @@ public class HomestayManagerController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> updateHomestay(@PathVariable String id,
             @ModelAttribute UpdateHomestayRequestDto requestDto) {
+                
         updateHomestayInfoCommandHanler.handler(new UpdateHomestayInfoCommand(id, requestDto.getHomestayName(),
                 requestDto.getDescription(), requestDto.getIdHost(), requestDto.getAddress(),
                 requestDto.getLocationId(), requestDto.getStatus(), requestDto.getImage()));

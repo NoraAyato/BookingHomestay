@@ -8,10 +8,10 @@ import java.time.LocalDate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bookinghomestay.app.application.admin.reviews.command.ApproveReviewCommandHandler;
 import com.bookinghomestay.app.application.admin.reviews.command.DeleteReviewCommandHandler;
 import com.bookinghomestay.app.application.admin.reviews.dto.ReviewsDataResponseDto;
 import com.bookinghomestay.app.application.admin.reviews.dto.ReviewsStatsResponseDto;
@@ -21,10 +21,7 @@ import com.bookinghomestay.app.application.admin.reviews.query.GetReviewsStatsQu
 import com.bookinghomestay.app.common.response.ApiResponse;
 import com.bookinghomestay.app.common.response.PageResponse;
 
-import co.elastic.clients.elasticsearch.ml.Page;
-
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +35,7 @@ public class ReviewsManagerController {
     private final GetReviewsDataQueryHandler getReviewsDataQueryHandler;
     private final DeleteReviewCommandHandler deleteReviewCommandHandler;
     private final GetReviewsStatsQueryHandler getReviewsStatsQueryHandler;
+    private final ApproveReviewCommandHandler approveReviewCommandHandler;
 
     @GetMapping()
     public ResponseEntity<ApiResponse<PageResponse<ReviewsDataResponseDto>>> getReviewsData(
@@ -45,11 +43,9 @@ public class ReviewsManagerController {
             @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int size,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
-            @RequestParam(required = false) Integer rating) {
-        System.out.println(
-                "startDate: " + startDate + ", endDate: " + endDate + ", rating: " + rating + ", search: " + search);
+            @RequestParam(required = false) Integer rating, @RequestParam(required = false) Boolean status) {
         PageResponse<ReviewsDataResponseDto> query = getReviewsDataQueryHandler
-                .handle(new GetReviewsDataQuery(page, size, rating, search, startDate, endDate));
+                .handle(new GetReviewsDataQuery(page, size, rating, search, startDate, endDate, status));
         return ResponseEntity.ok(new ApiResponse<>(true, "Lấy dữ liệu đánh giá thành công", query));
     }
 
@@ -57,6 +53,12 @@ public class ReviewsManagerController {
     public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable String id) {
         deleteReviewCommandHandler.handle(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Xóa đánh giá thành công !", null));
+    }
+
+    @PutMapping("/approve/{id}")
+    public ResponseEntity<ApiResponse<Void>> approveReview(@PathVariable String id) {
+        approveReviewCommandHandler.handle(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Duyệt đánh giá thành công !", null));
     }
 
     @GetMapping("/stats")

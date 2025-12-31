@@ -1,7 +1,6 @@
 package com.bookinghomestay.app.api.controller.admin;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Slf4j
 @PreAuthorize("hasRole('Admin')")
 public class BookingManagerController {
-    // Booking management endpoints to be implemented
     private final GetBookingDataQueryHandler getBookingDataQueryHandler;
     private final GetBookingStatsQueryHandler getBookingStatsQueryHandler;
 
