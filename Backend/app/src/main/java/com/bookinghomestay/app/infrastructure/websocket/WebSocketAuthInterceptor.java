@@ -53,8 +53,13 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                                 null,
                                 userDetails.getAuthorities());
 
-                        // Set user principal for this WebSocket session
-                        accessor.setUser(authentication);
+                        // CRITICAL FIX: Set userId as Principal name for user-specific messaging
+                        // Spring's convertAndSendToUser() needs Principal.getName() to match userId
+                        StompPrincipal principal = new StompPrincipal(userId);
+                        accessor.setUser(principal);
+                        
+                        // Store authentication in session attributes for authorization checks
+                        accessor.getSessionAttributes().put("SPRING_SECURITY_CONTEXT", authentication);
 
                         // Log user info
                         String roles = userDetails.getAuthorities().stream()
@@ -83,7 +88,8 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
             // Check if subscribing to admin-only topic
             if (destination != null && destination.startsWith("/topic/admin/")) {
-                Authentication auth = (Authentication) accessor.getUser();
+                // Get authentication from session attributes
+                Authentication auth = (Authentication) accessor.getSessionAttributes().get("SPRING_SECURITY_CONTEXT");
 
                 if (auth == null) {
                     log.warn("❌ No authentication found when subscribing to: {}", destination);
