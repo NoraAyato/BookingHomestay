@@ -18,6 +18,8 @@ import { useHomestayData } from "../../hooks/useHomestay";
 import { useBookings } from "../../hooks/useBookings";
 import useUser from "../../hooks/useUser";
 import { useAuth } from "../../hooks/useAuth";
+import { useShare } from "../../hooks/useShare";
+import { useFavorite } from "../../hooks/useFavorite";
 import { renderDescription } from "../../utils/string";
 import { getImageUrl } from "../../utils/imageUrl";
 import { formatPrice } from "../../utils/price";
@@ -102,9 +104,14 @@ const HomestayDetail = () => {
   } = useHomestayData();
 
   const { loading: bookingLoading, createNewBooking } = useBookings();
-  const { addFavorite } = useUser();
   const { user } = useAuth();
-  console.log("user:", user);
+  const { shareHomestay, isSharing } = useShare();
+  const {
+    isFavorite,
+    isLoading: isFavoriteLoading,
+    toggleFavorite,
+  } = useFavorite(id);
+ 
   useEffect(() => {
     // Fetch homestay detail khi id thay đổi
     fetchHomestayDetail(id);
@@ -235,6 +242,18 @@ const HomestayDetail = () => {
     });
   };
 
+  // Handle share button click
+  const handleShare = async () => {
+    if (!homestayDetail) return;
+
+    await shareHomestay({
+      id: homestayDetail.id,
+      name: homestayDetail.title,
+      location: homestayDetail.address,
+      price: homestayDetail.priceRange,
+    });
+  };
+
   // Handle booking form submission
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
@@ -331,7 +350,7 @@ const HomestayDetail = () => {
     host,
     tags,
   } = homestay;
-  console.log(host);
+
 
   // Helper function: Chỉ coi là có khuyến mãi khi discountPrice < price
   const hasValidDiscount = (price, discountPrice) => {
@@ -408,7 +427,11 @@ const HomestayDetail = () => {
             </div>
           </div>
           <div className="mt-4 sm:mt-0 flex items-center">
-            <button className="flex items-center text-gray-600 hover:text-gray-900 mr-4">
+            <button
+              onClick={handleShare}
+              disabled={isSharing}
+              className="flex items-center text-gray-600 hover:text-gray-900 mr-4 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
               <svg
                 className="w-5 h-5 mr-1"
                 fill="none"
@@ -422,15 +445,23 @@ const HomestayDetail = () => {
                   d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                 />
               </svg>
-              Chia sẻ
+              {isSharing ? "Đang chia sẻ..." : "Chia sẻ"}
             </button>
             <button
-              onClick={() => addFavorite(id)}
-              className="flex items-center text-gray-600 hover:text-gray-900"
+              onClick={toggleFavorite}
+              disabled={isFavoriteLoading}
+              className={`flex items-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                isFavorite
+                  ? "text-red-600 hover:text-red-700"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+              title={isFavorite ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
             >
               <svg
-                className="w-5 h-5 mr-1"
-                fill="none"
+                className={`w-5 h-5 mr-1 transition-transform duration-200 ${
+                  isFavoriteLoading ? "animate-pulse" : ""
+                } ${isFavorite ? "scale-110" : ""}`}
+                fill={isFavorite ? "currentColor" : "none"}
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -441,7 +472,7 @@ const HomestayDetail = () => {
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
-              Lưu
+              {isFavorite ? "Đã lưu" : "Lưu"}
             </button>
           </div>
         </div>
