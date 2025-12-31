@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Domain model for AI Chat Session
@@ -27,6 +28,13 @@ public class AiChatSession {
     private final List<String> messageIds; // References to AiMessage documents
     private final String currentIntent; // Current detected intent (search_homestay, book_room, etc.)
     private final String currentStep; // Current step in booking flow
+
+    // NEW: Context-aware conversation tracking
+    private final Map<String, Object> conversationContext; // Stores last search results, location, intent, etc.
+    // Example: { "lastSearchedLocation": "Đà Lạt", "lastHomestayIds": ["HS001",
+    // "HS002"],
+    // "lastIntent": "search_homestay", "lastQueryTimestamp": "2025-12-20T10:30:00"
+    // }
 
     /**
      * Session status enum
@@ -67,5 +75,49 @@ public class AiChatSession {
      */
     public boolean canAcceptMessages() {
         return isActive() && (status == SessionStatus.ACTIVE);
+    }
+
+    /**
+     * Business logic: Check if session has conversation context
+     */
+    public boolean hasConversationContext() {
+        return conversationContext != null && !conversationContext.isEmpty();
+    }
+
+    /**
+     * Business logic: Get last searched homestay IDs from context
+     */
+    @SuppressWarnings("unchecked")
+    public List<String> getLastHomestayIds() {
+        if (!hasConversationContext() || !conversationContext.containsKey("lastHomestayIds")) {
+            return List.of();
+        }
+        Object value = conversationContext.get("lastHomestayIds");
+        if (value instanceof List) {
+            return (List<String>) value;
+        }
+        return List.of();
+    }
+
+    /**
+     * Business logic: Get last searched location from context
+     */
+    public String getLastSearchedLocation() {
+        if (!hasConversationContext()) {
+            return null;
+        }
+        Object value = conversationContext.get("lastSearchedLocation");
+        return value != null ? value.toString() : null;
+    }
+
+    /**
+     * Business logic: Get last intent from context
+     */
+    public String getLastIntent() {
+        if (!hasConversationContext()) {
+            return null;
+        }
+        Object value = conversationContext.get("lastIntent");
+        return value != null ? value.toString() : null;
     }
 }

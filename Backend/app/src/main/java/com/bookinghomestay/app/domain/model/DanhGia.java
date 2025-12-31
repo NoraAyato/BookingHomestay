@@ -30,6 +30,8 @@ public class DanhGia {
     @Column(name = "binh_luan", columnDefinition = "nvarchar(200)")
     private String binhLuan;
 
+    @Column(name = "trang_thai", nullable = true)
+    private Boolean trangThai = false;
     @Column(name = "ngay_danh_gia")
     private LocalDateTime ngayDanhGia;
 

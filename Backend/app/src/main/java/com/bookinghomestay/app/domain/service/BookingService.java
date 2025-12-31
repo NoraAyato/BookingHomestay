@@ -111,7 +111,8 @@ public class BookingService {
                         && chiTiet.getPhong().getHomestay() != null
                         && chiTiet.getPhong().getHomestay().getTenHomestay() != null
                         && chiTiet.getPhong().getHomestay().getTenHomestay().toLowerCase()
-                                .contains(lowerKeyword)) {
+                                .contains(lowerKeyword)
+                        || chiTiet.getPhong().getHomestay().getTenHomestay().equalsIgnoreCase(keyword)) {
                     return true;
                 }
             }

@@ -211,6 +211,17 @@ public class PromotionService {
         } else {
             title += " cho tất cả đơn đặt phòng";
         }
+        if (khuyenMai.getSoDemToiThieu() != null && khuyenMai.getSoDemToiThieu() > 0) {
+            title += ", tối thiểu " + khuyenMai.getSoDemToiThieu() + " đêm";
+        } else {
+            title += ", không giới hạn số đêm";
+        }
+        if(khuyenMai.getSoNgayDatTruoc() != null && khuyenMai.getSoNgayDatTruoc() > 0) {
+            title += ", đặt trước " + khuyenMai.getSoNgayDatTruoc() + " ngày";
+        } else {
+            title += ", không giới hạn ngày đặt trước";
+        }
+      
         return title;
     }
 
