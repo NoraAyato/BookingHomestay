@@ -7,6 +7,8 @@ import {
   MapPin,
   MessageSquare,
   Image as ImageIcon,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import { getImageUrl } from "../../../utils/imageUrl";
 
@@ -127,6 +129,40 @@ const ReviewDetailModal = ({ review, isOpen, onClose, formatDate }) => {
               </div>
             </div>
 
+            {/* Review Status */}
+            <div className="bg-gray-50 rounded-lg p-4 mt-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  {review.status ? (
+                    <>
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <span className="text-sm font-semibold text-gray-900">
+                        Trạng thái
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="h-5 w-5 text-orange-600" />
+                      <span className="text-sm font-semibold text-gray-900">
+                        Trạng thái
+                      </span>
+                    </>
+                  )}
+                </div>
+                {review.status ? (
+                  <span className="inline-flex items-center text-sm text-green-700 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 font-medium">
+                    <CheckCircle className="h-4 w-4 mr-1.5" />
+                    Đã duyệt
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center text-sm text-orange-700 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-200 font-medium">
+                    <Clock className="h-4 w-4 mr-1.5" />
+                    Chưa duyệt
+                  </span>
+                )}
+              </div>
+            </div>
+
             {/* Review Content */}
             <div className="bg-gray-50 rounded-lg p-4 mt-4">
               <div className="flex items-center space-x-2 mb-2">
@@ -160,16 +196,6 @@ const ReviewDetailModal = ({ review, isOpen, onClose, formatDate }) => {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <button
-              onClick={onClose}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Đóng
-            </button>
           </div>
         </div>
       </div>

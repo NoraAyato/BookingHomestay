@@ -1,5 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
-import { getHostReviews, getHostReviewStats } from "../../api/host/reviews";
+import {
+  getHostReviews,
+  getHostReviewStats,
+  approveHostReview,
+} from "../../api/host/reviews";
 
 /**
  * Custom hook để quản lý đánh giá trong host panel
@@ -22,6 +26,7 @@ export function useHostReviews(initialPage = 1, pageSize = 5) {
     endDate: null,
     search: null,
     homestayId: null,
+    status: null,
   });
 
   // Fetch reviews
@@ -101,6 +106,33 @@ export function useHostReviews(initialPage = 1, pageSize = 5) {
     [fetchReviews]
   );
 
+  // Approve review
+  const handleApproveReview = useCallback(
+    async (reviewId) => {
+      try {
+        const response = await approveHostReview(reviewId);
+
+        if (response?.success) {
+          // Refresh danh sách sau khi duyệt thành công
+          setFilters((currentFilters) => {
+            setPagination((currentPagination) => {
+              fetchReviews(currentPagination.page, currentFilters);
+              return currentPagination;
+            });
+            return currentFilters;
+          });
+          fetchStats();
+          return { success: true, data: response.data };
+        }
+        return { success: false, message: response?.message };
+      } catch (err) {
+        console.error("Error approving review:", err);
+        return { success: false, message: err.message };
+      }
+    },
+    [fetchReviews, fetchStats]
+  );
+
   // Refetch data
   const refetch = useCallback(() => {
     setFilters((currentFilters) => {
@@ -121,6 +153,7 @@ export function useHostReviews(initialPage = 1, pageSize = 5) {
       endDate: null,
       search: null,
       homestayId: null,
+      status: null,
     });
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,6 +168,7 @@ export function useHostReviews(initialPage = 1, pageSize = 5) {
     filters,
     setFilters: updateFilters,
     changePage,
+    approveReview: handleApproveReview,
     refetch,
   };
 }

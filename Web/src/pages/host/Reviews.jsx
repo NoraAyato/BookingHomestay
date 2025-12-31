@@ -3,6 +3,7 @@ import HostLayout from "../../components/host/common/HostLayout";
 import Pagination from "../../components/host/common/Pagination";
 import ReviewsList from "../../components/host/reviews/ReviewsList";
 import ReviewDetailModal from "../../components/host/reviews/ReviewDetailModal";
+import ConfirmModal from "../../components/common/ConfirmModal";
 import DateRangePicker from "../../components/common/DateRangePicker";
 import { useHostReviews } from "../../hooks/host/useHostReviews";
 import { useHostHomestays } from "../../hooks/host/useHostHomestays";
@@ -27,6 +28,7 @@ const Reviews = () => {
     filters,
     setFilters,
     changePage,
+    approveReview: handleApproveReviewAPI,
   } = useHostReviews(1, pageSize);
 
   const { homestaysSelectList, selectListLoading } = useHostHomestays();
@@ -34,10 +36,14 @@ const Reviews = () => {
   const [selectedReview, setSelectedReview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInitialMount, setIsInitialMount] = useState(true);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [reviewToApprove, setReviewToApprove] = useState(null);
+  const [isApproving, setIsApproving] = useState(false);
 
   // Local filters
   const [searchTerm, setSearchTerm] = useState("");
   const [ratingFilter, setRatingFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -58,6 +64,7 @@ const Reviews = () => {
       setFilters({
         search: searchTerm || null,
         rating: ratingFilter !== "all" ? parseInt(ratingFilter) : null,
+        status: statusFilter !== "all" ? statusFilter === "approved" : null,
         startDate: startDate || null,
         endDate: endDate || null,
         homestayId: homestayFilter !== "all" ? homestayFilter : null,
@@ -68,6 +75,7 @@ const Reviews = () => {
   }, [
     searchTerm,
     ratingFilter,
+    statusFilter,
     startDate,
     endDate,
     homestayFilter,
@@ -95,6 +103,38 @@ const Reviews = () => {
 
   const handlePageChange = (page) => {
     changePage(page);
+  };
+
+  const handleApproveClick = (review) => {
+    setReviewToApprove(review);
+    setIsApproveModalOpen(true);
+  };
+
+  const handleApproveConfirm = async () => {
+    if (!reviewToApprove) return;
+
+    const reviewId = reviewToApprove.id;
+
+    if (!reviewId) {
+      alert("Không thể duyệt đánh giá: ID không hợp lệ");
+      return;
+    }
+
+    setIsApproving(true);
+    const result = await handleApproveReviewAPI(reviewId);
+    setIsApproving(false);
+
+    if (result.success) {
+      setIsApproveModalOpen(false);
+      setReviewToApprove(null);
+    } else {
+      alert(result.message || "Có lỗi xảy ra khi duyệt đánh giá");
+    }
+  };
+
+  const handleApproveCancel = () => {
+    setIsApproveModalOpen(false);
+    setReviewToApprove(null);
   };
 
   // Filter homestays based on search term
@@ -309,6 +349,19 @@ const Reviews = () => {
                 </select>
               </div>
 
+              {/* Status Filter */}
+              <div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="approved">Đã duyệt</option>
+                  <option value="pending">Chưa duyệt</option>
+                </select>
+              </div>
+
               {/* Date Range Filter */}
               <div>
                 <DateRangePicker
@@ -343,6 +396,7 @@ const Reviews = () => {
               reviews={reviews}
               formatDate={formatDate}
               onViewDetail={handleViewDetail}
+              onApprove={handleApproveClick}
             />
 
             {/* Empty State */}
@@ -376,6 +430,24 @@ const Reviews = () => {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           formatDate={formatDate}
+        />
+
+        {/* Approve Confirm Modal */}
+        <ConfirmModal
+          isOpen={isApproveModalOpen}
+          onClose={handleApproveCancel}
+          onConfirm={handleApproveConfirm}
+          title="Duyệt đánh giá"
+          message="Bạn có chắc chắn muốn duyệt đánh giá này?"
+          itemName={
+            reviewToApprove
+              ? `Đánh giá của ${reviewToApprove.guestName} cho ${reviewToApprove.homestayName}`
+              : ""
+          }
+          loading={isApproving}
+          confirmText="Duyệt"
+          confirmButtonClass="bg-green-600 hover:bg-green-700 text-white"
+          type="success"
         />
       </div>
     </HostLayout>
