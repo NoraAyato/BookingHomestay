@@ -1,5 +1,14 @@
 import React from "react";
-import { Edit, Trash2, DollarSign, Home, Briefcase } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  DollarSign,
+  Home,
+  Briefcase,
+  CheckCircle,
+  Clock,
+  Ban,
+} from "lucide-react";
 import { getImageUrl } from "../../../utils/imageUrl";
 
 const ServiceList = ({ services, loading, onEdit, onDelete }) => {
@@ -9,6 +18,33 @@ const ServiceList = ({ services, loading, onEdit, onDelete }) => {
       currency: "VND",
       minimumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "APPROVED":
+        return (
+          <span className="inline-flex items-center text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-full border border-green-200">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Đã duyệt
+          </span>
+        );
+      case "REJECTED":
+        return (
+          <span className="inline-flex items-center text-xs font-medium text-red-700 bg-red-50 px-2 py-1 rounded-full border border-red-200">
+            <Ban className="h-3 w-3 mr-1" />
+            Từ chối
+          </span>
+        );
+      case "PENDING":
+      default:
+        return (
+          <span className="inline-flex items-center text-xs font-medium text-orange-700 bg-orange-50 px-2 py-1 rounded-full border border-orange-200">
+            <Clock className="h-3 w-3 mr-1" />
+            Chờ duyệt
+          </span>
+        );
+    }
   };
 
   if (loading) {
@@ -70,9 +106,12 @@ const ServiceList = ({ services, loading, onEdit, onDelete }) => {
           {/* Service Content */}
           <div className="p-5">
             <div className="mb-3">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                {service.name}
-              </h3>
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-lg font-semibold text-gray-800 flex-1">
+                  {service.name}
+                </h3>
+                {service.status && getStatusBadge(service.status)}
+              </div>
               <div className="flex items-center gap-2 mb-2">
                 <Home className="h-4 w-4 text-blue-600 flex-shrink-0" />
                 <span className="text-sm text-gray-600 truncate">

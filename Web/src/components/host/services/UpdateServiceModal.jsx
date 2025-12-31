@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { X, Upload, Briefcase } from "lucide-react";
+import { X, Upload, Briefcase, Sparkles } from "lucide-react";
 import { getImageUrl } from "../../../utils/imageUrl";
+import SearchableDropdown from "../../common/SearchableDropdown";
 
 const UpdateServiceModal = ({
   isOpen,
@@ -8,6 +9,9 @@ const UpdateServiceModal = ({
   homestaysSelectList,
   onSubmit,
   service,
+  suggestedServices = [],
+  suggestedLoading = false,
+  onFetchSuggested,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -29,6 +33,13 @@ const UpdateServiceModal = ({
 
   // Image preview
   const [imagePreview, setImagePreview] = useState(null);
+
+  // Fetch suggested services when modal opens
+  useEffect(() => {
+    if (isOpen && onFetchSuggested && suggestedServices.length === 0) {
+      onFetchSuggested();
+    }
+  }, [isOpen, onFetchSuggested]);
 
   // Load service data when modal opens
   useEffect(() => {
@@ -121,16 +132,14 @@ const UpdateServiceModal = ({
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Vui lòng nhập tên dịch vụ";
-    }
-
     if (!formData.description.trim()) {
       newErrors.description = "Vui lòng nhập mô tả";
     }
 
     if (!formData.price || formData.price <= 0) {
       newErrors.price = "Vui lòng nhập giá hợp lệ";
+    } else if (formData.price > 2000000) {
+      newErrors.price = "Giá dịch vụ không được vượt quá 2,000,000đ";
     }
 
     if (!formData.homestayId) {
@@ -146,7 +155,6 @@ const UpdateServiceModal = ({
     if (!initialData) return false;
 
     return (
-      formData.name !== initialData.name ||
       formData.description !== initialData.description ||
       formData.price !== initialData.price ||
       formData.homestayId !== initialData.homestayId ||
@@ -170,7 +178,7 @@ const UpdateServiceModal = ({
 
     try {
       const submitData = new FormData();
-      submitData.append("name", formData.name);
+      // Do not send 'name' field - service name cannot be updated
       submitData.append("description", formData.description);
       submitData.append("price", formData.price);
       submitData.append("homestayId", formData.homestayId);
@@ -184,7 +192,7 @@ const UpdateServiceModal = ({
         onClose();
       }
     } catch (error) {
-    //   console.error("Error submitting form:", error);
+      //   console.error("Error submitting form:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -256,24 +264,21 @@ const UpdateServiceModal = ({
             )}
           </div>
 
-          {/* Service Name */}
+          {/* Service Name - Read Only */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Tên dịch vụ <span className="text-red-500">*</span>
+              Tên dịch vụ
             </label>
             <input
               type="text"
-              name="name"
               value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Ví dụ: Thuê xe máy, Giặt ủi, Ăn sáng..."
-              className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.name ? "border-red-500" : "border-gray-300"
-              }`}
+              readOnly
+              disabled
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-            )}
+            <p className="text-xs text-gray-500 mt-1">
+              Tên dịch vụ không thể thay đổi sau khi tạo
+            </p>
           </div>
 
           {/* Price */}
