@@ -24,9 +24,6 @@ public class PaymentController {
     private final CreatePaymentCommandHandler createPaymentCommandHandler;
     private final HandlePaymentCallbackCommandHandler handlePaymentCallbackCommandHandler;
 
-    /**
-     * Create MoMo payment
-     */
     @PostMapping("/momo/create")
     public ResponseEntity<ApiResponse<String>> createMoMoPayment(
             @Valid @RequestBody CreateMoMoPaymentRequest request) {
@@ -44,9 +41,6 @@ public class PaymentController {
         return ResponseEntity.ok(new ApiResponse<>(true, "Tạo yêu cầu thanh toán MoMo thành công", paymentUrl));
     }
 
-    /**
-     * MoMo IPN (Instant Payment Notification) callback
-     */
     @PostMapping("/momo/callback")
     public ResponseEntity<ApiResponse<Void>> handleMoMoCallback(@RequestParam Map<String, String> params) {
         boolean success = handlePaymentCallbackCommandHandler.handle(params);

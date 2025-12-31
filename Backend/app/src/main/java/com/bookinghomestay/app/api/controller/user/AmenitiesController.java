@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bookinghomestay.app.application.amenities.dto.amenities.AmenitiesResponseDto;
 import com.bookinghomestay.app.application.amenities.query.QueryAllAmenitiesHandler;
-import com.bookinghomestay.app.application.homestay.dto.HomestayResponseDto;
 import com.bookinghomestay.app.common.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;

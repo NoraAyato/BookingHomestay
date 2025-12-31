@@ -5,7 +5,6 @@ import com.bookinghomestay.app.application.booking.query.GetBookingListQuery;
 import com.bookinghomestay.app.application.booking.query.GetMyBookingListQueryHandler;
 import com.bookinghomestay.app.application.danhgia.command.PostReviewCommandHandler;
 import com.bookinghomestay.app.application.danhgia.dto.ReviewAddCommandDto;
-import com.bookinghomestay.app.application.danhgia.dto.ReviewAddRequestDto;
 import com.bookinghomestay.app.application.promotion.dto.MyPromotionQueryDto;
 import com.bookinghomestay.app.application.promotion.dto.MyPromotionResponeDto;
 import com.bookinghomestay.app.application.promotion.query.GetMyPromotionQueryHandler;
