@@ -98,29 +98,36 @@ const Bookings = () => {
       );
     }
 
+    // Normalize status to uppercase để xử lý cả chữ hoa và chữ thường
+    const normalizedStatus = paymentStatus.toUpperCase();
+
     const paymentMap = {
-      Paid: {
+      SUCCESS: {
         label: "Đã thanh toán",
         color: "bg-green-100 text-green-800 border-green-200",
       },
-      Pending: {
+      PAID: {
+        label: "Đã thanh toán",
+        color: "bg-green-100 text-green-800 border-green-200",
+      },
+      PENDING: {
         label: "Chờ thanh toán",
         color: "bg-yellow-100 text-yellow-800 border-yellow-200",
       },
-      Failed: {
+      FAILED: {
         label: "Thất bại",
         color: "bg-red-100 text-red-800 border-red-200",
       },
-      Refunded: {
+      REFUNDED: {
         label: "Đã hoàn tiền",
         color: "bg-purple-100 text-purple-800 border-purple-200",
       },
-      Cancelled: {
+      CANCELLED: {
         label: "Đã hủy",
         color: "bg-gray-100 text-gray-800 border-gray-200",
       },
     };
-    const paymentInfo = paymentMap[paymentStatus] || {
+    const paymentInfo = paymentMap[normalizedStatus] || {
       label: paymentStatus,
       color: "bg-gray-100 text-gray-800 border-gray-200",
     };

@@ -10,6 +10,7 @@ const BookingsList = ({
   getPaymentBadge,
   getPaymentMethodLabel,
 }) => {
+  console.log("BookingsList render with bookings:", bookings);
   return (
     <div className="bg-white rounded-lg shadow-sm border">
       <div className="p-4 border-b border-gray-200">
