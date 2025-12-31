@@ -47,6 +47,7 @@ const Rooms = () => {
     createRoom,
     updateRoom,
     deleteRoom,
+    setIsInitialized,
   } = useHostRooms();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -70,22 +71,18 @@ const Rooms = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Track if component has mounted to skip initial effect
-  const isInitialMount = useRef(true);
-
   // Initialize homestayId from URL params on mount
   useLayoutEffect(() => {
     if (homestayIdFromUrl) {
-    
       setHomestayId(homestayIdFromUrl);
       setPage(1);
     }
+    // Mark as initialized to allow fetching
+    setIsInitialized(true);
   }, []); // Only run once on mount
 
   // Debug: Track homestayFilter changes
-  useEffect(() => {
-   
-  }, [homestayFilter]);
+  useEffect(() => {}, [homestayFilter]);
 
   // Fetch room types on mount
   useEffect(() => {
@@ -125,14 +122,8 @@ const Rooms = () => {
     }
   }, [statusFilter, setStatus]);
 
-  // Update homestay filter (skip initial mount to avoid double fetch)
+  // Update homestay filter
   useEffect(() => {
-    // Skip on initial mount since useLayoutEffect already set it
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-
     if (homestayFilter === "all") {
       setHomestayId("");
     } else {

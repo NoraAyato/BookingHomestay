@@ -167,6 +167,8 @@ const CreateRoomModal = ({
       newErrors.price = "Giá phòng là bắt buộc";
     } else if (formData.price < 0) {
       newErrors.price = "Giá phòng phải lớn hơn 0";
+    } else if (formData.price > 10000000) {
+      newErrors.price = "Giá phòng không được vượt quá 10,000,000đ";
     }
 
     if (formData.images.length === 0) {
