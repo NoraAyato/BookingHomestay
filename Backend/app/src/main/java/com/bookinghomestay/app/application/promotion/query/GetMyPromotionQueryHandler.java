@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.bookinghomestay.app.application.promotion.dto.MyPromotionQueryDto;
 import com.bookinghomestay.app.application.promotion.dto.MyPromotionResponeDto;
 import com.bookinghomestay.app.common.response.PageResponse;
+import com.bookinghomestay.app.domain.exception.BusinessException;
 import com.bookinghomestay.app.domain.model.KhuyenMai;
 import com.bookinghomestay.app.domain.model.User;
 import com.bookinghomestay.app.domain.repository.IKhuyenMaiRepository;
@@ -34,8 +35,8 @@ public class GetMyPromotionQueryHandler {
 
                 // Lấy thông tin user
                 User user = userRepository.findById(query.getUserId())
-                                .orElseThrow(() -> new com.bookinghomestay.app.domain.exception.BusinessException(
-                                                "User not found"));
+                                .orElseThrow(() -> new BusinessException(
+                                                "Không tìm thấy người dùng !"));
 
                 // Kiểm tra khách hàng mới (chưa có booking hoàn thành)
                 boolean isNewCustomer = userService.countBookingComplete(user) == 0;
@@ -52,14 +53,19 @@ public class GetMyPromotionQueryHandler {
                                 .filter(km -> !today.isBefore(km.getNgayBatDau().toLocalDate()))
                                 // Kiểm tra điều kiện khách mới
                                 .filter(km -> !km.isChiApDungChoKhachMoi() || isNewCustomer)
-                                // Kiểm tra quota còn lại
                                 .filter(km -> {
                                         if (km.getSoLuong() == null)
                                                 return true;
                                         int usedCount = (km.getHoaDons() != null) ? km.getHoaDons().size() : 0;
                                         return km.getSoLuong().intValue() > usedCount;
+                                }).sorted((km1, km2) -> {
+                                        // Ưu tiên khuyến mãi sắp hết hạn
+                                        long createdDay1 = ChronoUnit.DAYS.between(today,
+                                                        km1.getNgayTao().toLocalDate());
+                                        long createdDay2 = ChronoUnit.DAYS.between(today,
+                                                        km2.getNgayTao().toLocalDate());
+                                        return Long.compare(createdDay2, createdDay1);
                                 })
-                                // LƯU Ý: KHÔNG check soNgayDatTruoc, soDemToiThieu vì user chưa chọn ngày
                                 .toList();
 
                 int total = validPromos.size();

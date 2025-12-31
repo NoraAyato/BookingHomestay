@@ -17,7 +17,8 @@ public class GetTopReviewQueryHandler {
     private final IReviewRepository reviewRepository;
 
     public List<TopReviewResponseDto> handle() {
-        List<DanhGia> reviews = reviewRepository.findBestReviewPerTop5Locations();
+        List<DanhGia> reviews = reviewRepository.findBestReviewPerTop5Locations().stream()
+                .filter(rv -> rv.getTrangThai()).toList();
         List<TopReviewResponseDto> responseDtos = reviews.stream().map(rv -> {
             double rating = (rv.getDichVu() + rv.getTienIch() + rv.getSachSe()) / 3.0;
             double rounded = Math.round(rating * 10.0) / 10.0;

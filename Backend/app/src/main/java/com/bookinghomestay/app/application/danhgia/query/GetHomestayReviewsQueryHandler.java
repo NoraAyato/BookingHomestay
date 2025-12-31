@@ -27,9 +27,10 @@ public class GetHomestayReviewsQueryHandler {
         int total = danhGias.size();
         int page = query.getPage();
         int limit = query.getLimit();
-        List<HomestayReviewResponseDto> reviewDtos = danhGias.stream()
+        List<HomestayReviewResponseDto> reviewDtos = danhGias.stream().filter(rv -> rv.getTrangThai())
                 .skip((long) (page - 1) * limit)
                 .limit(limit)
+                .sorted((d1, d2) -> d2.getNgayDanhGia().compareTo(d1.getNgayDanhGia()))
                 .map(ReviewMapper::toResponseDto).collect(Collectors.toList());
 
         PageResponse<HomestayReviewResponseDto> response = new PageResponse<>();
