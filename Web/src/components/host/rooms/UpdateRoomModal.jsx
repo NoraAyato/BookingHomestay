@@ -249,6 +249,8 @@ const UpdateRoomModal = ({
       newErrors.pricePerNight = "Giá phòng là bắt buộc";
     } else if (formData.pricePerNight < 0) {
       newErrors.pricePerNight = "Giá phòng phải lớn hơn 0";
+    } else if (formData.pricePerNight > 10000000) {
+      newErrors.pricePerNight = "Giá phòng không được vượt quá 10,000,000đ";
     }
 
     if (!formData.status) {

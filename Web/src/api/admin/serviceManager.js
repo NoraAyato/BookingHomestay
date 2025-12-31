@@ -1,13 +1,5 @@
 import http from "../http";
 
-/**
- * Get services with pagination and search
- * @param {Object} params - Query parameters
- * @param {number} params.page - Page number (default: 1)
- * @param {number} params.limit - Items per page (default: 6)
- * @param {string} params.search - Search term for service name
- * @returns {Promise} API response with services data
- */
 export async function getServicesData({
   page = 1,
   limit = 6,
@@ -23,12 +15,6 @@ export async function getServicesData({
   });
 }
 
-/**
- * Create new service
- * @param {Object} data - Service data
- * @param {string} data.name - Service name
- * @returns {Promise} API response
- */
 export async function createService(data) {
   const params = new URLSearchParams();
   params.append("serviceName", data.name);
@@ -42,13 +28,6 @@ export async function createService(data) {
   );
 }
 
-/**
- * Update service
- * @param {string} id - Service ID
- * @param {Object} data - Update data
- * @param {string} data.name - Service name
- * @returns {Promise} API response
- */
 export async function updateService(id, data) {
   const params = new URLSearchParams();
   params.append("name", data.name);
@@ -62,13 +41,49 @@ export async function updateService(id, data) {
   );
 }
 
-/**
- * Delete service
- * @param {string} id - Service ID
- * @returns {Promise} API response
- */
 export async function deleteService(id) {
   return http.post(`/api/admin/servicemanager/delete/${id}`, null, {
+    requireAuth: true,
+  });
+}
+
+export async function getHomestayServices(params = {}) {
+  const queryParams = new URLSearchParams();
+  if (params.page) queryParams.append("page", params.page);
+  if (params.limit) queryParams.append("limit", params.limit);
+  if (params.status !== undefined) queryParams.append("status", params.status);
+  if (params.search) queryParams.append("search", params.search);
+
+  return http.get(
+    `/api/admin/servicemanager/homestay-service?${queryParams.toString()}`,
+    {
+      requireAuth: true,
+    }
+  );
+}
+
+export async function approveHomestayService(serviceId) {
+  return http.put(
+    `/api/admin/servicemanager/homestay-service/approve/${serviceId}`,
+    null,
+    {
+      requireAuth: true,
+    }
+  );
+}
+
+export async function rejectHomestayService(serviceId) {
+  return http.put(
+    `/api/admin/servicemanager/homestay-service/reject/${serviceId}`,
+    null,
+    {
+      requireAuth: true,
+    }
+  );
+}
+
+export async function getHomestayServiceStats() {
+  return http.get(`/api/admin/servicemanager/homestay-service/stats`, {
     requireAuth: true,
   });
 }

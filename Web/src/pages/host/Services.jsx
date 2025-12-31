@@ -26,10 +26,15 @@ const Services = () => {
     setPage,
     setSearch,
     setHomestayId,
+    setStatus,
     refresh,
     createService,
     updateService,
     deleteService,
+    setIsInitialized,
+    suggestedServices,
+    suggestedLoading,
+    fetchSuggestedServices,
   } = useHostServices();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,14 +46,14 @@ const Services = () => {
   const [homestaySearchTerm, setHomestaySearchTerm] = useState("");
   const [showHomestayDropdown, setShowHomestayDropdown] = useState(false);
 
+  // Status filter state
+  const [statusFilter, setStatusFilter] = useState("all");
+
   // Modal states
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-
-  // Track if component has mounted to skip initial effect
-  const isInitialMount = useRef(true);
 
   // Initialize homestayId from URL params on mount
   useLayoutEffect(() => {
@@ -56,6 +61,8 @@ const Services = () => {
       setHomestayId(homestayIdFromUrl);
       setPage(1);
     }
+    // Mark as initialized to allow fetching
+    setIsInitialized(true);
   }, []); // Only run once on mount
 
   // Debug: Track homestayFilter changes
@@ -69,14 +76,8 @@ const Services = () => {
     return () => clearTimeout(timer);
   }, [searchTerm, setSearch]);
 
-  // Update homestay filter (skip initial mount to avoid double fetch)
+  // Update homestay filter
   useEffect(() => {
-    // Skip on initial mount since useLayoutEffect already set it
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-
     if (homestayFilter === "all") {
       setHomestayId("");
     } else {
@@ -104,7 +105,14 @@ const Services = () => {
     setHomestaySearchTerm("");
     setShowHomestayDropdown(false);
   };
-
+  // Handle status filter change
+  useEffect(() => {
+    if (statusFilter === "all") {
+      setStatus(null);
+    } else {
+      setStatus(statusFilter);
+    }
+  }, [statusFilter, setStatus]);
   // Close homestay dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -171,6 +179,20 @@ const Services = () => {
               />
             </div>
 
+            {/* Status Filter */}
+            <div className="w-full md:w-48">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Tất cả trạng thái</option>
+                <option value="PENDING">Chờ duyệt</option>
+                <option value="APPROVED">Đã duyệt</option>
+                <option value="REJECTED">Từ chối</option>
+              </select>
+            </div>
+
             {/* Homestay Filter */}
             <div className="w-full md:w-64 relative homestay-filter">
               <button
@@ -184,7 +206,6 @@ const Services = () => {
                     {selectListLoading ? "Đang tải..." : selectedHomestayName}
                   </span>
                 </div>
-                <Filter className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0" />
               </button>
 
               {showHomestayDropdown && !selectListLoading && (
@@ -239,12 +260,6 @@ const Services = () => {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600 mt-3">
-            <Filter className="h-4 w-4" />
-            <span>
-              Hiển thị {services.length} / {total} dịch vụ
-            </span>
-          </div>
         </div>
 
         {/* Services Grid */}
@@ -276,6 +291,9 @@ const Services = () => {
         onClose={() => setCreateModalOpen(false)}
         homestaysSelectList={homestaysSelectList}
         onSubmit={createService}
+        suggestedServices={suggestedServices}
+        suggestedLoading={suggestedLoading}
+        onFetchSuggested={fetchSuggestedServices}
       />
 
       <UpdateServiceModal
@@ -287,6 +305,9 @@ const Services = () => {
         homestaysSelectList={homestaysSelectList}
         onSubmit={updateService}
         service={selectedService}
+        suggestedServices={suggestedServices}
+        suggestedLoading={suggestedLoading}
+        onFetchSuggested={fetchSuggestedServices}
       />
 
       <DeleteServiceModal

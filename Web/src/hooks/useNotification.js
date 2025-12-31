@@ -388,6 +388,11 @@ export function useNotificationWithWebSocket() {
         // Backend trả về đúng format rồi, không cần mapping
         setLocalNotifications((prev) => [notification, ...prev]);
 
+        // Tăng unread count nếu notification chưa đọc
+        if (!notification.read) {
+          setLocalUnreadCount((prev) => prev + 1);
+        }
+
         // Show toast with warning style for system announcements
         showToast("warning", notification.title || "Thông báo hệ thống");
       });

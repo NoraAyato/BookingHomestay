@@ -85,14 +85,18 @@ const HomestayList = ({
                       "https://placehold.co/600x400?text=Error+Loading+Image";
                   }}
                 />
-                {homestay.discountPrice && (
-                  <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-sm">
-                    {Math.round(
-                      100 - (homestay.discountPrice * 100) / homestay.price
-                    )}
-                    % GIẢM
-                  </div>
-                )}
+                {homestay.discountPrice &&
+                  homestay.discountPrice < homestay.price &&
+                  Math.round(
+                    100 - (homestay.discountPrice * 100) / homestay.price
+                  ) > 0 && (
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-sm">
+                      {Math.round(
+                        100 - (homestay.discountPrice * 100) / homestay.price
+                      )}
+                      % GIẢM
+                    </div>
+                  )}
               </div>
 
               <div className="p-5">

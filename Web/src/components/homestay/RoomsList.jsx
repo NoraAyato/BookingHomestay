@@ -9,7 +9,7 @@ const RoomsList = ({ rooms, onSelectRoom, selectedRoom }) => {
   const indexOfFirstRoom = indexOfLastRoom - roomsPerPage;
   const currentRooms = rooms.slice(indexOfFirstRoom, indexOfLastRoom);
   const totalPages = Math.ceil(rooms.length / roomsPerPage);
-  console.log("RoomsList rendered with rooms:", rooms);
+
   return (
     <>
       <div className="space-y-4">

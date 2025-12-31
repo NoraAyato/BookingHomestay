@@ -19,8 +19,11 @@ export const useHostRooms = () => {
   // Filters
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
-  const [homestayId, setHomestayId] = useState("");
+  const [homestayId, setHomestayId] = useState(null);
   const [roomTypeId, setRoomTypeId] = useState("");
+
+  // Track if initial setup is done
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Fetch rooms list
   const fetchRooms = useCallback(async () => {
@@ -32,10 +35,10 @@ export const useHostRooms = () => {
         size,
         search,
         status,
-        homestayId,
+        homestayId: homestayId || "",
         roomTypeId,
       });
-
+      console.log("✅ [useHostRooms] Fetched rooms:", response.data.items);
       if (response?.success) {
         setRooms(response.data.items || []);
         setTotal(response.data.total || 0);
@@ -53,10 +56,12 @@ export const useHostRooms = () => {
     }
   }, [page, size, search, status, homestayId, roomTypeId]);
 
-  // Fetch rooms when filters change
+  // Fetch rooms when filters change (only after initialized)
   useEffect(() => {
-    fetchRooms();
-  }, [fetchRooms]);
+    if (isInitialized) {
+      fetchRooms();
+    }
+  }, [fetchRooms, isInitialized]);
 
   const refresh = useCallback(() => {
     fetchRooms();
@@ -163,5 +168,8 @@ export const useHostRooms = () => {
     createRoom,
     updateRoom,
     deleteRoom,
+
+    // Initialization
+    setIsInitialized,
   };
 };

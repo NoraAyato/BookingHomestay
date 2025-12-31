@@ -4,6 +4,7 @@ import {
   createHostService,
   updateHostService,
   deleteHostService,
+  getSuggestedServices,
 } from "../../api/host/services";
 import { handleApiResponse } from "../../utils/apiHelper";
 
@@ -18,7 +19,15 @@ export const useHostServices = () => {
 
   // Filters
   const [search, setSearch] = useState("");
-  const [homestayId, setHomestayId] = useState("");
+  const [homestayId, setHomestayId] = useState(null);
+  const [status, setStatus] = useState(null);
+
+  // Track if initial setup is done
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Suggested services
+  const [suggestedServices, setSuggestedServices] = useState([]);
+  const [suggestedLoading, setSuggestedLoading] = useState(false);
 
   // Fetch services list
   const fetchServices = useCallback(async () => {
@@ -29,7 +38,8 @@ export const useHostServices = () => {
         page,
         size,
         search,
-        homestayId,
+        homestayId: homestayId || "",
+        status: status || "",
       });
 
       if (response?.success) {
@@ -47,16 +57,33 @@ export const useHostServices = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, size, search, homestayId]);
+  }, [page, size, search, homestayId, status]);
 
-  // Fetch services when filters change
+  // Fetch services when filters change (only after initialized)
   useEffect(() => {
-    fetchServices();
-  }, [fetchServices]);
+    if (isInitialized) {
+      fetchServices();
+    }
+  }, [fetchServices, isInitialized]);
 
   const refresh = useCallback(() => {
     fetchServices();
   }, [fetchServices]);
+
+  // Fetch suggested services
+  const fetchSuggestedServices = useCallback(async () => {
+    setSuggestedLoading(true);
+    try {
+      const response = await getSuggestedServices();
+      if (response?.success) {
+        setSuggestedServices(response.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching suggested services:", error);
+    } finally {
+      setSuggestedLoading(false);
+    }
+  }, []);
 
   // Create service
   const createService = useCallback(
@@ -145,15 +172,25 @@ export const useHostServices = () => {
     // Filters
     search,
     homestayId,
+    status,
     setPage,
     setSize,
     setSearch,
     setHomestayId,
+    setStatus,
 
     // Actions
     refresh,
     createService,
     updateService,
     deleteService,
+
+    // Suggested services
+    suggestedServices,
+    suggestedLoading,
+    fetchSuggestedServices,
+
+    // Initialization
+    setIsInitialized,
   };
 };

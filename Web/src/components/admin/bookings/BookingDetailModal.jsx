@@ -33,14 +33,20 @@ const BookingDetailModal = ({
   };
 
   const getPaymentStatusColor = (status) => {
+    if (!status) return "text-gray-600 bg-gray-50";
+
+    // Normalize status to uppercase
+    const normalizedStatus = status.toUpperCase();
+
     const colors = {
-      Paid: "text-green-600 bg-green-50",
-      Pending: "text-yellow-600 bg-yellow-50",
-      Failed: "text-red-600 bg-red-50",
-      Refunded: "text-purple-600 bg-purple-50",
-      Cancelled: "text-gray-600 bg-gray-50",
+      SUCCESS: "text-green-600 bg-green-50",
+      PAID: "text-green-600 bg-green-50",
+      PENDING: "text-yellow-600 bg-yellow-50",
+      FAILED: "text-red-600 bg-red-50",
+      REFUNDED: "text-purple-600 bg-purple-50",
+      CANCELLED: "text-gray-600 bg-gray-50",
     };
-    return colors[status] || "text-gray-600 bg-gray-50";
+    return colors[normalizedStatus] || "text-gray-600 bg-gray-50";
   };
 
   const getStatusLabel = (status) => {
@@ -55,14 +61,19 @@ const BookingDetailModal = ({
 
   const getPaymentStatusLabel = (status) => {
     if (!status) return "Chưa có";
+
+    // Normalize status to uppercase
+    const normalizedStatus = status.toUpperCase();
+
     const labels = {
-      Paid: "Đã cọc",
-      Pending: "Chờ thanh toán",
-      Failed: "Thất bại",
-      Refunded: "Đã hoàn tiền",
-      Cancelled: "Đã hủy",
+      SUCCESS: "Đã thanh toán",
+      PAID: "Đã thanh toán",
+      PENDING: "Chờ thanh toán",
+      FAILED: "Thất bại",
+      REFUNDED: "Đã hoàn tiền",
+      CANCELLED: "Đã hủy",
     };
-    return labels[status] || status;
+    return labels[normalizedStatus] || status;
   };
 
   return (

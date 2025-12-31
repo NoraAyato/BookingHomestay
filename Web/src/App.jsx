@@ -48,6 +48,9 @@ const AdminLocations = React.lazy(() => import("./pages/admin/Locations"));
 const AdminPromotions = React.lazy(() => import("./pages/admin/Promotions"));
 const AdminNews = React.lazy(() => import("./pages/admin/News"));
 const AdminReviews = React.lazy(() => import("./pages/admin/Reviews"));
+const AdminServiceApproval = React.lazy(() =>
+  import("./pages/admin/ServiceApproval")
+);
 const AdminSettings = React.lazy(() => import("./pages/admin/Settings"));
 const AdminActivityLogs = React.lazy(() =>
   import("./pages/admin/ActivityLogs")
@@ -183,6 +186,14 @@ function App() {
               element={
                 <Suspense fallback={<LoadingSpinner />}>
                   <AdminHomestays />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/service-approval"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AdminServiceApproval />
                 </Suspense>
               }
             />

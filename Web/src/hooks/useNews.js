@@ -41,17 +41,22 @@ export function useNews(initialPage = 1, pageSize = 6) {
         if (response && response.items) {
           const items = response.items || [];
 
-          setNews(items);
+          // Set featured news - chỉ lấy item có isFeatured = true
+          const featured =
+            items.find((item) => item.isFeatured === true) || null;
+          setFeaturedNews(featured);
+
+          // Lọc bỏ tin featured khỏi danh sách chính để tránh trùng lặp
+          const regularNews = featured
+            ? items.filter((item) => item.id !== featured.id)
+            : items;
+
+          setNews(regularNews);
           setPagination({
             page: response.page || page,
             limit: response.limit || pageSize,
             total: response.total || 0,
           });
-
-          // Set featured news - chỉ lấy item có isFeatured = true
-          const featured =
-            items.find((item) => item.isFeatured === true) || null;
-          setFeaturedNews(featured);
         }
       } catch (err) {
         setError(err.message || "Không thể tải tin tức");

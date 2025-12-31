@@ -4,6 +4,7 @@ import Pagination from "../../components/admin/common/Pagination";
 import ReviewsList from "../../components/admin/reviews/ReviewsList";
 import ReviewDetailModal from "../../components/admin/reviews/ReviewDetailModal";
 import DeleteConfirmModal from "../../components/admin/common/DeleteConfirmModal";
+import ConfirmModal from "../../components/common/ConfirmModal";
 import DateRangePicker from "../../components/common/DateRangePicker";
 import { useAdminReviews } from "../../hooks/admin/useReviewManager";
 import {
@@ -28,6 +29,7 @@ const Reviews = () => {
     setFilters,
     changePage,
     deleteReview: handleDeleteReviewAPI,
+    approveReview: handleApproveReviewAPI,
   } = useAdminReviews(1, pageSize);
 
   const [selectedReview, setSelectedReview] = useState(null);
@@ -35,10 +37,14 @@ const Reviews = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [reviewToApprove, setReviewToApprove] = useState(null);
+  const [isApproving, setIsApproving] = useState(false);
 
   // Local search term for debouncing
   const [searchTerm, setSearchTerm] = useState("");
   const [ratingFilter, setRatingFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [isInitialMount, setIsInitialMount] = useState(true);
@@ -55,13 +61,14 @@ const Reviews = () => {
       setFilters({
         search: searchTerm || null,
         rating: ratingFilter !== "all" ? parseInt(ratingFilter) : null,
+        status: statusFilter !== "all" ? statusFilter === "approved" : null,
         startDate: startDate || null,
         endDate: endDate || null,
       });
     }, 500); // Debounce 500ms
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, ratingFilter, startDate, endDate, setFilters]);
+  }, [searchTerm, ratingFilter, statusFilter, startDate, endDate, setFilters]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -112,6 +119,36 @@ const Reviews = () => {
   const handleDeleteCancel = () => {
     setIsDeleteModalOpen(false);
     setReviewToDelete(null);
+  };
+
+  const handleApproveClick = (review) => {
+    setReviewToApprove(review);
+    setIsApproveModalOpen(true);
+  };
+
+  const handleApproveConfirm = async () => {
+    if (!reviewToApprove) return;
+
+    const reviewId = reviewToApprove.id;
+
+    if (!reviewId) {
+      alert("Không thể duyệt đánh giá: ID không hợp lệ");
+      return;
+    }
+
+    setIsApproving(true);
+    const result = await handleApproveReviewAPI(reviewId);
+    setIsApproving(false);
+
+    if (result.success) {
+      setIsApproveModalOpen(false);
+      setReviewToApprove(null);
+    }
+  };
+
+  const handleApproveCancel = () => {
+    setIsApproveModalOpen(false);
+    setReviewToApprove(null);
   };
 
   // Use stats from API or fallback
@@ -224,6 +261,15 @@ const Reviews = () => {
                 <option value="2">2 Sao</option>
                 <option value="1">1 Sao</option>
               </select>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">Tất cả trạng thái</option>
+                <option value="approved">Đã duyệt</option>
+                <option value="pending">Chưa duyệt</option>
+              </select>
               <DateRangePicker
                 startDate={startDate}
                 endDate={endDate}
@@ -258,6 +304,7 @@ const Reviews = () => {
               formatDate={formatDate}
               onViewDetail={handleViewDetail}
               onDelete={handleDeleteClick}
+              onApprove={handleApproveClick}
             />
 
             {/* Empty State */}
@@ -306,6 +353,24 @@ const Reviews = () => {
               : ""
           }
           loading={isDeleting}
+        />
+
+        {/* Approve Confirm Modal */}
+        <ConfirmModal
+          isOpen={isApproveModalOpen}
+          onClose={handleApproveCancel}
+          onConfirm={handleApproveConfirm}
+          title="Duyệt đánh giá"
+          message="Bạn có chắc chắn muốn duyệt đánh giá này?"
+          itemName={
+            reviewToApprove
+              ? `Đánh giá của ${reviewToApprove.guestName} cho ${reviewToApprove.homestayName}`
+              : ""
+          }
+          loading={isApproving}
+          confirmText="Duyệt"
+          confirmButtonClass="bg-green-600 hover:bg-green-700 text-white"
+          type="success"
         />
       </div>
     </AdminLayout>

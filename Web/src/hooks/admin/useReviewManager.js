@@ -3,6 +3,7 @@ import {
   getAdminReviews,
   getReviewStats,
   deleteReview,
+  approveReview,
 } from "../../api/admin/reviewManager";
 import { handleApiResponse } from "../../utils/apiHelper";
 
@@ -26,6 +27,7 @@ export function useAdminReviews(initialPage = 1, pageSize = 5) {
     startDate: null,
     endDate: null,
     search: null,
+    status: null,
   });
 
   // Fetch reviews
@@ -143,6 +145,44 @@ export function useAdminReviews(initialPage = 1, pageSize = 5) {
     [fetchReviews, fetchStats]
   );
 
+  // Approve review
+  const handleApproveReview = useCallback(
+    async (reviewId) => {
+      try {
+        const response = await approveReview(reviewId);
+
+        const success = handleApiResponse(
+          response,
+          "Duyệt đánh giá thành công!",
+          "Không thể duyệt đánh giá"
+        );
+
+        if (success) {
+          // Refresh danh sách sau khi duyệt thành công
+          setFilters((currentFilters) => {
+            setPagination((currentPagination) => {
+              fetchReviews(currentPagination.page, currentFilters);
+              return currentPagination;
+            });
+            return currentFilters;
+          });
+          fetchStats();
+          return { success: true, data: response.data };
+        }
+        return { success: false };
+      } catch (err) {
+        console.error("Error approving review:", err);
+        handleApiResponse(
+          { success: false, message: err.message },
+          null,
+          "Có lỗi xảy ra khi duyệt đánh giá"
+        );
+        return { success: false };
+      }
+    },
+    [fetchReviews, fetchStats]
+  );
+
   // Refetch data
   const refetch = useCallback(() => {
     setFilters((currentFilters) => {
@@ -162,6 +202,7 @@ export function useAdminReviews(initialPage = 1, pageSize = 5) {
       startDate: null,
       endDate: null,
       search: null,
+      status: null,
     });
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -177,6 +218,7 @@ export function useAdminReviews(initialPage = 1, pageSize = 5) {
     setFilters: updateFilters,
     changePage,
     deleteReview: handleDeleteReview,
+    approveReview: handleApproveReview,
     refetch,
   };
 }

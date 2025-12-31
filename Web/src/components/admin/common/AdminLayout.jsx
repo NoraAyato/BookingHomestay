@@ -36,10 +36,10 @@ const AdminLayout = ({ children }) => {
   const userInfo = getUserInfo();
   const { logout } = useAuth();
 
-  // Check if current route is in homestay submenu to keep it open
   useEffect(() => {
     const homestayRoutes = [
       "/admin/homestays",
+      "/admin/service-approval",
       "/admin/amenities",
       "/admin/services",
       "/admin/room-types",
@@ -57,6 +57,11 @@ const AdminLayout = ({ children }) => {
       hasDropdown: true,
       subItems: [
         { path: "/admin/homestays", name: "Quản lý Homestay", icon: Building },
+        {
+          path: "/admin/service-approval",
+          name: "Xét duyệt dịch vụ",
+          icon: Briefcase,
+        },
         { path: "/admin/amenities", name: "Quản lý Tiện nghi", icon: Sparkles },
         { path: "/admin/services", name: "Quản lý Dịch vụ", icon: Briefcase },
         {
@@ -179,7 +184,14 @@ const AdminLayout = ({ children }) => {
           })}
         </nav>
 
-        <div className="absolute bottom-0 w-full p-3 border-t bg-white">
+        <div className="absolute bottom-0 w-full p-3 border-t bg-white space-y-1">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center w-full px-2.5 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors text-sm"
+          >
+            <Home className="h-4 w-4 mr-2.5" />
+            <span>Về trang chủ</span>
+          </button>
           <button
             onClick={handleLogout}
             className="flex items-center w-full px-2.5 py-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-md transition-colors text-sm"
