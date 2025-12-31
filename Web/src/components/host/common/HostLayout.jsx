@@ -24,14 +24,14 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getUserInfo } from "../../../utils/session";
 import { getImageUrl } from "../../../utils/imageUrl";
 import MessengerButton from "../../chat/MessengerButton";
-
+import { useAuth } from "../../../hooks/useAuth";
 const HostLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [homestayMenuOpen, setHomestayMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const userInfo = getUserInfo();
-
+  const { logout } = useAuth();
   // Check if current route is in homestay submenu to keep it open
   useEffect(() => {
     const homestayRoutes = ["/host/homestays", "/host/rooms", "/host/services"];
@@ -62,7 +62,7 @@ const HostLayout = ({ children }) => {
   ];
 
   const handleLogout = () => {
-    navigate("/");
+    logout();
   };
 
   return (
@@ -159,7 +159,14 @@ const HostLayout = ({ children }) => {
           })}
         </nav>
 
-        <div className="absolute bottom-0 w-full p-3 border-t bg-white">
+        <div className="absolute bottom-0 w-full p-3 border-t bg-white space-y-1">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center w-full px-2.5 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-md transition-colors text-sm"
+          >
+            <Home className="h-4 w-4 mr-2.5" />
+            Về trang chủ
+          </button>
           <button
             onClick={handleLogout}
             className="flex items-center w-full px-2.5 py-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-md transition-colors text-sm"
