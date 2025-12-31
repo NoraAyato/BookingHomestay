@@ -55,4 +55,11 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException("Lỗi gửi email xác thực OTP");
         }
     }
+
+    @Override
+    public void sendSuccessBooking(String to, String homestayName, String checkInDate, String checkOutDate,
+            String bookingCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'sendSuccessBooking'");
+    }
 }

@@ -141,7 +141,9 @@ public class HomestayMapper {
                                                                 + dg.getDichVu()) / 3.0)
                                                 .average()
                                                 .orElse(0.0);
-                dto.setRating(Math.floor(averageRating * 10) / 10);
+                double rating = Math.floor(averageRating * 10) / 10;
+                System.out.println("Calculated rating: " + rating);
+                dto.setRating(homestay.getDanhGias() != null && !homestay.getDanhGias().isEmpty() ? rating : 5.0);
                 dto.setReviews(danhGias.size());
 
                 return dto;

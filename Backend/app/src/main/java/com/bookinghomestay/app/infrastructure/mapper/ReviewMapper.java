@@ -36,6 +36,7 @@ public class ReviewMapper {
     public static ReviewsDataResponseDto toReviewData(DanhGia danhGia) {
         ReviewsDataResponseDto dto = new ReviewsDataResponseDto();
         dto.setId(danhGia.getIdDG());
+        dto.setStatus(danhGia.getTrangThai());
         dto.setBookingId(danhGia.getPhieuDatPhong() != null ? danhGia.getPhieuDatPhong().getMaPDPhong() : null);
         dto.setImage(danhGia.getHinhAnh() != null ? danhGia.getHinhAnh() : null);
         dto.setGuestName(danhGia.getNguoiDung() != null ? danhGia.getNguoiDung().getUserName() : null);

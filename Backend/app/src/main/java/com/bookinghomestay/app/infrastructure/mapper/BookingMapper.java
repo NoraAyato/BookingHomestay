@@ -25,14 +25,13 @@ public class BookingMapper {
         // Thông tin khách hàng
         if (booking.getNguoiDung() != null) {
             String fullName = (booking.getNguoiDung().getFirstName() != null
-                    ? booking.getNguoiDung().getFirstName()
-                    : "")
-                    + " " + (booking.getNguoiDung().getLastName() != null
-                            ? booking.getNguoiDung().getLastName()
-                            : "");
-            dto.setGuestName(fullName.trim());
-            dto.setGuestEmail(booking.getNguoiDung().getEmail());
-            dto.setGuestPhone(booking.getNguoiDung().getPhoneNumber());
+                    ? booking.getNguoiDung().getFirstName() + " " + booking.getNguoiDung().getLastName()
+                    : "Chưa cập nhật");
+            dto.setGuestName(fullName.trim().isEmpty() ? "Chưa cập nhật" : fullName.trim());
+            dto.setGuestEmail(
+                    booking.getNguoiDung().getEmail() != null ? booking.getNguoiDung().getEmail() : "Chưa cập nhật");
+            dto.setGuestPhone(booking.getNguoiDung().getPhoneNumber() != null ? booking.getNguoiDung().getPhoneNumber()
+                    : "Chưa cập nhật");
         }
 
         // Lấy thông tin homestay và ngày check in/out từ chi tiết đặt phòng
@@ -63,14 +62,23 @@ public class BookingMapper {
                                                     .getNguoiDung()
                                                     .getLastName()
                                             : "");
-                    dto.setHostName(hostName.trim());
+                    dto.setHostName(hostName.trim().isEmpty() ? "Chưa cập nhật" : hostName.trim());
                 }
             }
         }
 
         dto.setStatus(booking.getTrangThai());
         dto.setBookingDate(booking.getNgayLap().toLocalDate());
-
+        // Thông tin thanh toán
+        if (booking.getHoadon() != null) {
+            dto.setPaymentMethod(
+                    booking.getHoadon().getThanhToans() != null && !booking.getHoadon().getThanhToans().isEmpty()
+                            ? booking.getHoadon().getThanhToans().get(0).getPhuongThuc()
+                            : null);
+            if (booking.getHoadon().getThanhToans() != null && !booking.getHoadon().getThanhToans().isEmpty()) {
+                dto.setPaymentStatus(booking.getHoadon().getThanhToans().get(0).getTrangThai());
+            }
+        }
         dto.setTotalAmount(totalAmount.doubleValue());
 
         return dto;
