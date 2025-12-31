@@ -152,13 +152,16 @@ export default function useUser() {
     setError(null);
     try {
       const res = await addToFavorites(homestayId);
-      if (handleApiResponse(res, "Đã thêm vào yêu thích", "Có lỗi xảy ra")) {
+      if (res.success) {
+        // showToast("success", "Đã thêm vào yêu thích");
         // Refresh lại danh sách favorites sau khi thêm thành công
         await getUserFavorites();
         return true;
+      } else {
+        showErrorToastIfNotAuth(res, "Có lỗi xảy ra");
+        setLoading(false);
+        return false;
       }
-      setLoading(false);
-      return false;
     } catch (err) {
       setError(err.message || "Có lỗi xảy ra");
       showToast("error", err.message || "Có lỗi xảy ra");
@@ -173,13 +176,16 @@ export default function useUser() {
     try {
       // Assuming addToFavorites API works as toggle (add/remove)
       const res = await addToFavorites(homestayId);
-      if (handleApiResponse(res, "Đã xóa khỏi yêu thích", "Có lỗi xảy ra")) {
+      if (res.success) {
+        showToast("success", "Đã xóa khỏi yêu thích");
         // Refresh lại danh sách favorites sau khi xóa thành công
         await getUserFavorites();
         return true;
+      } else {
+        showErrorToastIfNotAuth(res, "Có lỗi xảy ra");
+        setLoading(false);
+        return false;
       }
-      setLoading(false);
-      return false;
     } catch (err) {
       setError(err.message || "Có lỗi xảy ra");
       showToast("error", err.message || "Có lỗi xảy ra");
