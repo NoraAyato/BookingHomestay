@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MongoDB document for AI Chat Session
@@ -54,6 +55,14 @@ public class AiChatSessionDocument {
 
     @Field("current_step")
     private String currentStep;
+
+    // NEW: Context-aware conversation tracking
+    @Field("conversation_context")
+    private Map<String, Object> conversationContext; // Stores last search results, location, intent, etc.
+    // Example: { "lastSearchedLocation": "Đà Lạt", "lastHomestayIds": ["HS001",
+    // "HS002"],
+    // "lastIntent": "search_homestay", "lastQueryTimestamp": "2025-12-20T10:30:00"
+    // }
 
     // Metadata for analytics
     @Field("total_messages")
