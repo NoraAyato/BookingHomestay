@@ -1,18 +1,5 @@
 import http from "../http";
 
-/**
- * Get homestays with pagination and filters
- * @param {Object} params - Query parameters
- * @param {number} params.page - Page number (default: 1)
- * @param {number} params.limit - Items per page (default: 6)
- * @param {string} params.search - Search term for homestay name
- * @param {string} params.status - Status filter: Active, Inactive, Pending
- * @param {number} params.minPrice - Minimum price per night
- * @param {number} params.minRoom - Minimum number of rooms
- * @param {string} params.locationId - Location ID (UUID)
- * @param {number} params.rating - Minimum rating
- * @returns {Promise} API response with homestay data
- */
 export async function getHomestays({
   page = 1,
   limit = 6,
@@ -39,19 +26,6 @@ export async function getHomestays({
   });
 }
 
-/**
- * Update homestay information
- * @param {string} id - Homestay ID
- * @param {Object} data - Update data
- * @param {string} data.name - Homestay name
- * @param {string} data.description - Description
- * @param {string} data.hostId - Host ID (idHost)
- * @param {string} data.address - Address
- * @param {string} data.locationId - Location ID
- * @param {string} data.status - Status (Active/Inactive)
- * @param {File} data.imageFile - Optional image file
- * @returns {Promise} API response
- */
 export async function updateHomestay(id, data) {
   const formData = new FormData();
 
@@ -74,17 +48,6 @@ export async function updateHomestay(id, data) {
   });
 }
 
-/**
- * Add new homestay
- * @param {Object} data - Homestay data
- * @param {string} data.name - Homestay name
- * @param {string} data.description - Description
- * @param {string} data.hostId - Host ID (idHost)
- * @param {string} data.address - Address
- * @param {string} data.locationId - Location ID
- * @param {File} data.imageFile - Required image file
- * @returns {Promise} API response
- */
 export async function addHomestay(data) {
   const formData = new FormData();
 
@@ -101,11 +64,6 @@ export async function addHomestay(data) {
   });
 }
 
-/**
- * Delete homestay
- * @param {string} id - Homestay ID
- * @returns {Promise} API response
- */
 export async function deleteHomestay(id) {
   return http.put(`/api/admin/homestaymanager/delete/${id}`, null, {
     requireAuth: true,

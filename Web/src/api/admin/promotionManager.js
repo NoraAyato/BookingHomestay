@@ -44,9 +44,6 @@ export const createPromotion = (data) => {
     isForNewCustomer: data.isForNewCustomer || false,
   };
 
-  console.log("Promotion DTO:", promotionDto);
-
-  // Append DTO as JSON Blob với key "data" (tương ứng @RequestPart("data"))
   const jsonBlob = new Blob([JSON.stringify(promotionDto)], {
     type: "application/json",
   });
@@ -60,17 +57,6 @@ export const createPromotion = (data) => {
     console.log("No image provided");
   }
 
-  // Log FormData entries
-  console.log("Final FormData:");
-  for (let [key, value] of formData.entries()) {
-    if (value instanceof Blob) {
-      console.log(`  ${key}: [Blob] ${value.type} (${value.size} bytes)`);
-    } else if (value instanceof File) {
-      console.log(`  ${key}: [File] ${value.name}`);
-    } else {
-      console.log(`  ${key}:`, value);
-    }
-  }
 
   return http.post(`/api/admin/promotionmanager/create`, formData, {
     requireAuth: true,
@@ -79,10 +65,7 @@ export const createPromotion = (data) => {
 
 // Cập nhật khuyến mãi
 export const updatePromotion = (id, data) => {
-  console.log("=== UPDATE PROMOTION DEBUG ===");
-  console.log("Promotion ID:", id);
-  console.log("Raw input data:", data);
-
+  
   const formData = new FormData();
 
   // Tạo DTO object cho @RequestPart("data")
@@ -100,15 +83,11 @@ export const updatePromotion = (id, data) => {
     isForNewCustomer: data.isForNewCustomer || false,
   };
 
-  console.log("Update Promotion DTO:", promotionDto);
-
-  // Append DTO as JSON Blob với key "data" (tương ứng @RequestPart("data"))
   const jsonBlob = new Blob([JSON.stringify(promotionDto)], {
     type: "application/json",
   });
   formData.append("data", jsonBlob);
 
-  // Append image file nếu có (tương ứng @RequestPart("image", required = false))
   if (data.imageFile) {
     console.log("New Image:", data.imageFile.name, data.imageFile.type);
     formData.append("image", data.imageFile);
@@ -116,17 +95,6 @@ export const updatePromotion = (id, data) => {
     console.log("No new image - keeping existing image");
   }
 
-  // Log FormData entries
-  console.log("Final FormData:");
-  for (let [key, value] of formData.entries()) {
-    if (value instanceof Blob) {
-      console.log(`  ${key}: [Blob] ${value.type} (${value.size} bytes)`);
-    } else if (value instanceof File) {
-      console.log(`  ${key}: [File] ${value.name}`);
-    } else {
-      console.log(`  ${key}:`, value);
-    }
-  }
 
   return http.post(`/api/admin/promotionmanager/${id}/update`, formData, {
     requireAuth: true,
