@@ -564,7 +564,7 @@ const UserBookings = () => {
                         </button>
                       </>
                     )}
-                  {booking.status === "Pending" && (
+                  {booking.status === "Pending" && booking.invId && (
                     <>
                       <button
                         className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 text-[10px] font-bold shadow-md"

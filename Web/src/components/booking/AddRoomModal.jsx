@@ -146,15 +146,16 @@ export default function AddRoomModal({
                       )}
 
                       {/* Discount Badge */}
-                      {room.discountPrice && (
-                        <div className="absolute top-7 right-0 z-10 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-bl-md">
-                          -
-                          {Math.round(
-                            100 - (room.discountPrice * 100) / room.price
-                          )}
-                          %
-                        </div>
-                      )}
+                      {room.discountPrice &&
+                        room.discountPrice < room.price && (
+                          <div className="absolute top-7 right-0 z-10 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-bl-md">
+                            -
+                            {Math.round(
+                              100 - (room.discountPrice * 100) / room.price
+                            )}
+                            %
+                          </div>
+                        )}
 
                       <div className="flex flex-col md:flex-row">
                         {/* Image Section */}
@@ -216,7 +217,8 @@ export default function AddRoomModal({
                           {/* Price and Button */}
                           <div className="mt-3 flex items-center justify-between">
                             <div className="text-right">
-                              {room.discountPrice ? (
+                              {room.discountPrice &&
+                              room.discountPrice < room.price ? (
                                 <>
                                   <p className="text-gray-400 text-xs line-through">
                                     {room.price.toLocaleString("vi-VN")}đ
@@ -228,7 +230,10 @@ export default function AddRoomModal({
                                 </>
                               ) : (
                                 <p className="text-xl font-bold text-gray-900">
-                                  {room.price.toLocaleString("vi-VN")}đ / đêm
+                                  {(
+                                    room.discountPrice || room.price
+                                  ).toLocaleString("vi-VN")}
+                                  đ / đêm
                                 </p>
                               )}
                             </div>

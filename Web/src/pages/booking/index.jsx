@@ -282,7 +282,7 @@ const BookingPage = () => {
       !customerInfo.email?.trim() ||
       !customerInfo.phone?.trim()
     ) {
-      showToast("warning", "Vui lòng cập nhật đầy đủ thông tin tại hồ sơ");
+      showToast("warning", "Vui lòng cập nhật thông tin hồ sơ của bạn");
       return;
     }
 
@@ -423,14 +423,9 @@ const BookingPage = () => {
                       type="text"
                       name="fullName"
                       value={customerInfo.fullName}
-                      onChange={handleInputChange}
-                      readOnly={isAutoFilled.fullName}
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors ${
-                        isAutoFilled.fullName
-                          ? "border-gray-300 bg-gray-100 text-gray-700 cursor-not-allowed"
-                          : "border-gray-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
-                      }`}
-                      placeholder="Nhập họ và tên"
+                      readOnly
+                      className="w-full px-4 py-3 border border-gray-300 bg-gray-100 text-gray-700 cursor-not-allowed rounded-lg"
+                      placeholder="Cập nhật tại hồ sơ"
                       required
                     />
                   </div>
@@ -443,14 +438,9 @@ const BookingPage = () => {
                       type="tel"
                       name="phone"
                       value={customerInfo.phone}
-                      onChange={handleInputChange}
-                      readOnly={isAutoFilled.phone}
-                      className={`w-full px-4 py-3 border rounded-lg transition-colors ${
-                        isAutoFilled.phone
-                          ? "border-gray-300 bg-gray-100 text-gray-700 cursor-not-allowed"
-                          : "border-gray-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
-                      }`}
-                      placeholder="Nhập số điện thoại"
+                      readOnly
+                      className="w-full px-4 py-3 border border-gray-300 bg-gray-100 text-gray-700 cursor-not-allowed rounded-lg"
+                      placeholder="Cập nhật tại hồ sơ"
                       required
                     />
                   </div>
@@ -464,14 +454,9 @@ const BookingPage = () => {
                     type="email"
                     name="email"
                     value={customerInfo.email}
-                    onChange={handleInputChange}
-                    readOnly={isAutoFilled.email}
-                    className={`w-full px-4 py-3 border rounded-lg transition-colors ${
-                      isAutoFilled.email
-                        ? "border-gray-300 bg-gray-100 text-gray-700 cursor-not-allowed"
-                        : "border-gray-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
-                    }`}
-                    placeholder="Nhập địa chỉ email"
+                    readOnly
+                    className="w-full px-4 py-3 border border-gray-300 bg-gray-100 text-gray-700 cursor-not-allowed rounded-lg"
+                    placeholder="Cập nhật tại hồ sơ"
                     required
                   />
                 </div>
