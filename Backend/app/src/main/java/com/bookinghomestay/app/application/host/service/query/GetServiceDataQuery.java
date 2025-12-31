@@ -13,4 +13,5 @@ public class GetServiceDataQuery {
     private int page;
     private int size;
     private String userId;
+    private String status;
 }

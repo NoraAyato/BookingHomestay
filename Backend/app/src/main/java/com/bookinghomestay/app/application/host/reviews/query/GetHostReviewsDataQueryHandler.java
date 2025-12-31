@@ -18,36 +18,40 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class GetHostReviewsDataQueryHandler {
-    private final IReviewRepository reviewsRepository;
-    private final ReviewService reviewService;
+        private final IReviewRepository reviewsRepository;
+        private final ReviewService reviewService;
 
-    public PageResponse<ReviewsDataResponseDto> handle(GetHostReviewsDataQuery query) {
-        List<DanhGia> danhGias = reviewsRepository.getAll().stream()
-                .filter(dg -> dg.getHomestay().getNguoiDung().getUserId().equalsIgnoreCase(query.getUserId()))
-                .toList();
-        List<DanhGia> filtered = danhGias.stream()
-                .filter(dg -> (query.getHomestayId() == null
-                        || dg.getHomestay().getIdHomestay().equalsIgnoreCase(query.getHomestayId())))
-                .filter(dg -> (query.getRating() == null
-                        || query.getRating() >= reviewService.calculateAverageRating(dg)))
-                .filter(dg -> (query.getSearch() == null || query.getSearch().isEmpty()
-                        || dg.getPhieuDatPhong().getNguoiDung().getFirstName().toLowerCase()
-                                .contains(query.getSearch().toLowerCase())
-                        || dg.getHomestay().getTenHomestay().toLowerCase()
-                                .contains(query.getSearch().toLowerCase())))
-                .filter(dg -> (query.getStartDate() == null
-                        || !dg.getNgayDanhGia().toLocalDate().isBefore(query.getStartDate())))
-                .filter(dg -> (query.getEndDate() == null
-                        || !dg.getNgayDanhGia().toLocalDate().isAfter(query.getEndDate())))
-                .toList();
-        int totalElements = filtered.size();
-        List<DanhGia> paged = PaginationUtil.paginate(
-                filtered,
-                query.getPage(),
-                query.getSize());
-        List<ReviewsDataResponseDto> dtos = paged.stream()
-                .map(dg -> ReviewMapper.toReviewData(dg))
-                .toList();
-        return new PageResponse<>(dtos, totalElements, query.getPage(), query.getSize());
-    }
+        public PageResponse<ReviewsDataResponseDto> handle(GetHostReviewsDataQuery query) {
+                List<DanhGia> danhGias = reviewsRepository.getAll().stream()
+                                .filter(dg -> dg.getHomestay().getNguoiDung().getUserId()
+                                                .equalsIgnoreCase(query.getUserId()))
+                                .toList();
+                List<DanhGia> filtered = danhGias.stream()
+                                .filter(dg -> (query.getHomestayId() == null
+                                                || dg.getHomestay().getIdHomestay()
+                                                                .equalsIgnoreCase(query.getHomestayId())))
+                                .filter(dg -> (query.getStatus() == null
+                                                || dg.getTrangThai() == query.getStatus()))
+                                .filter(dg -> (query.getRating() == null
+                                                || query.getRating() >= reviewService.calculateAverageRating(dg)))
+                                .filter(dg -> (query.getSearch() == null || query.getSearch().isEmpty()
+                                                || dg.getPhieuDatPhong().getNguoiDung().getFirstName().toLowerCase()
+                                                                .contains(query.getSearch().toLowerCase())
+                                                || dg.getHomestay().getTenHomestay().toLowerCase()
+                                                                .contains(query.getSearch().toLowerCase())))
+                                .filter(dg -> (query.getStartDate() == null
+                                                || !dg.getNgayDanhGia().toLocalDate().isBefore(query.getStartDate())))
+                                .filter(dg -> (query.getEndDate() == null
+                                                || !dg.getNgayDanhGia().toLocalDate().isAfter(query.getEndDate())))
+                                .toList();
+                int totalElements = filtered.size();
+                List<DanhGia> paged = PaginationUtil.paginate(
+                                filtered,
+                                query.getPage(),
+                                query.getSize());
+                List<ReviewsDataResponseDto> dtos = paged.stream()
+                                .map(dg -> ReviewMapper.toReviewData(dg))
+                                .toList();
+                return new PageResponse<>(dtos, totalElements, query.getPage(), query.getSize());
+        }
 }

@@ -26,21 +26,11 @@ public class HostUpdateServiceCommandHandler {
         if (!service.getHomestay().getNguoiDung().getUserId().equalsIgnoreCase(hostId)) {
             throw new RuntimeException("Bạn không có quyền cập nhật dịch vụ này !");
         }
-        String serviceid = serviceRepository.findAllServices().stream()
-                .filter(s -> s.getTenDV().equalsIgnoreCase(command.getName())
-                        && s.getHomestay().getIdHomestay().equalsIgnoreCase(command.getHomestayId()))
-                .map(DichVu::getMaDV)
-                .findFirst()
-                .orElse(null);
-        if (serviceid != null && !serviceId.equalsIgnoreCase(serviceid)) {
-            throw new RuntimeException("Dịch vụ với tên này đã tồn tại trong homestay của bạn !");
-        }
         if (command.getHomestayId() != null && !command.getHomestayId().isEmpty()) {
             var homestay = homestayRepository.findById(command.getHomestayId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy homestay !"));
             service.setHomestay(homestay);
         }
-        service.setTenDV(command.getName());
         service.setMoTa(command.getDescription());
         if (command.getImage() != null && !command.getImage().isEmpty()) {
             try {
